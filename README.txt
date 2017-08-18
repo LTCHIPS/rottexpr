@@ -6,7 +6,7 @@ New gameplay options including the following
 	Blitzguards being outfitted with anything from the missile arsenal!
 	You can now pick up ammo from dropped missile weapons!
 	A special respawning enemy game mode called ZomROTT, where you have to gib your enemies to keep them from coming back!
-	Toggalable Auto Aim
+	Toggleable Auto Aim
 	Auto Aim for Missile Weapons
 	...and more
 
