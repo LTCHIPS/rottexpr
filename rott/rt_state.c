@@ -1188,6 +1188,8 @@ statetype s_opdie3		= {false,SPR_OP_ALTDIE3,5,T_Collide,0,&s_opdie4};
 statetype s_opdie2		= {false,SPR_OP_ALTDIE2,5,T_Collide,0,&s_opdie3};
 statetype s_opdie1		= {false,SPR_OP_ALTDIE1,5,T_Collide,0,&s_opdie2};
 
+
+
 statetype s_opdie1rev		= {false,SPR_OP_ALTDIE1,5,T_Collide,0,&s_opstand};
 statetype s_opdie2rev		= {false,SPR_OP_ALTDIE2,5,T_Collide,0,&s_opdie1rev};
 statetype s_opdie3rev		= {false,SPR_OP_ALTDIE3,5,T_Collide,0,&s_opdie2rev};

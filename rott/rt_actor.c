@@ -3573,6 +3573,7 @@ void SetReverseDeathState(objtype * actor)
             NewState(actor, &s_enforcerdie4rev);
             //actor->state = &s_enforcerdie4rev;
             break;
+    #if (SHAREWARE == 0)
         case overpatrolobj:
             NewState(actor, &s_opdie5rev);
             //actor->state = &s_opdie5rev;
@@ -3585,6 +3586,7 @@ void SetReverseDeathState(objtype * actor)
             NewState(actor, &s_firemonkdie4rev);
             //actor->state = &s_firemonkdie4rev;
             break;
+    #endif
         default:
             Error("SetReverseDeathState was called with something that can't be handled!");
             break;

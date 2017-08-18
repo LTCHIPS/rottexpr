@@ -1464,7 +1464,7 @@ void DrawPlayerWeapon (void)
 
 
 
-
+        //used for dual pistols?
         if (altshape)
         {
             int temp;
