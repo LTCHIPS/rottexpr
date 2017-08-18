@@ -1,0 +1,14 @@
+Rise of the Triad Startup  Version 1.4
+ Commercial Version 
+Z_INIT: 8950000 bytes
+IN_Startup: Mouse Present
+    Adding DARKWAR.WAD.
+    Adding REMOTE1.RTS.
+W_Wad: Wad Manager Started NUMLUMPS=3904
+RT_DRAW: Tables Initialized
+MU_Startup: 
+SD_SetupFXCard: Fx ok.
+SD_Startup: Fx ok.
+RT_MAIN: Fonts Initialized
+RT_MSG: Message System Started
+RT_VIEW: Colormaps Initialized
