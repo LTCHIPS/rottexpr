@@ -408,7 +408,6 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
     }
 }
 int topBarCenterOffsetX;
-//int topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320) >> 1;
 
 //******************************************************************************
 //
@@ -421,49 +420,32 @@ void DrawPlayScreen (boolean bufferofsonly)
     int    shapenum;
     int ShowKillsYoffset = 0;//bna++
 
-//return;
     //figure out where the middle point of the status bar should be for top bar
     topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320) >> 1;
     
     if ( SHOW_TOP_STATUS_BAR() )
     {
-        if (iGLOBAL_SCREENWIDTH == 640) {
-            //use this as dummy pic to fill out missing bar
-            shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, 0, 0, bufferofsonly );
-            GameMemToScreen( shape, 320, 0, bufferofsonly );
-            // delete heart in middle of topbar
-            DrawPPic( 3,1, 8 >> 2, 16,
-                      ( byte * )&erase->data, 2, true, bufferofsonly );
-            // delete bullet in end of topbar
-            DrawPPic( 620,1, 8 >> 2, 16,
-                      ( byte * )&erase->data, 2, true, bufferofsonly );
+        if (iGLOBAL_SCREENWIDTH == 640) 
+        {
+            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+            
+            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+            
             shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
             GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-        } else if (iGLOBAL_SCREENWIDTH == 800) {
-            //use this as dummy pic to fill out missing bar
-            shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, 0, 0, bufferofsonly );
-            GameMemToScreen( shape, 260, 0, bufferofsonly );
-            GameMemToScreen( shape, 800-320, 0, bufferofsonly );
-            // delete heart in middle of topbar
-            DrawPPic( 480+3,1, 8 >> 2, 16,
-                      ( byte * )&erase->data, 2, true, bufferofsonly );
-            // delete bullet in end of topbar
-            DrawPPic( 780,1, 8 >> 2, 16,
-                      ( byte * )&erase->data, 2, true, bufferofsonly );
+        } 
+        else if (iGLOBAL_SCREENWIDTH == 800) 
+        {  
+            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
-            //delete heart in left side of topbar
-            DrawPPic( 3,1, 8 >> 2, 16,
-                      ( byte * )&erase->data, 2, true, bufferofsonly );
+            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
             
             shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
             GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
             
-            //shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-        } else if (iGLOBAL_SCREENWIDTH == 320) {
-
-            //SetTextMode (  );
+        } 
+        else if (iGLOBAL_SCREENWIDTH == 320) 
+        {
             shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
             GameMemToScreen( shape, 0, 0, bufferofsonly );
         }
@@ -481,20 +463,7 @@ void DrawPlayScreen (boolean bufferofsonly)
         if ( SHOW_KILLS() )
         {
             ShowKillsYoffset = KILLS_HEIGHT;
-            //shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            //DrawTiledRegion( 0, 584, iGLOBAL_SCREENWIDTH, 32-16, 0, 16, shape );//bna++
-
-
-            //	     health_y = iGLOBAL_HEALTH_Y;
-//  if (        SHOW_KILLS() )
-            //   {
-            // health_y -= KILLS_HEIGHT;
-            //GameMemToScreen( shape, 0, (iGLOBAL_SCREENHEIGHT-40)+16, bufferofsonly );
-
-            //GameMemToScreen( shape, 0, 160, bufferofsonly );bna++
         }
-        //else
-        //{
 
             if (iGLOBAL_SCREENWIDTH == 640) {
                 //bna fix - not to good? but no one has 286 any more
@@ -535,8 +504,6 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             shape = ( pic_t * )W_CacheLumpName( "demo", PU_CACHE, Cvt_pic_t, 1 );
             if (iGLOBAL_SCREENWIDTH == 640) {
-                //DrawPPic( 148, 185, shape->width, shape->height,
-                //   ( byte * )&shape->data, 1, true, bufferofsonly );bna
                 DrawPPic( 148*2, 465, shape->width, shape->height,
                           ( byte * )&shape->data, 1, true, bufferofsonly );
             } else if (iGLOBAL_SCREENWIDTH == 800) {
@@ -580,17 +547,7 @@ void DrawPlayScreen (boolean bufferofsonly)
                          LastNames[ character ], bufferofsonly );
         }
         else
-        {
-/*
-            DrawGameString ( MEN_X + 3, MEN_Y + 2, Names[ character ], bufferofsonly );
-
-            VW_MeasurePropString( LastNames[ character ], &width, &height );
-
-            DrawGameString ( MEN_X + 44 - width, MEN_Y + 8,
-                         LastNames[ character ], bufferofsonly );
-*/
-            
-            
+        {  
             DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
             VW_MeasurePropString( LastNames[ character ], &width, &height );
             DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
