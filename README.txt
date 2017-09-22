@@ -53,4 +53,9 @@ BUILDING:
 To build the project, you'll need the SDL1.2 development libraries (https://www.libsdl.org/download-1.2.php) 
 as well as the SDL_mixer developement libaries (https://www.libsdl.org/projects/SDL_mixer/release-1.2.html, under Binary).
 
+For linux users, just install the following two packages using "apt-get"
+
+libsdl1.2-dev
+libsdl-mixer1.2-dev
+
 I used MinGW with gcc to build the project.
