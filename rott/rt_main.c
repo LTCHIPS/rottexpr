@@ -456,7 +456,7 @@ int main (int argc, char *argv[])
         }
 #endif
     }
-
+    SDL_WM_GrabInput( SDL_GRAB_ON );
     GameLoop();
 
 
@@ -1145,6 +1145,7 @@ void GameLoop (void)
 
     while (1)
     {
+        SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<2, iGLOBAL_SCREENHEIGHT<<2);
         if ( playstate == ex_battledone )
         {
             while( damagecount > 0 )
