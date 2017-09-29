@@ -1424,26 +1424,26 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
 
     M_LINKSTATE(ob, pstate);
 
-    signed char * playerCurrentAmmo = pstate->ammo;
-    signed char * ammoInItem = item_pickup->ammo;
-    signed char * maxAmmoInWeapon = stats[item_pickup->itemnumber].ammo;
-    signed char newAmmoAmount = (signed char)((int)ammoInItem + (int)playerCurrentAmmo);
+    signed char * playerCurrentAmmo = (signed char *) (int)pstate->ammo;
+    signed char * ammoInItem = (signed char *) (int)item_pickup->ammo;
+    signed char * maxAmmoInWeapon = (signed char *) (int)stats[item_pickup->itemnumber].ammo;
+    signed char * newAmmoAmount = (signed char *)((int)ammoInItem + (int)playerCurrentAmmo);
 
     if (newAmmoAmount > maxAmmoInWeapon)
     {
-        ammoInItem = (signed char)((int)newAmmoAmount - (int)maxAmmoInWeapon);
+        ammoInItem = (signed char *)((int)newAmmoAmount - (int)maxAmmoInWeapon);
         if (ammoInItem < 0)
         {
             Error("Ammo in item cannot be set to a negative number!");
         }
-        item_pickup->ammo = ammoInItem;
+        item_pickup->ammo = (int) ammoInItem;
         newAmmoAmount = maxAmmoInWeapon;
     }
     else
     {
         ammoInItem = 0;
     }
-    pstate->ammo = newAmmoAmount;
+    pstate->ammo = (int) newAmmoAmount;
 
     //if (!gamestate.BattleOptions.WeaponPersistence)
     //{
@@ -1471,7 +1471,7 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
                 }
 
                 //update ammo count on missile weapon on ground
-                LASTSTAT->ammo = ammoInItem;
+                LASTSTAT->ammo = (int) ammoInItem;
                 EnableOldWeapon(pstate);
             }
 
