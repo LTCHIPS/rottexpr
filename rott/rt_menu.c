@@ -5488,7 +5488,7 @@ void DrawExtOptionsButtons (void)
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
 extern boolean enableZomROTT = 0;
-extern boolean enableExtraPistolDrops = 0;
+extern boolean enableExtraPistolDrops;
 
 void DrawExtGameOptionsButtons (void)
 {

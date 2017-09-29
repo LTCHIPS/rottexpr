@@ -1626,7 +1626,8 @@ void OutfitBlitzguardWith(objtype *ob)
         ob->temp3 = stat_kes;
         ob->temp2 = 3;
     }
-    //TODO: Figure out a way to allow biltzguards to attack with excalibat w/o crashing the game
+    //TODO: Figure out a way to allow biltzguards to attack with excalibat w/o crashing the game?
+    //TODO: Teach blitzguards to fire split missiles...effectively
 
 #endif
     else

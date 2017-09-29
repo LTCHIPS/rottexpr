@@ -118,6 +118,7 @@ boolean allowBlitzMoreMissileWeps = 0;
 boolean enableAmmoPickups = 0;
 boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
+boolean enableExtraPistolDrops = 0;
 
 boolean joystickenabled  = 0;
 boolean joypadenabled    = 0;
@@ -516,20 +517,19 @@ boolean ParseConfigFile (void)
     if (version == ROTTVERSION)
     {
         //Read in allowBlitzguardMoreMissileWeps
-
         ReadBoolean("AllowBlitzguardMoreMissileWeps", &allowBlitzMoreMissileWeps);
 
         //Read in enableAmmoPickups
-
         ReadBoolean("EnableAmmoPickups", &enableAmmoPickups);
 
         //Read in AutoAim
-
         ReadBoolean("AutoAim", &autoAim);
 
         //Read in AutoAimMissileWeps
-
         ReadBoolean("AutoAimMissileWeps", &autoAimMissileWeps);
+        
+        //Read in EnableExtraPistolDrops
+        ReadBoolean("EnableExtraPistolDrops", &enableExtraPistolDrops);
 
         // Read in MouseEnabled
         ReadBoolean("MouseEnabled",&mouseenabled);
@@ -552,7 +552,6 @@ boolean ParseConfigFile (void)
         ReadBoolean("JoypadEnabled",&joypadenabled);
 
         // Read in JoystickPort
-
         ReadInt("JoystickPort",&joystickport);
 
         // Read in fullscreen
@@ -567,7 +566,6 @@ boolean ParseConfigFile (void)
         ReadInt("ViewSize",&viewsize);
 
         // Read in Weaponscale
-
         ReadInt("Weaponscale",&G_weaponscale);//bna added
         if ((G_weaponscale <150)||(G_weaponscale>600)) {
             if (iGLOBAL_SCREENWIDTH == 320) {
@@ -580,61 +578,47 @@ boolean ParseConfigFile (void)
         }
 
         // Read in MouseAdjustment
-
         ReadInt("MouseAdjustment",&mouseadjustment);
 
         // Read in threshold
-
         ReadInt("Threshold",&threshold);
 
         // Read in Auto Detail
-
         ReadBoolean ("AutoDetail", &AutoDetailOn);
 
         // Read in Light Dim
-
         ReadInt ("LightDim", &fulllight);
 
         // Read in Bobbin' On
-
         ReadBoolean ("BobbingOn", &BobbinOn);
 
         // Read in Double Click Speed
-
         ReadInt ("DoubleClickSpeed", &DoubleClickSpeed);
 
         // Read in Menu Flip Speed
-
         ReadInt ("MenuFlipSpeed", &Menuflipspeed);
 
         // Read in Detail Level
-
         ReadInt ("DetailLevel", &DetailLevel);
 
         // Read in Floor and Ceiling
-
         ReadInt ("FloorCeiling", &fandc);
 
         // Read in MessagesEnabled
-
         ReadBoolean ("Messages", &MessagesEnabled );
 
         // Read in Autorun
-
         ReadInt ("AutoRun", &gamestate.autorun );
 
         // Read in GammaIndex
-
         ReadInt ("GammaIndex", &gammaindex);
 
         // Read screen blanking time
-
         ReadInt ("BlankTime", &blanktime);
 
         blanktime=blanktime*60*VBLCOUNTER;
 
         // Read keys
-
         ReadInt ("Fire",        &buttonscan[0]);
         ReadInt ("Strafe",      &buttonscan[1]);
         ReadInt ("Run",         &buttonscan[2]);
@@ -1784,7 +1768,14 @@ void WriteConfig (void)
     SafeWriteString(file, "; 1 - Missile weapons will be automatically aimed at targets like bullet weapons.\n");
     SafeWriteString(file, "; 0 - Missile weapons are not automatically aimed at targets. (ROTT default)\n");
     WriteParameter(file, "AutoAimMissileWeps    ", autoAimMissileWeps);
-
+    
+    //Write out enableExtraPistolDrops
+    
+    SafeWriteString(file, "\n;\n");
+    SafeWriteString(file, "; 1 - Enemies equipped with pistols have a chance of dropping an extra pistol when killed.\n");
+    SafeWriteString(file, "; 0 - Enemies will not drop extra pistols at all. (Default)\n");
+    WriteParameter(file, "EnableExtraPistolDrop     ", enableExtraPistolDrops);
+    
     // Write out MouseEnabled
 
     SafeWriteString(file,"\n;\n");
