@@ -1893,10 +1893,9 @@ void UpdateGameObjects ( void )
         UpdateLightning ();
         TriggerStuff();
         CheckCriticalStatics();
-        if (((gamestate.TimeCount/VBLCOUNTER) % 60 == 0) && gamestate.TimeCount/VBLCOUNTER >= 60 && enableZomROTT)
-        {
+        if (enableZomROTT)
             ResurrectEnemies();
-        }
+
         
         for(j=0; j<numclocks; j++)
             if (Clocks[j].time1 &&

@@ -5674,7 +5674,7 @@ void SetupZomROTTStuff()
     {
         FreeUpResurrectList();
     }
-    enemiesToRes = calloc(sizeof(objtype), gamestate.killtotal);
+    enemiesToRes = calloc(sizeof(resItem), gamestate.killtotal);
     memset(enemiesToRes, 0, sizeof(enemiesToRes));
     
     freeSlot = 0;

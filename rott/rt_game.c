@@ -464,7 +464,6 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             ShowKillsYoffset = KILLS_HEIGHT;
         }
-
             if (iGLOBAL_SCREENWIDTH == 640) {
                 //bna fix - not to good? but no one has 286 any more
                 //statusbar dosent cover hole screen, because its a lump picture width max 320
@@ -1443,41 +1442,36 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
     {
         ammoInItem = 0;
     }
-    pstate->ammo = (int) newAmmoAmount;
+    pstate->ammo = (int)newAmmoAmount;
 
-    //if (!gamestate.BattleOptions.WeaponPersistence)
-    //{
     if (pstate->ammo &&
         (pstate->missileweapon != -1) &&
         (!(WEAPON_IS_MAGICAL(which))) &&
         (!(WEAPON_IS_MAGICAL(pstate->missileweapon))))
+    {
+        int nx,ny;
+
+
+        nx = ob->tilex;
+        ny = ob->tiley;
+
+        //If the missile weapon still has ammo in it after taking ammo from it, spawn it on the ground
+        if (ammoInItem)
         {
-            int nx,ny;
-
-
-            nx = ob->tilex;
-            ny = ob->tiley;
-
-            //If the missile weapon still has ammo in it after taking ammo from it, spawn it on the ground
-            if (ammoInItem)
+            if (IsPlatform(nx,ny))
+                SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),9);
+            else
             {
-                if (IsPlatform(nx,ny))
-                    SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),9);
-                else
-                {
-                    int newz = sprites[ob->tilex][ob->tiley]->z;
-                    SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),-1);
-                    LASTSTAT->z = newz;
-                }
-
-                //update ammo count on missile weapon on ground
-                LASTSTAT->ammo = (int) ammoInItem;
-                EnableOldWeapon(pstate);
+                int newz = sprites[ob->tilex][ob->tiley]->z;
+                SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),-1);
+                LASTSTAT->z = newz;
             }
 
-
+            //update ammo count on missile weapon on ground
+            LASTSTAT->ammo = (int)ammoInItem;
+            EnableOldWeapon(pstate);
         }
-    //}
+    }
 }
 
 //******************************************************************************
@@ -5575,7 +5569,7 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     if(enableZomROTT)
     {
         enemiesToRes = calloc(sizeof(objtype), gamestate.killtotal);
-        memset(enemiesToRes, 0, sizeof(enemiesToRes));
+        memset(enemiesToRes, 0, sizeof(*enemiesToRes));
         size = sizeof(enemiesToRes);
         memcpy(enemiesToRes, bufptr, size);
         bufptr += size;

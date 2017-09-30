@@ -259,6 +259,13 @@ typedef struct objstruct
 
 } objtype;
 
+typedef struct resStruct
+{
+    unsigned int timeBeforeResurrect;
+    unsigned int timeOfResurrect;
+    objtype * actor;
+} resItem;
+
 
 
 

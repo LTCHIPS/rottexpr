@@ -3594,12 +3594,53 @@ void SetReverseDeathState(objtype * actor)
     }
 }
 
-extern objtype* enemiesToRes;
-extern unsigned int freeSlot;
-void AddEnemyToResurrectList(objtype * ob)
+int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
 {
-    SetReverseDeathState(ob);
-    enemiesToRes[freeSlot] = *ob;
+    switch(obclass)
+    {
+        case lowguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 60;
+            break;
+        case highguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 90;
+            break;
+        case overpatrolobj:
+            return gamestate.TimeCount/VBLCOUNTER + 75;
+            break;
+        case strikeguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 65;
+            break;
+        case blitzguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 60;
+            break;
+        case triadenforcerobj:
+            return gamestate.TimeCount/VBLCOUNTER + 200;
+            break;
+        case deathmonkobj:
+            return gamestate.TimeCount/VBLCOUNTER + 150;
+            break;
+        case dfiremonkobj:
+            return gamestate.TimeCount/VBLCOUNTER + 175;
+            break;
+    
+    }
+
+
+
+}
+
+
+
+
+extern resItem* enemiesToRes;
+extern unsigned int freeSlot;
+void AddEnemyToResurrectList(resItem * res)
+{
+    res->timeOfResurrect = DetermineTimeUntilEnemyIsResurrected(res->actor->obclass);
+    //res->timeOfResurrect = gamestate.TimeCount/VBLCOUNTER;
+    objtype * actor = res->actor;
+    SetReverseDeathState(actor);
+    enemiesToRes[freeSlot] = *res;
     freeSlot++;
 }
 
@@ -3672,15 +3713,24 @@ void SpawnDuringGameWithState (classtype which, int tilex, int tiley, int dir, i
 
 void ResurrectEnemies()
 {   
-    objtype * actor;
+    resItem * thing;
     
-    for (actor = &enemiesToRes[0]; actor < &enemiesToRes[freeSlot]; actor++)
+    if (&enemiesToRes[0] == 0)
     {
-        SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
-        SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
+        return;
     }
     
-    CleanUpResurrectList();
+    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[freeSlot]; thing++)
+    {
+        if (gamestate.TimeCount/(VBLCOUNTER) >= actor->timeOfResurrect)
+        {
+            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->actor->x, actor->actor->y);
+            SpawnDuringGameWithState (actor->actor->obclass,actor->actor->tilex,actor->actor->tiley,actor->actor->dir, 1, actor->actor->state);
+            actor = 0;
+            freeSlot--;
+        }   
+    }    
+    //CleanUpResurrectList();
     
 }
 
@@ -3779,7 +3829,7 @@ void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush
 
 void SaveResurrectList(byte ** buffer, int *size)
 {
-    byte*tptr;
+    byte * tptr;
     
     *size = sizeof(enemiesToRes);
     *buffer = (byte*)SafeMalloc(*size);
@@ -3828,7 +3878,11 @@ void BeginEnemyFatality(objtype *ob,objtype *attacker)
         
         memcpy(copyOfObject, ob, sizeof(objtype));
         
-        AddEnemyToResurrectList(copyOfObject);
+        resItem * thingToAdd = malloc(sizeof(resItem));
+        
+        thingToAdd->actor = copyOfObject;
+        
+        AddEnemyToResurrectList(thingToAdd);
     }
 
     if ((ob->obclass == patrolgunobj) && (ob->temp1 == -1))
@@ -5320,7 +5374,7 @@ void MissileMovement(objtype*ob)
    return false;                     \
    }
 
-extern boolean ricochetingRocketsEnabled = 0;
+extern boolean ricochetingRocketsEnabled;
 
 boolean MissileTryMove(objtype*ob,int tryx,int tryy,int tryz)
 {
