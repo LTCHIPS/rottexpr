@@ -3722,11 +3722,11 @@ void ResurrectEnemies()
     
     for (thing = &enemiesToRes[0]; thing < &enemiesToRes[freeSlot]; thing++)
     {
-        if (gamestate.TimeCount/(VBLCOUNTER) >= actor->timeOfResurrect)
+        if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect)
         {
-            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->actor->x, actor->actor->y);
-            SpawnDuringGameWithState (actor->actor->obclass,actor->actor->tilex,actor->actor->tiley,actor->actor->dir, 1, actor->actor->state);
-            actor = 0;
+            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, thing->actor->x, thing->actor->y);
+            SpawnDuringGameWithState (thing->actor->obclass,thing->actor->tilex,thing->actor->tiley,thing->actor->dir, 1, thing->actor->state);
+            thing = 0;
             freeSlot--;
         }   
     }    
