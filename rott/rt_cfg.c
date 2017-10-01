@@ -119,6 +119,8 @@ boolean enableAmmoPickups = 0;
 boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
 boolean enableExtraPistolDrops = 0;
+boolean ricochetingRocketsEnabled = 0;
+
 
 boolean joystickenabled  = 0;
 boolean joypadenabled    = 0;
@@ -403,7 +405,7 @@ void ConvertStringToPasswordString ( char * string )
     unsigned int j;
     char temp[3];
 
-    memset(temp,0,sizeof(temp));
+    memset(temp,0,sizeof(*temp));
 
     for (i=0; i<13; i++)
     {
@@ -1774,7 +1776,7 @@ void WriteConfig (void)
     SafeWriteString(file, "\n;\n");
     SafeWriteString(file, "; 1 - Enemies equipped with pistols have a chance of dropping an extra pistol when killed.\n");
     SafeWriteString(file, "; 0 - Enemies will not drop extra pistols at all. (Default)\n");
-    WriteParameter(file, "EnableExtraPistolDrop     ", enableExtraPistolDrops);
+    WriteParameter(file, "EnableExtraPistolDrops    ", enableExtraPistolDrops);
     
     // Write out MouseEnabled
 
@@ -2070,7 +2072,7 @@ void WriteConfig (void)
 
     // Writeout password Password string
     SafeWriteString(file,"\n;\nSecretPassword         ");
-    memset(passwordtemp,0,sizeof(passwordtemp));
+    memset(passwordtemp,0,sizeof(*passwordtemp));
     ConvertPasswordStringToString ( &passwordtemp[0] );
     SafeWriteString(file,&passwordtemp[0]);
 
@@ -2095,7 +2097,7 @@ void GetAlternatePath (char * tokenstr, AlternateInformation *info)
     if (!stricmp (token, tokenstr))
     {
         GetTokenEOL (false);
-        memset (&info->path[0], 0, sizeof (info->path));
+        memset (&info->path[0], 0, sizeof (*info->path));
         strcpy (&info->path[0], &name[0]);
     }
 }
@@ -2122,7 +2124,7 @@ void GetAlternateFile (char * tokenstr, AlternateInformation *info)
             {
 #if (SHAREWARE == 0)
                 info->avail = true;
-                memset (&info->file[0], 0, sizeof (info->file));
+                memset (&info->file[0], 0, sizeof (*info->file));
                 strcpy (&info->file[0], &token[0]);
 #else
                 printf("Alternate file %s ignored.\n",token);
