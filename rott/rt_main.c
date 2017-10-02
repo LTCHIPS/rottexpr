@@ -1857,6 +1857,7 @@ void InitCharacter
 
 
 extern boolean enableZomROTT;
+extern int numOfNonGibbedEnemies;
 void UpdateGameObjects ( void )
 {
     int j;
@@ -1893,7 +1894,7 @@ void UpdateGameObjects ( void )
         UpdateLightning ();
         TriggerStuff();
         CheckCriticalStatics();
-        if (enableZomROTT)
+        if (enableZomROTT && numOfNonGibbedEnemies > 0)
             ResurrectEnemies();
 
         

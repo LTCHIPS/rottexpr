@@ -3622,11 +3622,11 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
         case dfiremonkobj:
             return gamestate.TimeCount/VBLCOUNTER + 175;
             break;
-    
+        default:
+            Error("DeterminetimeUntilEnemyIsResurrected was given a case it couldn't handle");
+            break;
     }
-
-
-
+    
 }
 
 
@@ -3634,14 +3634,31 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
 
 extern resItem* enemiesToRes;
 extern unsigned int freeSlot;
+int numOfNonGibbedEnemies = 0;
 void AddEnemyToResurrectList(resItem * res)
 {
     res->timeOfResurrect = DetermineTimeUntilEnemyIsResurrected(res->actor->obclass);
-    //res->timeOfResurrect = gamestate.TimeCount/VBLCOUNTER;
     objtype * actor = res->actor;
+    resItem* compareWith;
+    compareWith = 0;
     SetReverseDeathState(actor);
+    if (!ZomROTTResFreeSlots[freeSlot])
+    {
+        //FIND AN EMPTY SLOT
+        for(freeSlot; ZomROTTResFreeSlots[freeSlot] != false; freeSlot++)
+        {
+            if (freeSlot >= sizeof(*enemiesToRes))
+            {
+                freeSlot = 0;
+            }
+        }
+    }
+    res->isInitialized = 1;
+    
     enemiesToRes[freeSlot] = *res;
+    ZomROTTResFreeSlots[freeSlot] = false;
     freeSlot++;
+    numOfNonGibbedEnemies++;
 }
 
 void CleanUpResurrectList()
@@ -3653,6 +3670,7 @@ void CleanUpResurrectList()
 void FreeUpResurrectList()
 {
     free(enemiesToRes);
+    free(ZomROTTResFreeSlots);
 }
 
 void SetAfterResurrectState(objtype * actor, statetype * doWhat)
@@ -3711,6 +3729,7 @@ void SpawnDuringGameWithState (classtype which, int tilex, int tiley, int dir, i
     ConnectAreas();
 }
 
+
 void ResurrectEnemies()
 {   
     resItem * thing;
@@ -3719,17 +3738,22 @@ void ResurrectEnemies()
     {
         return;
     }
-    
-    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[freeSlot]; thing++)
+    int index = 0;
+    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[sizeof(*enemiesToRes)]; thing++)
     {
-        if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect)
+        if (thing->isInitialized == 0)
+        {
+            continue;
+        }
+        else if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect)
         {
             SD_PlaySoundRTP(SD_PLAYERSPAWNSND, thing->actor->x, thing->actor->y);
             SpawnDuringGameWithState (thing->actor->obclass,thing->actor->tilex,thing->actor->tiley,thing->actor->dir, 1, thing->actor->state);
-            thing = 0;
-            freeSlot--;
+            thing->isInitialized = 0;
+            ZomROTTResFreeSlots[index] = true;
         }   
-    }    
+        index++;
+    }
     //CleanUpResurrectList();
     
 }

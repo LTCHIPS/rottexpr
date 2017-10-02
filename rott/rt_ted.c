@@ -5666,18 +5666,23 @@ void DoLowMemoryConversion (void)
     DoLowMemoryConversionIconPlane ();
 }
 
-extern objtype * enemiesToRes = NULL;
-extern int freeSlot = 0;
+objtype * enemiesToRes = NULL;
+int freeSlot = 0;
+
+
 void SetupZomROTTStuff()
 {
+    resItem uninitializedRes;
+    uninitializedRes.isInitialized = false;
     if (enemiesToRes)
     {
         FreeUpResurrectList();
     }
     enemiesToRes = calloc(sizeof(resItem), gamestate.killtotal);
-    memset(enemiesToRes, 0, sizeof(enemiesToRes));
-    
-    freeSlot = 0;
+    memset(enemiesToRes, &uninitializedRes, sizeof(*enemiesToRes));
+    ZomROTTResFreeSlots = calloc(sizeof(int), gamestate.killtotal);
+    memset(ZomROTTResFreeSlots, true, sizeof(*ZomROTTResFreeSlots));
+    //freeSlot = 0;
 }
 
 /*

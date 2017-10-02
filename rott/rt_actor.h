@@ -261,7 +261,7 @@ typedef struct objstruct
 
 typedef struct resStruct
 {
-    unsigned int timeBeforeResurrect;
+    short isInitialized;
     unsigned int timeOfResurrect;
     objtype * actor;
 } resItem;
@@ -303,6 +303,9 @@ typedef struct b_struct
     int     numgibs;
     boolean elevatormusicon;
 } misc_stuff;
+
+boolean * ZomROTTResFreeSlots;
+
 
 
 extern  boolean          ludicrousgibs;
