@@ -5320,7 +5320,7 @@ void MissileMovement(objtype*ob)
    return false;                     \
    }
 
-extern boolean ricochetingRocketsEnabled = 0;
+extern boolean ricochetingRocketsEnabled;
 
 boolean MissileTryMove(objtype*ob,int tryx,int tryy,int tryz)
 {
