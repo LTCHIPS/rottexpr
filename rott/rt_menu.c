@@ -4904,7 +4904,7 @@ void ReadAnyControl (ControlInfo *ci)
             mouseactive = 1;
         }
 #else
-#error please define your platform.  /* or maybe just nuke the DOS section? */
+    #error please define your platform.
 #endif
 
         buttons = IN_GetMouseButtons();

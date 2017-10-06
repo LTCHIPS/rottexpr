@@ -3604,9 +3604,7 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
         case highguardobj:
             return gamestate.TimeCount/VBLCOUNTER + 90;
             break;
-        case overpatrolobj:
-            return gamestate.TimeCount/VBLCOUNTER + 75;
-            break;
+
         case strikeguardobj:
             return gamestate.TimeCount/VBLCOUNTER + 65;
             break;
@@ -3616,12 +3614,17 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
         case triadenforcerobj:
             return gamestate.TimeCount/VBLCOUNTER + 200;
             break;
+    #if (SHAREWARE == 0)
+        case overpatrolobj:
+            return gamestate.TimeCount/VBLCOUNTER + 75;
+            break;
         case deathmonkobj:
             return gamestate.TimeCount/VBLCOUNTER + 150;
             break;
         case dfiremonkobj:
             return gamestate.TimeCount/VBLCOUNTER + 175;
             break;
+    #endif
         default:
             Error("DeterminetimeUntilEnemyIsResurrected was given a case it couldn't handle");
             break;
@@ -3629,36 +3632,32 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
     
 }
 
-
-
-
 extern resItem* enemiesToRes;
 extern unsigned int freeSlot;
-int numOfNonGibbedEnemies = 0;
 void AddEnemyToResurrectList(resItem * res)
 {
-    res->timeOfResurrect = DetermineTimeUntilEnemyIsResurrected(res->actor->obclass);
+    int timeOfResurrect = DetermineTimeUntilEnemyIsResurrected(res->actor->obclass);
     objtype * actor = res->actor;
-    resItem* compareWith;
-    compareWith = 0;
     SetReverseDeathState(actor);
-    if (!ZomROTTResFreeSlots[freeSlot])
+    if (ZomROTTResFreeSlots[freeSlot])
     {
         //FIND AN EMPTY SLOT
-        for(freeSlot; ZomROTTResFreeSlots[freeSlot] != false; freeSlot++)
+        for(freeSlot; ZomROTTResFreeSlots[freeSlot] == false; freeSlot++)
         {
             if (freeSlot >= sizeof(*enemiesToRes))
             {
-                freeSlot = 0;
+                Error("ZomROTT couldn't find a free slot to insert entry in!");
             }
         }
     }
-    res->isInitialized = 1;
+    resItem newEntry;
     
-    enemiesToRes[freeSlot] = *res;
+    newEntry.actor = actor;
+    newEntry.isInitialized = 1;
+    newEntry.timeOfResurrect = timeOfResurrect;
+    
+    enemiesToRes[freeSlot] = newEntry;
     ZomROTTResFreeSlots[freeSlot] = false;
-    freeSlot++;
-    numOfNonGibbedEnemies++;
 }
 
 void CleanUpResurrectList()
@@ -3734,28 +3733,21 @@ void ResurrectEnemies()
 {   
     resItem * thing;
     
-    if (&enemiesToRes[0] == 0)
-    {
-        return;
-    }
     int index = 0;
-    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[sizeof(*enemiesToRes)]; thing++)
+    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[sizeof(*enemiesToRes)]; thing++, index++)
     {
-        if (thing->isInitialized == 0)
+        if (thing->timeOfResurrect == 0)
         {
             continue;
         }
-        else if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect)
+        else if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect && ZomROTTResFreeSlots[index] == false)
         {
             SD_PlaySoundRTP(SD_PLAYERSPAWNSND, thing->actor->x, thing->actor->y);
             SpawnDuringGameWithState (thing->actor->obclass,thing->actor->tilex,thing->actor->tiley,thing->actor->dir, 1, thing->actor->state);
-            thing->isInitialized = 0;
+            thing->timeOfResurrect = 0;
             ZomROTTResFreeSlots[index] = true;
-        }   
-        index++;
+        }
     }
-    //CleanUpResurrectList();
-    
 }
 
 /*
@@ -3977,7 +3969,6 @@ void BeginPlayerFatality(objtype *ob,objtype *attacker)
 {
     playertype *pstate;
     M_LINKSTATE(ob,pstate);
-
 
     ob->flags &= ~(FL_ELASTO|FL_GODMODE|FL_DOGMODE|FL_NOFRICTION|FL_RIDING);
 

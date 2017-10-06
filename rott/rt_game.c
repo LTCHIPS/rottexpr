@@ -5238,7 +5238,8 @@ int LoadBuffer (byte ** dest, byte ** src)
 //
 //******************************************************************************
 
-extern objtype* enemiesToRes;
+
+extern resItem* enemiesToRes;
 extern unsigned int freeSlot;
 
 boolean LoadTheGame (int num, gamestorage_t * game)
@@ -5568,7 +5569,7 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     //ZomROTT Stuff
     if(enableZomROTT)
     {
-        enemiesToRes = calloc(sizeof(objtype), gamestate.killtotal);
+        enemiesToRes = calloc(sizeof(resItem), gamestate.killtotal);
         memset(enemiesToRes, 0, sizeof(*enemiesToRes));
         size = sizeof(enemiesToRes);
         memcpy(enemiesToRes, bufptr, size);

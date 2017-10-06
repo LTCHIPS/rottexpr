@@ -1894,9 +1894,10 @@ void UpdateGameObjects ( void )
         UpdateLightning ();
         TriggerStuff();
         CheckCriticalStatics();
-        if (enableZomROTT && numOfNonGibbedEnemies > 0)
+        if (enableZomROTT)
+        {
             ResurrectEnemies();
-
+        }
         
         for(j=0; j<numclocks; j++)
             if (Clocks[j].time1 &&
