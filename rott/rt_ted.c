@@ -66,6 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h"
 //MED
 #include "memcheck.h"
+#include "queue.h"
 
 
 
@@ -5666,23 +5667,15 @@ void DoLowMemoryConversion (void)
     DoLowMemoryConversionIconPlane ();
 }
 
-objtype * enemiesToRes = NULL;
 int freeSlot = 0;
-
-
+Queue enemiesToRes;
 void SetupZomROTTStuff()
 {
-    resItem * uninitializedRes = malloc(sizeof(resItem));
-    uninitializedRes->isInitialized=false;
-    if (enemiesToRes)
+    if (enemiesToRes.head != NULL && enemiesToRes.tail != NULL)
     {
-        FreeUpResurrectList();
+        clearQueue(&enemiesToRes);
     }
-    enemiesToRes = calloc(sizeof(resItem), gamestate.killtotal);
-    memset(enemiesToRes, uninitializedRes, sizeof(*enemiesToRes));
-    ZomROTTResFreeSlots = calloc(sizeof(int), gamestate.killtotal);
-    memset(ZomROTTResFreeSlots, true, sizeof(*ZomROTTResFreeSlots));
-    //freeSlot = 0;
+    queueInit(&enemiesToRes, sizeof(objtype));
 }
 
 /*

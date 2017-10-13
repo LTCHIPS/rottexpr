@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //***************************************************************************
 
 #include "states.h"
+#include "queue.h"
 
 
 #define FL_SYNCED          0x400
@@ -256,17 +257,8 @@ typedef struct objstruct
     struct objstruct         *next, *prev;
     struct objstruct         *nextactive, *prevactive;
     struct objstruct         *nextinarea, *previnarea;
-
+    int resurrectAtTime;
 } objtype;
-
-typedef struct resStruct
-{
-    short isInitialized;
-    unsigned int timeOfResurrect;
-    objtype * actor;
-} resItem;
-
-
 
 
 typedef struct b_struct
@@ -303,8 +295,6 @@ typedef struct b_struct
     int     numgibs;
     boolean elevatormusicon;
 } misc_stuff;
-
-boolean * ZomROTTResFreeSlots;
 
 
 
