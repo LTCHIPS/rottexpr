@@ -1857,7 +1857,6 @@ void InitCharacter
 
 
 extern boolean enableZomROTT;
-extern int numOfNonGibbedEnemies;
 void UpdateGameObjects ( void )
 {
     int j;

@@ -3634,13 +3634,11 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
 }
 
 extern Queue enemiesToRes;
-extern unsigned int freeSlot;
-//extern STACK s;
+
 void AddEnemyToResurrectList(objtype * ob)
 {
     ob->resurrectAtTime = DetermineTimeUntilEnemyIsResurrected(ob->obclass);
     SetReverseDeathState(ob);
-    //freeSlot = pop();
     enqueue(&enemiesToRes, ob);
 }
 
@@ -3719,10 +3717,10 @@ void ResurrectEnemies()
     
     if (currTime >= actor->resurrectAtTime)
     {
-        //dequeue(&enemiesToRes, actor);
         SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
         SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
         dequeue(&enemiesToRes, actor);
+        gamestate.killcount--;
     }
 }
 
@@ -3776,14 +3774,36 @@ void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush
 void SaveResurrectList(byte ** buffer, int *size)
 {
 /*
-    byte*tptr;
+    //objtype * arrayOfStuff = calloc(sizeof(objtype), enemiesToRes.sizeOfQueue);
     
-    *size = sizeof(enemiesToRes);
+    //memset(arrayOfStuff, 0, enemiesToRes.sizeOfQueue);
+    
+    int x;
+    
+    node * thingToSave = enemiesToRes.head;
+    
+    for (x = 0; x < enemiesToRes.sizeOfQueue; x++)
+    {
+        //objtype * copyOfObject = malloc(sizeof(objtype));
+        
+        //objtype * ob = (objtype *) thingToSave->data;
+        
+        //memcpy(copyOfObject, ob, sizeof(objtype));
+
+        //arrayOfStuff[x] = *copyOfObject;
+        //thingToSave = thingToSave->next;
+    }
+    
+    
+    
+    byte* tptr;
+    
+    *size = sizeof(arrayOfStuff);
     *buffer = (byte*)SafeMalloc(*size);
     tptr = *buffer;
     
-    memcpy(tptr, enemiesToRes, sizeof(enemiesToRes));
-    tptr += sizeof(enemiesToRes);
+    memcpy(tptr, arrayOfStuff, sizeof(*arrayOfStuff));
+    tptr += sizeof(arrayOfStuff);
 */
 
 }

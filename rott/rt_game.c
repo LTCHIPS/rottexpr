@@ -4900,6 +4900,7 @@ void SaveTag (int handle, char * tag, int size)
 extern boolean enableZomROTT;
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
+extern Queue enemiesToRes;
 
 boolean SaveTheGame (int num, gamestorage_t * game)
 {
@@ -5174,9 +5175,20 @@ boolean SaveTheGame (int num, gamestorage_t * game)
     //ZomROTT Stuff
     if(enableZomROTT)
     {
-        SaveResurrectList(&altbuffer, &size);
-        StoreBuffer(savehandle,altbuffer,size);
-        SafeFree(altbuffer);
+        size = sizeof(int);
+        SafeWrite(savehandle, &enemiesToRes.sizeOfQueue, size);
+        
+        int x = 0;
+        node * thingToSave = enemiesToRes.head;
+        size = sizeof(objtype);
+        for (x = 0; x < enemiesToRes.sizeOfQueue; x++)
+        {
+            SafeWrite(savehandle, (objtype *) thingToSave->data, size);
+            thingToSave = thingToSave->next;
+        }
+        //SaveResurrectList(&altbuffer, &size);
+        //StoreBuffer(savehandle,altbuffer,size);
+        //SafeFree(altbuffer);
     }
 
     close (savehandle);
@@ -5239,7 +5251,6 @@ int LoadBuffer (byte ** dest, byte ** src)
 //******************************************************************************
 
 
-extern objtype* enemiesToRes;
 extern unsigned int freeSlot;
 
 boolean LoadTheGame (int num, gamestorage_t * game)
@@ -5566,23 +5577,34 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     bufptr += size;
     
     
-    //ZomROTT Stuff
+    //ZomROTT Stuff (rebuild the queue))
     if(enableZomROTT)
     {
-/*
-        enemiesToRes = calloc(sizeof(objtype), gamestate.killtotal);
-        memset(enemiesToRes, 0, sizeof(*enemiesToRes));
-        size = sizeof(enemiesToRes);
-        memcpy(enemiesToRes, bufptr, size);
-        bufptr += size;
+        queueInit(&enemiesToRes, sizeof(objtype));
         
-        objtype * findFreeSlotPtr;
-        //find index of free
-        for (findFreeSlotPtr = &enemiesToRes[0]; findFreeSlotPtr != 0; findFreeSlotPtr++)
+        int origQueueSize = 0;
+        
+        size = sizeof(int);
+        
+        memcpy(&origQueueSize, bufptr, size);
+        bufptr+=size;
+        
+        size = sizeof(objtype);
+        
+        int x = 0;
+        
+        while(x < origQueueSize)
         {
-            freeSlot++;
+            objtype * item = (objtype *) malloc(sizeof(objtype));
+            
+            memcpy(item, bufptr, size);
+            
+            enqueue(&enemiesToRes, item);
+            
+            bufptr+=size;
+            
+            x++;
         }
-*/
     }
 
     // Set the viewsize
