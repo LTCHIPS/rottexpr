@@ -1894,7 +1894,7 @@ void UpdateGameObjects ( void )
         UpdateLightning ();
         TriggerStuff();
         CheckCriticalStatics();
-        if (enableZomROTT && gamestate.killcount > 0)
+        if (enableZomROTT)
         {
             ResurrectEnemies();
         }

@@ -58,7 +58,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 //MED
 #include "memcheck.h"
-#include "queue.h"
 
 
 
@@ -3633,20 +3632,44 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
     
 }
 
-extern Queue enemiesToRes;
+extern resItem* enemiesToRes;
 extern unsigned int freeSlot;
-//extern STACK s;
-void AddEnemyToResurrectList(objtype * ob)
+void AddEnemyToResurrectList(resItem * res)
 {
-    ob->resurrectAtTime = DetermineTimeUntilEnemyIsResurrected(ob->obclass);
-    SetReverseDeathState(ob);
-    //freeSlot = pop();
-    enqueue(&enemiesToRes, ob);
+    int timeOfResurrect = DetermineTimeUntilEnemyIsResurrected(res->actor->obclass);
+    objtype * actor = res->actor;
+    SetReverseDeathState(actor);
+    if (ZomROTTResFreeSlots[freeSlot])
+    {
+        //FIND AN EMPTY SLOT
+        for(freeSlot; ZomROTTResFreeSlots[freeSlot] == false; freeSlot++)
+        {
+            if (freeSlot >= sizeof(*enemiesToRes))
+            {
+                Error("ZomROTT couldn't find a free slot to insert entry in!");
+            }
+        }
+    }
+    resItem newEntry;
+    
+    newEntry.actor = actor;
+    newEntry.isInitialized = 1;
+    newEntry.timeOfResurrect = timeOfResurrect;
+    
+    enemiesToRes[freeSlot] = newEntry;
+    ZomROTTResFreeSlots[freeSlot] = false;
+}
+
+void CleanUpResurrectList()
+{
+    memset(enemiesToRes, 0, sizeof(*enemiesToRes));
+    freeSlot = 0;
 }
 
 void FreeUpResurrectList()
 {
-    clearQueue(&enemiesToRes);
+    free(enemiesToRes);
+    free(ZomROTTResFreeSlots);
 }
 
 void SetAfterResurrectState(objtype * actor, statetype * doWhat)
@@ -3705,26 +3728,73 @@ void SpawnDuringGameWithState (classtype which, int tilex, int tiley, int dir, i
     ConnectAreas();
 }
 
+
 void ResurrectEnemies()
 {   
-    objtype * actor;
-    
-    int currTime = gamestate.TimeCount/VBLCOUNTER;
-    
-    int killTotal = gamestate.killtotal;
+    resItem * thing;
     
     int index = 0;
-    
-    actor = enemiesToRes.head->data;
-    
-    if (currTime >= actor->resurrectAtTime)
+    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[sizeof(*enemiesToRes)]; thing++, index++)
     {
-        //dequeue(&enemiesToRes, actor);
-        SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
-        SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
-        dequeue(&enemiesToRes, actor);
+        if (thing->timeOfResurrect == 0)
+        {
+            continue;
+        }
+        else if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect && ZomROTTResFreeSlots[index] == false)
+        {
+            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, thing->actor->x, thing->actor->y);
+            SpawnDuringGameWithState (thing->actor->obclass,thing->actor->tilex,thing->actor->tiley,thing->actor->dir, 1, thing->actor->state);
+            thing->timeOfResurrect = 0;
+            ZomROTTResFreeSlots[index] = true;
+        }
     }
 }
+
+/*
+void SetStandAfterResurrect(objtype * actor)
+{
+    switch(actor->obclass)
+    {
+        case lowguardobj:
+            SetAfterResurrectState(actor, &s_lowgrdstand);
+            //actor->state = &s_lowgrdchase1;
+            break;
+        case highguardobj:
+            SetAfterResurrectState(actor, &s_highgrdstand);
+            //actor->state = &s_highgrdchase1;
+            break;
+        case strikeguardobj:
+            SetAfterResurrectState(actor, &s_strikestand);
+            //actor->state = &s_strikechase1;
+            break;
+        case blitzguardobj:
+            SetAfterResurrectState(actor, &s_blitzstand);
+            //actor->state = &s_blitzchase1;
+            break;
+        case triadenforcerobj:
+            SetAfterResurrectState(actor, &s_enforcerstand);
+            //actor->state = &s_enforcerchase1;
+            break;
+        case overpatrolobj:
+            SetAfterResurrectState(actor, &s_opstand);
+            //actor->state = &s_opchase1;
+            break;
+        case deathmonkobj:
+            SetAfterResurrectState(actor, &s_dmonkstand);
+            //actor->state = &s_dmonkchase1;
+            break;
+        case dfiremonkobj:
+            SetAfterResurrectState(actor, &s_firemonkstand);
+            //actor->state = &s_firemonkchase1;
+            break;
+        default:
+            Error("SetStandAfterResurrect was called with something that can't be handled!");
+            break;
+    }
+}
+*/
+
+
 
 void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush)
 {   
@@ -3775,16 +3845,14 @@ void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush
 
 void SaveResurrectList(byte ** buffer, int *size)
 {
-/*
-    byte*tptr;
+    byte * tptr;
     
     *size = sizeof(enemiesToRes);
     *buffer = (byte*)SafeMalloc(*size);
     tptr = *buffer;
     
-    memcpy(tptr, enemiesToRes, sizeof(enemiesToRes));
+    memcpy(tptr, enemiesToRes, sizeof(*enemiesToRes));
     tptr += sizeof(enemiesToRes);
-*/
 
 }
 
@@ -3826,7 +3894,11 @@ void BeginEnemyFatality(objtype *ob,objtype *attacker)
         
         memcpy(copyOfObject, ob, sizeof(objtype));
         
-        AddEnemyToResurrectList(copyOfObject);
+        resItem * thingToAdd = malloc(sizeof(resItem));
+        
+        thingToAdd->actor = copyOfObject;
+        
+        AddEnemyToResurrectList(thingToAdd);
     }
 
     if ((ob->obclass == patrolgunobj) && (ob->temp1 == -1))
@@ -3897,7 +3969,6 @@ void BeginPlayerFatality(objtype *ob,objtype *attacker)
 {
     playertype *pstate;
     M_LINKSTATE(ob,pstate);
-
 
     ob->flags &= ~(FL_ELASTO|FL_GODMODE|FL_DOGMODE|FL_NOFRICTION|FL_RIDING);
 
