@@ -5175,15 +5175,17 @@ boolean SaveTheGame (int num, gamestorage_t * game)
     //ZomROTT Stuff
     if(enableZomROTT)
     {
-        size = sizeof(int);
+        size = sizeof(enemiesToRes.sizeOfQueue);
         SafeWrite(savehandle, &enemiesToRes.sizeOfQueue, size);
         
         int x = 0;
         node * thingToSave = enemiesToRes.head;
-        size = sizeof(objtype);
+        //size = sizeof();
         for (x = 0; x < enemiesToRes.sizeOfQueue; x++)
         {
-            SafeWrite(savehandle, (objtype *) thingToSave->data, size);
+            objtype * itemToSave = (objtype *) thingToSave->data;
+            size = sizeof(itemToSave);
+            SafeWrite(savehandle, itemToSave, size);
             thingToSave = thingToSave->next;
         }
         //SaveResurrectList(&altbuffer, &size);
@@ -5595,7 +5597,7 @@ boolean LoadTheGame (int num, gamestorage_t * game)
         
         while(x < origQueueSize)
         {
-            objtype * item = (objtype *) malloc(sizeof(objtype));
+            objtype * item = malloc(size);
             
             memcpy(item, bufptr, size);
             
