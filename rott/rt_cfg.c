@@ -1774,7 +1774,7 @@ void WriteConfig (void)
     SafeWriteString(file, "\n;\n");
     SafeWriteString(file, "; 1 - Enemies equipped with pistols have a chance of dropping an extra pistol when killed.\n");
     SafeWriteString(file, "; 0 - Enemies will not drop extra pistols at all. (Default)\n");
-    WriteParameter(file, "EnableExtraPistolDrop     ", enableExtraPistolDrops);
+    WriteParameter(file, "EnableExtraPistolDrops     ", enableExtraPistolDrops);
     
     // Write out MouseEnabled
 
