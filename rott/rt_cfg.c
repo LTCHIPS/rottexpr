@@ -119,6 +119,7 @@ boolean enableAmmoPickups = 0;
 boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
 boolean enableExtraPistolDrops = 0;
+int scaleOffset = 0;
 
 boolean joystickenabled  = 0;
 boolean joypadenabled    = 0;
@@ -530,6 +531,10 @@ boolean ParseConfigFile (void)
         
         //Read in EnableExtraPistolDrops
         ReadBoolean("EnableExtraPistolDrops", &enableExtraPistolDrops);
+        
+        //Read in scaleOffset
+        
+        ReadInt("scaleOffset", &scaleOffset);
 
         // Read in MouseEnabled
         ReadBoolean("MouseEnabled",&mouseenabled);
@@ -1775,6 +1780,11 @@ void WriteConfig (void)
     SafeWriteString(file, "; 1 - Enemies equipped with pistols have a chance of dropping an extra pistol when killed.\n");
     SafeWriteString(file, "; 0 - Enemies will not drop extra pistols at all. (Default)\n");
     WriteParameter(file, "EnableExtraPistolDrops     ", enableExtraPistolDrops);
+    
+    //Write out scaleOffset
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file,"; Field Of View offset\n");
+    WriteParameter(file,"scaleOffset     ",scaleOffset);
     
     // Write out MouseEnabled
 
