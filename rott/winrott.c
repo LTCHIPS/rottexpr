@@ -30,9 +30,26 @@ boolean iG_aimCross = 0;
 
 extern int  viewheight;
 extern int  viewwidth;
-extern int scaleOffset;
+extern int FocalWidthOffset;
 //----------------------------------------------------------------------
 #define FINEANGLES                        2048
+
+void RecalculateFocalWidth(void)
+{
+    if (iGLOBAL_SCREENWIDTH == 320) {
+        iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
+        dGLOBAL_FPFOCALWIDTH = 160.0 - FocalWidthOffset;
+    }
+    else if (iGLOBAL_SCREENWIDTH == 640) {
+        iGLOBAL_FOCALWIDTH = 180 - FocalWidthOffset;
+        dGLOBAL_FPFOCALWIDTH = 180.0 - FocalWidthOffset ;
+    }
+    else if (iGLOBAL_SCREENWIDTH == 800) {
+        iGLOBAL_FOCALWIDTH = 200 - FocalWidthOffset;
+        dGLOBAL_FPFOCALWIDTH = 200.0 - FocalWidthOffset;
+    }
+}
+
 void SetRottScreenRes (int Width, int Height)
 {
 
@@ -44,8 +61,8 @@ void SetRottScreenRes (int Width, int Height)
     iG_SCREENWIDTH = iGLOBAL_SCREENWIDTH*(96/320);;// default screen width in bytes
 
     if (iGLOBAL_SCREENWIDTH == 320) {
-        iGLOBAL_FOCALWIDTH = 160 - scaleOffset;
-        dGLOBAL_FPFOCALWIDTH = 160.0 - scaleOffset;
+        iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
+        dGLOBAL_FPFOCALWIDTH = 160.0 - FocalWidthOffset;
         iGLOBAL_HEALTH_X = 20;
         iGLOBAL_HEALTH_Y = 185;
         iGLOBAL_AMMO_X = 300;
@@ -54,8 +71,8 @@ void SetRottScreenRes (int Width, int Height)
         dTopYZANGLELIMIT = (44*FINEANGLES/360);;
     }
     if (iGLOBAL_SCREENWIDTH == 640) {
-        iGLOBAL_FOCALWIDTH = 180- scaleOffset;
-        dGLOBAL_FPFOCALWIDTH = 180.0- scaleOffset ;
+        iGLOBAL_FOCALWIDTH = 180 - FocalWidthOffset;
+        dGLOBAL_FPFOCALWIDTH = 180.0 - FocalWidthOffset ;
         iGLOBAL_HEALTH_X = 40;//20*2;
         iGLOBAL_HEALTH_Y = 466;//(185*2)+16;
         iGLOBAL_AMMO_X = 600;//300*2;
@@ -64,8 +81,8 @@ void SetRottScreenRes (int Width, int Height)
         dTopYZANGLELIMIT = (42*FINEANGLES/360);;
     }
     if (iGLOBAL_SCREENWIDTH == 800) {
-        iGLOBAL_FOCALWIDTH = 200- scaleOffset;
-        dGLOBAL_FPFOCALWIDTH = 200.0 - scaleOffset;
+        iGLOBAL_FOCALWIDTH = 200 - FocalWidthOffset;
+        dGLOBAL_FPFOCALWIDTH = 200.0 - FocalWidthOffset;
         iGLOBAL_HEALTH_X = 40;//20*2;
         iGLOBAL_HEALTH_Y = 585;//(185/200)*600;
         iGLOBAL_AMMO_X = 750;//(300/320)*800;
