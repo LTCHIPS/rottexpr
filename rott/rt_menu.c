@@ -714,6 +714,7 @@ CP_itemtype PlayerMenu[] =
 
 CP_MenuNames ControlMMenuNames[] =
 {
+    "VISUAL OPTIONS",
     "CONTROLS",
     "USER OPTIONS",
     "EXT USER OPTIONS",//bna added
@@ -722,18 +723,18 @@ CP_MenuNames ControlMMenuNames[] =
     "SOUND FX VOLUME"
 
 };
-CP_iteminfo ControlMItems = {32, 48-8, 6, 0, 32, ControlMMenuNames, mn_largefont };//bna added
+CP_iteminfo ControlMItems = {32, 48-8, 7, 0, 32, ControlMMenuNames, mn_largefont };//bna added
 //CP_iteminfo ControlMItems = {32, 48, 4, 0, 32, ControlMMenuNames, mn_largefont };
-
+void CP_VisualsMenu(void);
 CP_itemtype ControlMMenu[] =
 {
+    {1, "adjfwid\0", 'W', (menuptr)CP_VisualsMenu},
     {2, "cntl\0",     'C', (menuptr)CP_Control},
     {1, "uopt\0",     'U', (menuptr)CP_OptionsMenu},
     {1, "euopt\0", 'E', (menuptr)CP_ExtOptionsMenu},//bna added
     {1, "eaopt\0", 'A', (menuptr)CP_ExtGameOptionsMenu},
     {1, "muvolumn\0", 'M', (menuptr)MusicVolume},
     {1, "fxvolumn\0", 'S', (menuptr)FXVolume}
-
 };
 
 CP_MenuNames OptionsNames[] =
@@ -768,9 +769,21 @@ CP_MenuNames ExtGameOptionsNames[] =
     "ENABLE ZOMROTT"
 }; //LT added
 
+CP_MenuNames VisualOptionsNames[] = 
+{
+    "ADJUST FOCAL WIDTH"
+};
+
+CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 1, 0, 43, VisualOptionsNames, mn_largefont };
+
 CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 7, 0, 43, ExtOptionsNames, mn_largefont };
 
 CP_iteminfo ExtGameOptionsItems = { 20, MENU_Y, 4, 0, 43, ExtGameOptionsNames, mn_largefont }; //LT added
+
+CP_itemtype VisualsOptionsMenu[] = 
+{
+    {1, "", 'F', (menuptr)DoAdjustFocalWidth}
+};
 
 CP_itemtype ExtOptionsMenu[] =
 {
@@ -780,7 +793,7 @@ CP_itemtype ExtOptionsMenu[] =
     {1, "", 'J', NULL},
     {1, "", 'F', NULL},
     {1, "", 'A', NULL},
-    {1, "", 'U', NULL}
+    {1, "", 'U', NULL},
 };
 
 CP_itemtype ExtGameMenu[] =
@@ -1697,6 +1710,10 @@ void CleanUpControlPanel (void)
     FreeSavedScreenPtr ();
 
     WriteConfig ();
+    
+    //change the focal width if modified
+    
+    RecalculateFocalWidth();
 
     INL_GetJoyDelta (joystickport, &joyx, &joyy);
 
@@ -4596,6 +4613,15 @@ void DoThreshold
                 "Adjust Threshold", "Small", "Large" );
 }
 
+extern int FocalWidthOffset;
+
+void DoAdjustFocalWidth (void)
+{
+    SliderMenu (&FocalWidthOffset, 200, 0, 44, 81, 194, 1, "block2", NULL,
+                "Adjust Focal Width", "Default", "You Crazy" );
+    DrawVisualsMenu ();
+}
+
 //******************************************************************************
 //
 // DRAW CONTROL MENU SCREEN
@@ -4903,8 +4929,6 @@ void ReadAnyControl (ControlInfo *ci)
 
             mouseactive = 1;
         }
-#else
-    #error please define your platform.
 #endif
 
         buttons = IN_GetMouseButtons();
@@ -5353,6 +5377,37 @@ void DrawOptionsMenu (void)
     DisplayInfo (0);
     FlipMenuBuf();
 }
+
+void CP_VisualsMenu(void)
+{
+    int which;
+    DrawVisualsMenu();
+
+    do
+    {
+        which = HandleMenu (&VisualOptionsItems, &VisualsOptionsMenu[0], NULL);
+    } while (which >= 0);
+
+    DrawControlMenu();
+}
+
+void DrawVisualsMenu (void)
+{
+    MenuNum = 1;
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Visuals Menu");
+    
+    MN_GetCursorLocation( &VisualOptionsItems, &VisualsOptionsMenu[ 0 ] );
+    DrawMenu (&VisualOptionsItems, &VisualsOptionsMenu[0]);
+    DrawMenuBufItem (VisualOptionsItems.x, ((VisualOptionsItems.curpos*14)+(VisualOptionsItems.y-2)),
+                     W_GetNumForName( LargeCursor ) + CursorFrame[ CursorNum ] );
+    DisplayInfo (0);
+    FlipMenuBuf();
+    
+}
+
+
 //****************************************************************************
 //
 // DrawExtOptionsMenu ()  () bna added
@@ -5370,6 +5425,7 @@ void DrawExtOptionsMenu (void)
     MN_GetCursorLocation( &ExtOptionsItems, &ExtOptionsMenu[ 0 ] );
     DrawMenu (&ExtOptionsItems, &ExtOptionsMenu[0]);
     DrawExtOptionsButtons ();
+    
     DisplayInfo (0);
 
     FlipMenuBuf();
@@ -5435,6 +5491,7 @@ void CP_ExtOptionsMenu (void)
 
     DrawControlMenu();
 }
+
 void DrawExtOptionsButtons (void)
 {
     int i,
