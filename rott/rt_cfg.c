@@ -119,7 +119,7 @@ boolean enableAmmoPickups = 0;
 boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
 boolean enableExtraPistolDrops = 0;
-int scaleOffset = 0;
+int FocalWidthOffset = 0;
 
 boolean joystickenabled  = 0;
 boolean joypadenabled    = 0;
@@ -534,7 +534,7 @@ boolean ParseConfigFile (void)
         
         //Read in scaleOffset
         
-        ReadInt("scaleOffset", &scaleOffset);
+        ReadInt("FocalWidthOffset", &FocalWidthOffset);
 
         // Read in MouseEnabled
         ReadBoolean("MouseEnabled",&mouseenabled);
@@ -1784,7 +1784,7 @@ void WriteConfig (void)
     //Write out scaleOffset
     SafeWriteString(file,"\n;\n");
     SafeWriteString(file,"; Field Of View offset\n");
-    WriteParameter(file,"scaleOffset     ",scaleOffset);
+    WriteParameter(file,"FocalWidthOffset     ",FocalWidthOffset);
     
     // Write out MouseEnabled
 
