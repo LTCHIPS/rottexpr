@@ -3714,6 +3714,11 @@ void ResurrectEnemies()
     
     int index = 0;
     
+    if (enemiesToRes.sizeOfQueue == 0)
+    {
+        return;
+    }
+    
     actor = enemiesToRes.head->data;
     
     if (currTime >= actor->resurrectAtTime)
