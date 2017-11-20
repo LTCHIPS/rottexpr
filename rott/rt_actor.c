@@ -58,6 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 //MED
 #include "memcheck.h"
+#include "queue.h"
 
 
 
@@ -3632,44 +3633,18 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
     
 }
 
-extern resItem* enemiesToRes;
-extern unsigned int freeSlot;
-void AddEnemyToResurrectList(resItem * res)
-{
-    int timeOfResurrect = DetermineTimeUntilEnemyIsResurrected(res->actor->obclass);
-    objtype * actor = res->actor;
-    SetReverseDeathState(actor);
-    if (ZomROTTResFreeSlots[freeSlot])
-    {
-        //FIND AN EMPTY SLOT
-        for(freeSlot; ZomROTTResFreeSlots[freeSlot] == false; freeSlot++)
-        {
-            if (freeSlot >= sizeof(*enemiesToRes))
-            {
-                Error("ZomROTT couldn't find a free slot to insert entry in!");
-            }
-        }
-    }
-    resItem newEntry;
-    
-    newEntry.actor = actor;
-    newEntry.isInitialized = 1;
-    newEntry.timeOfResurrect = timeOfResurrect;
-    
-    enemiesToRes[freeSlot] = newEntry;
-    ZomROTTResFreeSlots[freeSlot] = false;
-}
+extern Queue enemiesToRes;
 
-void CleanUpResurrectList()
+void AddEnemyToResurrectList(objtype * ob)
 {
-    memset(enemiesToRes, 0, sizeof(*enemiesToRes));
-    freeSlot = 0;
+    ob->resurrectAtTime = DetermineTimeUntilEnemyIsResurrected(ob->obclass);
+    SetReverseDeathState(ob);
+    enqueue(&enemiesToRes, ob);
 }
 
 void FreeUpResurrectList()
 {
-    free(enemiesToRes);
-    free(ZomROTTResFreeSlots);
+    clearQueue(&enemiesToRes);
 }
 
 void SetAfterResurrectState(objtype * actor, statetype * doWhat)
@@ -3731,22 +3706,22 @@ void SpawnDuringGameWithState (classtype which, int tilex, int tiley, int dir, i
 
 void ResurrectEnemies()
 {   
-    resItem * thing;
+    objtype * actor;
+    
+    int currTime = gamestate.TimeCount/VBLCOUNTER;
+    
+    int killTotal = gamestate.killtotal;
     
     int index = 0;
-    for (thing = &enemiesToRes[0]; thing < &enemiesToRes[sizeof(*enemiesToRes)]; thing++, index++)
+    
+    actor = enemiesToRes.head->data;
+    
+    if (currTime >= actor->resurrectAtTime)
     {
-        if (thing->timeOfResurrect == 0)
-        {
-            continue;
-        }
-        else if (gamestate.TimeCount/(VBLCOUNTER) >= thing->timeOfResurrect && ZomROTTResFreeSlots[index] == false)
-        {
-            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, thing->actor->x, thing->actor->y);
-            SpawnDuringGameWithState (thing->actor->obclass,thing->actor->tilex,thing->actor->tiley,thing->actor->dir, 1, thing->actor->state);
-            thing->timeOfResurrect = 0;
-            ZomROTTResFreeSlots[index] = true;
-        }
+        SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
+        SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
+        dequeue(&enemiesToRes, actor);
+        gamestate.killcount--;
     }
 }
 
@@ -3843,19 +3818,6 @@ void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush
     ConnectAreas();
 }
 
-void SaveResurrectList(byte ** buffer, int *size)
-{
-    byte * tptr;
-    
-    *size = sizeof(enemiesToRes);
-    *buffer = (byte*)SafeMalloc(*size);
-    tptr = *buffer;
-    
-    memcpy(tptr, enemiesToRes, sizeof(*enemiesToRes));
-    tptr += sizeof(enemiesToRes);
-
-}
-
 /*
 ========================
 =
@@ -3894,11 +3856,7 @@ void BeginEnemyFatality(objtype *ob,objtype *attacker)
         
         memcpy(copyOfObject, ob, sizeof(objtype));
         
-        resItem * thingToAdd = malloc(sizeof(resItem));
-        
-        thingToAdd->actor = copyOfObject;
-        
-        AddEnemyToResurrectList(thingToAdd);
+        AddEnemyToResurrectList(copyOfObject);
     }
 
     if ((ob->obclass == patrolgunobj) && (ob->temp1 == -1))
