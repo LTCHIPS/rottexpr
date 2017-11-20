@@ -3633,18 +3633,55 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
     
 }
 
-extern Queue enemiesToRes;
+extern Queue * enemiesToRes[8];
 
 void AddEnemyToResurrectList(objtype * ob)
 {
     ob->resurrectAtTime = DetermineTimeUntilEnemyIsResurrected(ob->obclass);
     SetReverseDeathState(ob);
-    enqueue(&enemiesToRes, ob);
+    switch(ob->obclass)
+    {
+        case lowguardobj:
+            enqueue(enemiesToRes[0], ob);
+            break;
+        case highguardobj:
+            enqueue(enemiesToRes[1], ob);
+            break;
+
+        case strikeguardobj:
+            enqueue(enemiesToRes[2], ob);
+            break;
+        case blitzguardobj:
+            enqueue(enemiesToRes[3], ob);
+            break;
+        case triadenforcerobj:
+            enqueue(enemiesToRes[4], ob);
+            break;
+    #if (SHAREWARE == 0)
+        case overpatrolobj:
+            enqueue(enemiesToRes[5], ob);
+            break;
+        case deathmonkobj:
+            enqueue(enemiesToRes[6], ob);
+            break;
+        case dfiremonkobj:
+            enqueue(enemiesToRes[7], ob);
+            break;
+    #endif
+        default:
+            Error("Unknown organic enemy type detected in AddEnemyToResurrectList");
+            break;
+    }
+    //enqueue(&enemiesToRes, ob);
 }
 
 void FreeUpResurrectList()
 {
-    clearQueue(&enemiesToRes);
+    int x = 0;
+    for (x = 0; x < 8; x++)
+    {
+        clearQueue(enemiesToRes[x]);
+    }
 }
 
 void SetAfterResurrectState(objtype * actor, statetype * doWhat)
@@ -3713,14 +3750,22 @@ void ResurrectEnemies()
     
     int index = 0;
     
-    actor = enemiesToRes.head->data;
+    //actor = enemiesToRes.head->data;
     
-    if (currTime >= actor->resurrectAtTime)
+    for (index = 0; index < 8; index++)
     {
-        SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
-        SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
-        dequeue(&enemiesToRes, actor);
-        gamestate.killcount--;
+        if (enemiesToRes[index]->sizeOfQueue == 0)
+        {
+            continue;
+        }
+        actor = enemiesToRes[index]->head->data;
+        if (currTime >= actor->resurrectAtTime)
+        {
+            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
+            SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
+            dequeue(enemiesToRes[index], actor);
+            gamestate.killcount--;
+        }
     }
 }
 

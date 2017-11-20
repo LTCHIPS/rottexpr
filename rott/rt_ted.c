@@ -5667,15 +5667,23 @@ void DoLowMemoryConversion (void)
     DoLowMemoryConversionIconPlane ();
 }
 
-int freeSlot = 0;
-Queue enemiesToRes;
+//int freeSlot = 0;
+//Queue enemiesToRes;
+Queue * enemiesToRes[8]; //8 "Organic enemy Types"
+
 void SetupZomROTTStuff()
-{
-    if (enemiesToRes.head != NULL && enemiesToRes.tail != NULL)
+{   
+    int x;
+    for (x = 0; x < 8; x++)
     {
-        clearQueue(&enemiesToRes);
+        //if (enemiesToRes[x]->head != NULL && enemiesToRes[x]->tail != NULL)
+        //{
+            //clearQueue(enemiesToRes[x]);
+        //}
+        Queue * enemyQueue = malloc(sizeof(Queue));
+        queueInit(enemyQueue, sizeof(objtype));
+        enemiesToRes[x] = enemyQueue;
     }
-    queueInit(&enemiesToRes, sizeof(objtype));
 }
 
 /*
