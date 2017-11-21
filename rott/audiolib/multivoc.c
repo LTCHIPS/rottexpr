@@ -537,6 +537,16 @@ void MV_ServiceVoc
 //         SetBorderColor(backcolor++);
 //         break;
 //         }
+       
+        if(NULL == voice->GetSound)
+        {
+            #ifdef _DEBUG
+            printf("MV_ServiceVoc() voice->GetSound == NULL, break;\n");
+            #endif
+
+            // This sound is null, early out, or face a nasty crash.
+            break;		
+        }
 
       MV_BufferEmpty[ MV_MixPage ] = FALSE;
 
