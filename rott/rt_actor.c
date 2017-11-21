@@ -3740,17 +3740,14 @@ void SpawnDuringGameWithState (classtype which, int tilex, int tiley, int dir, i
     ConnectAreas();
 }
 
+
 void ResurrectEnemies()
 {   
     objtype * actor;
     
     int currTime = gamestate.TimeCount/VBLCOUNTER;
     
-    int killTotal = gamestate.killtotal;
-    
-    int index = 0;
-    
-    //actor = enemiesToRes.head->data;
+    int index;
     
     for (index = 0; index < 8; index++)
     {
@@ -3768,6 +3765,52 @@ void ResurrectEnemies()
         }
     }
 }
+
+/*
+void SetStandAfterResurrect(objtype * actor)
+{
+    switch(actor->obclass)
+    {
+        case lowguardobj:
+            SetAfterResurrectState(actor, &s_lowgrdstand);
+            //actor->state = &s_lowgrdchase1;
+            break;
+        case highguardobj:
+            SetAfterResurrectState(actor, &s_highgrdstand);
+            //actor->state = &s_highgrdchase1;
+            break;
+        case strikeguardobj:
+            SetAfterResurrectState(actor, &s_strikestand);
+            //actor->state = &s_strikechase1;
+            break;
+        case blitzguardobj:
+            SetAfterResurrectState(actor, &s_blitzstand);
+            //actor->state = &s_blitzchase1;
+            break;
+        case triadenforcerobj:
+            SetAfterResurrectState(actor, &s_enforcerstand);
+            //actor->state = &s_enforcerchase1;
+            break;
+        case overpatrolobj:
+            SetAfterResurrectState(actor, &s_opstand);
+            //actor->state = &s_opchase1;
+            break;
+        case deathmonkobj:
+            SetAfterResurrectState(actor, &s_dmonkstand);
+            //actor->state = &s_dmonkchase1;
+            break;
+        case dfiremonkobj:
+            SetAfterResurrectState(actor, &s_firemonkstand);
+            //actor->state = &s_firemonkchase1;
+            break;
+        default:
+            Error("SetStandAfterResurrect was called with something that can't be handled!");
+            break;
+    }
+}
+*/
+
+
 
 void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush)
 {   
@@ -3814,43 +3857,6 @@ void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush
         }
     }
     ConnectAreas();
-}
-
-void SaveResurrectList(byte ** buffer, int *size)
-{
-/*
-    //objtype * arrayOfStuff = calloc(sizeof(objtype), enemiesToRes.sizeOfQueue);
-    
-    //memset(arrayOfStuff, 0, enemiesToRes.sizeOfQueue);
-    
-    int x;
-    
-    node * thingToSave = enemiesToRes.head;
-    
-    for (x = 0; x < enemiesToRes.sizeOfQueue; x++)
-    {
-        //objtype * copyOfObject = malloc(sizeof(objtype));
-        
-        //objtype * ob = (objtype *) thingToSave->data;
-        
-        //memcpy(copyOfObject, ob, sizeof(objtype));
-
-        //arrayOfStuff[x] = *copyOfObject;
-        //thingToSave = thingToSave->next;
-    }
-    
-    
-    
-    byte* tptr;
-    
-    *size = sizeof(arrayOfStuff);
-    *buffer = (byte*)SafeMalloc(*size);
-    tptr = *buffer;
-    
-    memcpy(tptr, arrayOfStuff, sizeof(*arrayOfStuff));
-    tptr += sizeof(arrayOfStuff);
-*/
-
 }
 
 /*
@@ -3962,7 +3968,6 @@ void BeginPlayerFatality(objtype *ob,objtype *attacker)
 {
     playertype *pstate;
     M_LINKSTATE(ob,pstate);
-
 
     ob->flags &= ~(FL_ELASTO|FL_GODMODE|FL_DOGMODE|FL_NOFRICTION|FL_RIDING);
 

@@ -7092,4 +7092,3 @@ void LoftSprites( void )
         }
     }
 }
-

@@ -82,7 +82,6 @@ OBJS += z_zone.o
 OBJS += byteordr.o
 OBJS += dukemusc.o
 OBJS += winrott.o
-OBJS += queue.o
 
 AUDIOLIB := audiolib/audiolib.a
 
