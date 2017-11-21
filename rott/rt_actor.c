@@ -3627,7 +3627,7 @@ int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
             break;
     #endif
         default:
-            Error("DeterminetimeUntilEnemyIsResurrected was given a case it couldn't handle");
+            return -1; //TODO: Return -1 for every entry that isn't any of the above
             break;
     }
     
@@ -3638,6 +3638,11 @@ extern Queue * enemiesToRes[8];
 void AddEnemyToResurrectList(objtype * ob)
 {
     ob->resurrectAtTime = DetermineTimeUntilEnemyIsResurrected(ob->obclass);
+    if (ob->resurrectAtTime == -1)
+    {
+        free(ob);
+        return;
+    }
     SetReverseDeathState(ob);
     switch(ob->obclass)
     {
