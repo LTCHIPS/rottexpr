@@ -71,14 +71,31 @@ void SetRottScreenRes (int Width, int Height)
         dTopYZANGLELIMIT = (44*FINEANGLES/360);;
     }
     if (iGLOBAL_SCREENWIDTH == 640) {
-        iGLOBAL_FOCALWIDTH = 180 - FocalWidthOffset;
-        dGLOBAL_FPFOCALWIDTH = 180.0 - FocalWidthOffset ;
-        iGLOBAL_HEALTH_X = 40;//20*2;
-        iGLOBAL_HEALTH_Y = 466;//(185*2)+16;
-        iGLOBAL_AMMO_X = 600;//300*2;
-        iGLOBAL_AMMO_Y = 464;//480-16;
+        if (iGLOBAL_SCREENHEIGHT == 400)
+        {
+            iGLOBAL_FOCALWIDTH = 180 - FocalWidthOffset;
+            dGLOBAL_FPFOCALWIDTH = 180.0 - FocalWidthOffset ;
+            iGLOBAL_HEALTH_X = 180;
+            iGLOBAL_HEALTH_Y = 400 - 16;
+            iGLOBAL_AMMO_X = 460;
+            iGLOBAL_AMMO_Y = 400 - 16;
 
-        dTopYZANGLELIMIT = (42*FINEANGLES/360);;
+            dTopYZANGLELIMIT = (42*FINEANGLES/360);;
+        
+        }
+        else
+        {
+            iGLOBAL_FOCALWIDTH = 180 - FocalWidthOffset;
+            dGLOBAL_FPFOCALWIDTH = 180.0 - FocalWidthOffset ;
+            iGLOBAL_HEALTH_X = 40;//20*2;
+            iGLOBAL_HEALTH_Y = 466;//(185*2)+16;
+            iGLOBAL_AMMO_X = 600;//300*2;
+            iGLOBAL_AMMO_Y = 464;//480-16;
+
+            dTopYZANGLELIMIT = (42*FINEANGLES/360);;
+        
+        }
+        
     }
     if (iGLOBAL_SCREENWIDTH == 800) {
         iGLOBAL_FOCALWIDTH = 200 - FocalWidthOffset;

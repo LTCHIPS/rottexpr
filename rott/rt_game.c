@@ -466,18 +466,29 @@ void DrawPlayScreen (boolean bufferofsonly)
             ShowKillsYoffset = KILLS_HEIGHT;
         }
             if (iGLOBAL_SCREENWIDTH == 640) {
-                //bna fix - not to good? but no one has 286 any more
-                //statusbar dosent cover hole screen, because its a lump picture width max 320
-                //first write dummy shape and next over it
-                GameMemToScreen( shape, 320, (224*2)+16-ShowKillsYoffset, bufferofsonly );
+                if (iGLOBAL_SCREENHEIGHT == 400)
+                {
+                    shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+                    shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+                    
+                    GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+                    
+                }
+                else
+                {
+                    GameMemToScreen( shape, 320, (224*2)+16-ShowKillsYoffset, bufferofsonly );
                 //copy next shape to mem
-                GameMemToScreen( shape, 0, (224*2)+16-ShowKillsYoffset, bufferofsonly );
+                    GameMemToScreen( shape, 0, (224*2)+16-ShowKillsYoffset, bufferofsonly );
                 // delete bullet in middle of shape picture
-                DrawPPic( 310, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
+                    DrawPPic( 310, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
                           ( byte * )&erase->data, 2, true, bufferofsonly );
                 // delete hart in middle of shape picture
-                DrawPPic( 324, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
+                    DrawPPic( 324, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
                           ( byte * )&erase->data, 2, true, bufferofsonly );
+                
+                
+                }
 
             } else if (iGLOBAL_SCREENWIDTH == 800) {
                 GameMemToScreen( shape, 800-320, 584-ShowKillsYoffset, bufferofsonly );
