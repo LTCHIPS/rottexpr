@@ -119,6 +119,7 @@ boolean enableAmmoPickups = 0;
 boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
 boolean enableExtraPistolDrops = 0;
+boolean allowMovementWithMouseYAxis = 1;
 int FocalWidthOffset = 0;
 
 boolean joystickenabled  = 0;
@@ -543,6 +544,8 @@ boolean ParseConfigFile (void)
         ReadBoolean("UseMouseLook",&usemouselook);
 
         ReadInt("InverseMouse",&inverse_mouse);
+
+        ReadBoolean("AllowMovementWithMouseYAxis", &allowMovementWithMouseYAxis);
 
         // Read in UseJump
         ReadBoolean("UseJump",&usejump);
@@ -1804,6 +1807,11 @@ void WriteConfig (void)
     SafeWriteString(file,"; 1 - Normal Mouse Enabled\n");
     SafeWriteString(file,"; -1 - Inverse Mouse Enabled\n");
     WriteParameter(file,"InverseMouse     ",inverse_mouse);
+    
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file,"; 1 - Allows X and Y movement with Mouse. (Default)\n");
+    SafeWriteString(file,"; 0 - Allow only X movement with Mouse.\n");
+    WriteParameter(file,"allowMovementWithMouseYAxis    ",allowMovementWithMouseYAxis);
 
     // Write out UseJump
     SafeWriteString(file,"\n;\n");

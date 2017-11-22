@@ -2480,6 +2480,8 @@ void PollVirtualReality (void)
 //******************************************************************************
 
 boolean aimbuttonpressed=false;
+extern boolean allowMovementWithMouseYAxis;
+
 void PollMove (void)
 {
     int angle;
@@ -2487,6 +2489,7 @@ void PollMove (void)
 
 
     x = KX + MX + JX + CX + VX;
+    
     y = KY + MY + JY + CY + VY;
 
     if (buttonpoll[bt_aimbutton])
@@ -2512,6 +2515,11 @@ void PollMove (void)
     else
     {
         aimbuttonpressed=false;
+    }
+    
+    if (!allowMovementWithMouseYAxis)
+    {
+        y = KY + JY + CY + VY;
     }
 
     if (player->flags & FL_FLEET)

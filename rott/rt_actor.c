@@ -3771,52 +3771,6 @@ void ResurrectEnemies()
     }
 }
 
-/*
-void SetStandAfterResurrect(objtype * actor)
-{
-    switch(actor->obclass)
-    {
-        case lowguardobj:
-            SetAfterResurrectState(actor, &s_lowgrdstand);
-            //actor->state = &s_lowgrdchase1;
-            break;
-        case highguardobj:
-            SetAfterResurrectState(actor, &s_highgrdstand);
-            //actor->state = &s_highgrdchase1;
-            break;
-        case strikeguardobj:
-            SetAfterResurrectState(actor, &s_strikestand);
-            //actor->state = &s_strikechase1;
-            break;
-        case blitzguardobj:
-            SetAfterResurrectState(actor, &s_blitzstand);
-            //actor->state = &s_blitzchase1;
-            break;
-        case triadenforcerobj:
-            SetAfterResurrectState(actor, &s_enforcerstand);
-            //actor->state = &s_enforcerchase1;
-            break;
-        case overpatrolobj:
-            SetAfterResurrectState(actor, &s_opstand);
-            //actor->state = &s_opchase1;
-            break;
-        case deathmonkobj:
-            SetAfterResurrectState(actor, &s_dmonkstand);
-            //actor->state = &s_dmonkchase1;
-            break;
-        case dfiremonkobj:
-            SetAfterResurrectState(actor, &s_firemonkstand);
-            //actor->state = &s_firemonkchase1;
-            break;
-        default:
-            Error("SetStandAfterResurrect was called with something that can't be handled!");
-            break;
-    }
-}
-*/
-
-
-
 void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush)
 {   
     statetype *temp;

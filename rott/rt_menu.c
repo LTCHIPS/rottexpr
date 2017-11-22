@@ -754,6 +754,7 @@ CP_MenuNames ExtOptionsNames[] =
 {
     "MOUSELOOK",
     "INVERSE MOUSE",
+    "ALLOW Y AXIS MOUSE",
     "CROSS HAIR",
     "JUMPING",
     "FULLSCREEN",
@@ -776,7 +777,7 @@ CP_MenuNames VisualOptionsNames[] =
 
 CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 1, 0, 43, VisualOptionsNames, mn_largefont };
 
-CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 7, 0, 43, ExtOptionsNames, mn_largefont };
+CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 8, 0, 43, ExtOptionsNames, mn_largefont };
 
 CP_iteminfo ExtGameOptionsItems = { 20, MENU_Y, 4, 0, 43, ExtGameOptionsNames, mn_largefont }; //LT added
 
@@ -789,6 +790,7 @@ CP_itemtype ExtOptionsMenu[] =
 {
     {1, "", 'M', NULL},
     {1, "", 'I', NULL},
+    {1, "", 'D', NULL},
     {1, "", 'C', NULL},
     {1, "", 'J', NULL},
     {1, "", 'F', NULL},
@@ -5437,6 +5439,7 @@ extern boolean usejump;
 extern boolean sdl_fullscreen;
 extern boolean autoAimMissileWeps;
 extern boolean autoAim;
+extern boolean allowMovementWithMouseYAxis;
 
 void CP_ExtOptionsMenu (void)
 {
@@ -5463,25 +5466,29 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 2:
-            iG_aimCross   ^= 1;
+            allowMovementWithMouseYAxis   ^= 1;
             DrawExtOptionsButtons ();
             break;
         case 3:
-            usejump       ^= 1;
+            iG_aimCross   ^= 1;
             DrawExtOptionsButtons ();
             break;
         case 4:
+            usejump       ^= 1;
+            DrawExtOptionsButtons ();
+            break;
+        case 5:
             if (SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()))
             {
                 sdl_fullscreen ^= 1;
                 DrawExtOptionsButtons ();
             }
             break;
-        case 5:
+        case 6:
             autoAimMissileWeps ^= 1;
             DrawExtOptionsButtons();
             break;
-        case 6:
+        case 7:
             autoAim ^= 1;
             DrawExtOptionsButtons();
             break;
@@ -5520,18 +5527,21 @@ void DrawExtOptionsButtons (void)
                 if (inverse_mouse == -1)on = 1;
                 break;
             case 2:
-                if (iG_aimCross   == 1) on = 1;
+                if (allowMovementWithMouseYAxis   == 1) on = 1;
                 break;
             case 3:
-                if (usejump       == 1) on = 1;
+                if (iG_aimCross   == 1) on = 1;
                 break;
             case 4:
-                if (sdl_fullscreen== 1) on = 1;
+                if (usejump       == 1) on = 1;
                 break;
             case 5:
-                if (autoAimMissileWeps == 1) on = 1;
+                if (sdl_fullscreen== 1) on = 1;
                 break;
             case 6:
+                if (autoAimMissileWeps == 1) on = 1;
+                break;
+            case 7:
                 if (autoAim == 1) on = 1;
                 break;
             }
