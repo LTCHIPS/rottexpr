@@ -1198,10 +1198,21 @@ void PreCache( void )
                                       PRECACHEBARY+PRECACHELED1Y,
                                       W_GetNumForName ("led1"));//led1 progressbar
                 } else if ( iGLOBAL_SCREENWIDTH == 640) {
-                    DrawNormalSprite (72+(Gs*(lastmem<<2)),446,W_GetNumForName ("led1"));//led1 progressbar
-                    DrawNormalSprite (72+(Gs*(lastmem<<2)),446+3,W_GetNumForName ("led1"));//led1 progressbar
-                    DrawNormalSprite (72+3+(Gs*(lastmem<<2)),446,W_GetNumForName ("led1"));//led1 progressbar
-                    DrawNormalSprite (72+3+(Gs*(lastmem<<2)),446+3,W_GetNumForName ("led1"));//led1 progressbar
+                    if (iGLOBAL_SCREENHEIGHT == 400)
+                    {
+                        DrawNormalSprite (72+(Gs*(lastmem<<2)),364,W_GetNumForName ("led1"));//led1 progressbar
+                        DrawNormalSprite (72+(Gs*(lastmem<<2)),364+3,W_GetNumForName ("led1"));//led1 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastmem<<2)),364,W_GetNumForName ("led1"));//led1 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastmem<<2)),364+3,W_GetNumForName ("led1"));//led1 progressbar                    
+                    }
+                    else
+                    {
+                        DrawNormalSprite (72+(Gs*(lastmem<<2)),446,W_GetNumForName ("led1"));//led1 progressbar
+                        DrawNormalSprite (72+(Gs*(lastmem<<2)),446+3,W_GetNumForName ("led1"));//led1 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastmem<<2)),446,W_GetNumForName ("led1"));//led1 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastmem<<2)),446+3,W_GetNumForName ("led1"));//led1 progressbar
+                    }
+                    
                 } else if ( iGLOBAL_SCREENWIDTH == 800) {
                     DrawNormalSprite (91+(Gs*(lastmem<<2)),559,W_GetNumForName ("led1"));//led1 progressbar
                     DrawNormalSprite (91+(Gs*(lastmem<<2)),559+3,W_GetNumForName ("led1"));//led1 progressbar
@@ -1221,10 +1232,20 @@ void PreCache( void )
                                       PRECACHEBARY+PRECACHELED2Y,
                                       W_GetNumForName ("led2"));//led2 progressbar
                 } else if ( iGLOBAL_SCREENWIDTH == 640) {
-                    DrawNormalSprite (72+(Gs*(lastcache<<2)),458,W_GetNumForName ("led2"));//led2 progressbar
-                    DrawNormalSprite (72+(Gs*(lastcache<<2)),458+3,W_GetNumForName ("led2"));//led2 progressbar
-                    DrawNormalSprite (72+3+(Gs*(lastcache<<2)),458,W_GetNumForName ("led2"));//led2 progressbar
-                    DrawNormalSprite (72+3+(Gs*(lastcache<<2)),458+3,W_GetNumForName ("led2"));//led2 progressbar
+                    if (iGLOBAL_SCREENHEIGHT == 400)
+                    {
+                        DrawNormalSprite (72+(Gs*(lastcache<<2)),378,W_GetNumForName ("led2"));//led2 progressbar
+                        DrawNormalSprite (72+(Gs*(lastcache<<2)),378+3,W_GetNumForName ("led2"));//led2 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastcache<<2)),378,W_GetNumForName ("led2"));//led2 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastcache<<2)),378+3,W_GetNumForName ("led2"));//led2 progressbar
+                    }
+                    else
+                    {
+                        DrawNormalSprite (72+(Gs*(lastcache<<2)),458,W_GetNumForName ("led2"));//led2 progressbar
+                        DrawNormalSprite (72+(Gs*(lastcache<<2)),458+3,W_GetNumForName ("led2"));//led2 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastcache<<2)),458,W_GetNumForName ("led2"));//led2 progressbar
+                        DrawNormalSprite (72+3+(Gs*(lastcache<<2)),458+3,W_GetNumForName ("led2"));//led2 progressbar
+                    }
 
                 } else if ( iGLOBAL_SCREENWIDTH == 800) {
                     DrawNormalSprite (91+(Gs*(lastcache<<2)),573,W_GetNumForName ("led2"));//led2 progressbar

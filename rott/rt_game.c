@@ -468,11 +468,13 @@ void DrawPlayScreen (boolean bufferofsonly)
             if (iGLOBAL_SCREENWIDTH == 640) {
                 if (iGLOBAL_SCREENHEIGHT == 400)
                 {
-                    shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+                    pic_t * shapeTile =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shapeTile );
                     shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
                     
                     GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+                    
+                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, (topBarCenterOffsetX >> 1) + (iGLOBAL_SCREENWIDTH>>1), 16, 0,16, shapeTile );
                     
                 }
                 else
