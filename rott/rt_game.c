@@ -471,11 +471,10 @@ void DrawPlayScreen (boolean bufferofsonly)
                     pic_t * shapeTile =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
                     DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shapeTile );
                     shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-                    
+                  
+                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shapeTile );
+                    DrawTiledRegion(320 + topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT -16, topBarCenterOffsetX ,16, 0, 16, shapeTile);
                     GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
-                    
-                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, (topBarCenterOffsetX >> 1) + (iGLOBAL_SCREENWIDTH>>1), 16, 0,16, shapeTile );
-                    
                 }
                 else
                 {
