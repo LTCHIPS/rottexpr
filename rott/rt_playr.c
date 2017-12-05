@@ -2918,14 +2918,27 @@ void PollControls (void)
     controlbuf[0] = controlbuf[1] = controlbuf[2] = 0;
     CYBERLOOKUP = CYBERLOOKDOWN = false;
 
-    if (gamestate.autorun==1)
-        buttonpoll[bt_run] = true;
+    //if (gamestate.autorun==1)
+        //buttonpoll[bt_run] = true;
 
 
 //
 // get button states
 //
     PollKeyboardButtons ();
+    
+    if (gamestate.autorun == 1)
+    {
+        if (buttonpoll[bt_run])
+        {
+            buttonpoll[bt_run] = false;
+        }
+        else
+        {
+            buttonpoll[bt_run] = true;
+            
+        }
+    }
 
     if (mouseenabled && !cybermanenabled)
         PollMouseButtons ();
