@@ -2521,6 +2521,11 @@ void PollMove (void)
     {
         y = KY + JY + CY + VY;
     }
+    //kill any movement
+    if (aimbuttonpressed)
+    {
+        y = 0;
+    }
 
     if (player->flags & FL_FLEET)
         y += y>>1;
