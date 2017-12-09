@@ -5432,6 +5432,42 @@ void DrawExtOptionsMenu (void)
 
     FlipMenuBuf();
 }
+
+static char * ExtOptionsDesc[8] = {
+    "Allow mouse look.",
+    "Invert the mouse.",
+    "Move forward and backward using mouse.",
+    "Enable Crosshairs.",
+    "Allow Jumping (may completely break levels)",
+    "Toggle Fullscreen",
+    "Missile weapons are auto aimed after 1st shot.",
+    "Allow auto aim"
+
+};
+
+void DrawExtOptionDescription (int w)
+{
+
+    int     width;
+    int     height;
+    char   *string;
+    font_t *temp;
+
+    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+
+    temp = CurrentFont;
+    CurrentFont = tinyfont;
+
+    string = ExtOptionsDesc[ w ];
+
+    VW_MeasurePropString ( string, &width, &height );
+    DrawMenuBufPropString ( ( 288 - width ) / 2, 4, string );
+
+    CurrentFont = temp;
+
+
+}
+
 extern int inverse_mouse;
 extern boolean usemouselook;
 extern boolean iG_aimCross;
@@ -5441,6 +5477,8 @@ extern boolean autoAimMissileWeps;
 extern boolean autoAim;
 extern boolean allowMovementWithMouseYAxis;
 
+
+
 void CP_ExtOptionsMenu (void)
 {
     int which;
@@ -5449,7 +5487,7 @@ void CP_ExtOptionsMenu (void)
 
     do
     {
-        which = HandleMenu (&ExtOptionsItems, &ExtOptionsMenu[0], NULL);
+        which = HandleMenu (&ExtOptionsItems, &ExtOptionsMenu[0], DrawExtOptionDescription);
 
         switch (which)
         {
@@ -5556,6 +5594,13 @@ extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
 extern boolean enableZomROTT = 0;
 extern boolean enableExtraPistolDrops;
+static char *ExtGameOptionsDesc[ sizeof(ExtGameOptionsItems)] =
+{
+    "Allow Blitzguards to be randomly given any missile weapon.",
+    "Take ammo from dropped missile weapons upon touching them.",
+    "Guards with pistols drop their pistol when killed.",
+    "If enabled, guards will respawn UNLESS if GIBBED."
+};
 
 void DrawExtGameOptionsButtons (void)
 {
@@ -5579,16 +5624,36 @@ void DrawExtGameOptionsButtons (void)
             switch (i)
             {
             case 0:
-                if (allowBlitzMoreMissileWeps  == 1) on = 1;
+                if (allowBlitzMoreMissileWeps  == 1){
+                    on = 1;
+                }
                 break;
             case 1:
-                if (enableAmmoPickups == 1) on = 1;
+                if (enableAmmoPickups == 1) {
+/*
+                    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+                    DrawOptionDescription( ExtGameOptionsDesc, 1);
+*/
+                    on = 1;
+                }
                 break;
             case 2:
-                if (enableExtraPistolDrops == 1) on = 1;
+                if (enableExtraPistolDrops == 1){
+/*
+                    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+                    DrawOptionDescription( ExtGameOptionsDesc, 2 );
+*/
+                    on = 1;
+                }
                 break;
             case 3:
-                if (enableZomROTT == 1) on = 1;
+                if (enableZomROTT == 1) {
+/*
+                    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+                    DrawOptionDescription( ExtGameOptionsDesc, 3 );
+*/
+                    on = 1;
+                }
                 break;
             }
 
@@ -5600,9 +5665,6 @@ void DrawExtGameOptionsButtons (void)
         }
 
 }
-
-
-
 
 void DrawExtGameMenu (void)
 {
@@ -5622,6 +5684,31 @@ void DrawExtGameMenu (void)
     FlipMenuBuf();
 
 }
+
+void DrawExtGameOptionDescription (int w)
+{
+
+    int     width;
+    int     height;
+    char   *string;
+    font_t *temp;
+
+    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+
+    temp = CurrentFont;
+    CurrentFont = tinyfont;
+
+    string = ExtGameOptionsDesc[ w ];
+
+    VW_MeasurePropString ( string, &width, &height );
+    DrawMenuBufPropString ( ( 288 - width ) / 2, 4, string );
+
+    CurrentFont = temp;
+
+
+}
+
+
 //****************************************************************************
 //
 // DrawExtGameOptionsMenu ()  () LT added
@@ -5636,8 +5723,13 @@ void CP_ExtGameOptionsMenu (void)
 
     do
     {
-        which = HandleMenu (&ExtGameOptionsItems, &ExtGameMenu[0], NULL);
+        //EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+        //DrawOptionDescription( ExtGameOptionsDesc, w );
+        which = HandleMenu (&ExtGameOptionsItems, &ExtGameMenu[0], DrawExtGameOptionDescription);
 
+        //EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+        //DrawOptionDescription( ExtGameOptionsDesc, which);
+        
         switch (which)
         {
         case 0:
