@@ -418,6 +418,7 @@ int topBarCenterOffsetX;
 void DrawPlayScreen (boolean bufferofsonly)
 {
     pic_t *shape;
+    
     int    shapenum;
     int ShowKillsYoffset = 0;//bna++
 
@@ -468,12 +469,14 @@ void DrawPlayScreen (boolean bufferofsonly)
             if (iGLOBAL_SCREENWIDTH == 640) {
                 if (iGLOBAL_SCREENHEIGHT == 400)
                 {
-                    pic_t * shapeTile =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shapeTile );
+                    shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+//                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shape );
+                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+                    
                     shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
                   
-                    DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shapeTile );
-                    DrawTiledRegion(320 + topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT -16, topBarCenterOffsetX ,16, 0, 16, shapeTile);
+                    //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shape );
+                    //DrawTiledRegion(320 + topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT -16, topBarCenterOffsetX ,16, 0, 16, shapeTile);
                     GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
                 }
                 else
@@ -492,17 +495,24 @@ void DrawPlayScreen (boolean bufferofsonly)
                 }
 
             } else if (iGLOBAL_SCREENWIDTH == 800) {
-                GameMemToScreen( shape, 800-320, 584-ShowKillsYoffset, bufferofsonly );
+                shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+                DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+                shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+                  
+                //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, topBarCenterOffsetX, 16, 0,16, shapeTile );
+                //DrawTiledRegion(320 + topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT -16, topBarCenterOffsetX , 16, 0, 16, shapeTile);
+                GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+                //GameMemToScreen( shape, 800-320, 584-ShowKillsYoffset, bufferofsonly );
                 //copy next shape to mem
-                GameMemToScreen( shape, 300, 584-ShowKillsYoffset, bufferofsonly );
+                //GameMemToScreen( shape, 300, 584-ShowKillsYoffset, bufferofsonly );
                 //copy next shape to mem
-                GameMemToScreen( shape, 0, 584-ShowKillsYoffset, bufferofsonly );
+                //GameMemToScreen( shape, 0, 584-ShowKillsYoffset, bufferofsonly );
                 // delete 2 bullets in middle of shape picture
-                DrawPPic( 305, 584+1-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
+                //DrawPPic( 305, 584+1-ShowKillsYoffset, 8 >> 2, 16,
+                //          ( byte * )&erase->data, 2, true, bufferofsonly );
                 // delete hart in middle of shape picture
-                DrawPPic( 610, 584+1-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
+                //DrawPPic( 610, 584+1-ShowKillsYoffset, 8 >> 2, 16,
+                //          ( byte * )&erase->data, 2, true, bufferofsonly );
 
             } else {
                 GameMemToScreen( shape, 0, 184, bufferofsonly );

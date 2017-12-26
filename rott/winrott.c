@@ -55,11 +55,26 @@ void SetRottScreenRes (int Width, int Height)
 
     iGLOBAL_SCREENWIDTH = Width;
     iGLOBAL_SCREENHEIGHT = Height;
+    
+    iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
+    dGLOBAL_FPFOCALWIDTH = (double) iGLOBAL_FOCALWIDTH;
 
+    int middleWidth = Width / 2;
+    
+    iGLOBAL_AMMO_X = middleWidth + 160 - 20;
+    
+    iGLOBAL_AMMO_Y = iGLOBAL_SCREENHEIGHT - 16;
+    
+    iGLOBAL_HEALTH_X = middleWidth - 160 + 20;
+    
+    iGLOBAL_HEALTH_Y = iGLOBAL_AMMO_Y;
 
     iGLOBAL_SCREENBWIDE = iGLOBAL_SCREENWIDTH*(96/320);
     iG_SCREENWIDTH = iGLOBAL_SCREENWIDTH*(96/320);;// default screen width in bytes
+    
+    dTopYZANGLELIMIT = (44*FINEANGLES/360);;
 
+/*
     if (iGLOBAL_SCREENWIDTH == 320) {
         iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
         dGLOBAL_FPFOCALWIDTH = 160.0 - FocalWidthOffset;
@@ -107,6 +122,7 @@ void SetRottScreenRes (int Width, int Height)
 
         dTopYZANGLELIMIT = (90*FINEANGLES/360);;
     }
+*/
 
     //dYZANGLELIMIT = (12*FINEANGLES/360);
     //#define YZANGLELIMIT  (12*FINEANGLES/360)//bna--(30*FINEANGLES/360)
