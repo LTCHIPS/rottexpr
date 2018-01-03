@@ -376,26 +376,37 @@ void SetViewSize
         height = 0;
         viewsizes[height++]= 556;
         viewsizes[height++]= 488;
+        
         viewsizes[height++]= 588;
         viewsizes[height++]= 504;
+        
         viewsizes[height++]= 620;
         viewsizes[height++]= 520;
+        
         viewsizes[height++]= 652;
         viewsizes[height++]= 536;
+        
         viewsizes[height++]= 684;
         viewsizes[height++]= 552;
+        
         viewsizes[height++]= 716;
         viewsizes[height++]= 568;
+        
         viewsizes[height++]= 748;
         viewsizes[height++]= 584;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
     }
 
 
