@@ -6010,6 +6010,21 @@ void DrawRotRow(int count, byte * dest, byte * src)
         }
 
     }
+    else if (iGLOBAL_SCREENWIDTH == 1024) {
+	while (count--) {
+            eax = edx >> 16;
+            if (eax < (256*3.1) && (ecx >> 16) < (512*2.0)) {
+                eax = (eax << 10) | ((ecx << 6) >> (32-10));
+            } else {
+		eax = 0;
+            }
+			
+            *dest++ = src[eax];
+			
+            edx += mr_xstep;
+		ecx += mr_ystep;
+        }
+    }
 }
 
 void DrawMaskedRotRow(int count, byte * dest, byte * src)
