@@ -111,7 +111,7 @@ int iGLOBAL_SCREENHEIGHT;//bna val 600
 extern  boolean StretchScreen;//bn�++
 
 //extern  int      ylookup[MAXSCREENHEIGHT];      // Table of row offsets
-extern  int      ylookup[768];      // just set to max res
+extern  int      ylookup[1024];      // just set to max res
 extern  int      linewidth;
 extern  byte    *page1start;
 extern  byte    *page2start;

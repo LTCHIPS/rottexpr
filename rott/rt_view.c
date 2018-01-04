@@ -87,7 +87,7 @@ byte * redmap;
 byte * greenmap;
 byte * playermaps[MAXPLAYERCOLORS];
 //short  pixelangle[MAXVIEWWIDTH];
-short  pixelangle[1024];
+short  pixelangle[1280];
 byte   gammatable[GAMMAENTRIES];
 int    gammaindex;
 int    focalwidth=160;
@@ -443,6 +443,42 @@ void SetViewSize
         viewsizes[height++]= 1024; 
         viewsizes[height++]= 768;
 	}
+    else if ( iGLOBAL_SCREENWIDTH == 1280)
+    {
+        height = 0;
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+    }
 
 
     if ((size<0) || (size>=MAXVIEWSIZES)) { //bna added
