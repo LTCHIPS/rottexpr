@@ -3094,8 +3094,8 @@ void StartupRotateBuffer ( int masked)
 
 //   int Xres = 320;//org
 //   int Yres = 200;//org
-    int   Xres =   iGLOBAL_SCREENWIDTH;//bna val 800
-    int   Yres = iGLOBAL_SCREENHEIGHT;//bna val 600
+    int   Xres =   iGLOBAL_SCREENWIDTH;
+    int   Yres = iGLOBAL_SCREENHEIGHT;
 
 
     iG_masked = masked;
@@ -3133,7 +3133,7 @@ void StartupRotateBuffer ( int masked)
             //memset(RotatedImage,0,131072);//org
             memset(RotatedImage,0,131072*8);
         }else if (iGLOBAL_SCREENWIDTH == 1024) { 
-		  memset(RotatedImage,0,131072*14);
+            memset(RotatedImage,0,131072*14);
         }
         else if (iGLOBAL_SCREENWIDTH == 1280)
         {
@@ -3345,8 +3345,8 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         xct = (((-cx)*c)+((397)<<16)+(1<<18)-(1<<16))+(cy*s);
     }//328 397
     else if ((iGLOBAL_SCREENWIDTH == 1024 )&&(masked == false)) {
-	   xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
-	   xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
+	xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
+	xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
    }//388 397
 
     mr_xstep=s;
@@ -6011,6 +6011,15 @@ void DrawRotRow(int count, byte * dest, byte * src)
 
     }
     else if (iGLOBAL_SCREENWIDTH == 1024) {
+        srctmp = src;
+        desttmp = dest;
+
+        desttmp -= (iGLOBAL_SCREENWIDTH*1);
+
+/*
+        ecx = mr_yfrac;
+        edx = mr_xfrac;
+*/
 	while (count--) {
             eax = edx >> 16;
             if (eax < (256*3.1) && (ecx >> 16) < (512*2.0)) {
@@ -6019,10 +6028,10 @@ void DrawRotRow(int count, byte * dest, byte * src)
 		eax = 0;
             }
 			
-            *dest++ = src[eax];
+            *desttmp++ = srctmp[eax];
 			
             edx += mr_xstep;
-		ecx += mr_ystep;
+            ecx += mr_ystep;
         }
     }
 }
