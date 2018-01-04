@@ -1181,19 +1181,18 @@ void PreCache( void )
                         
     double ratioNewToOldHeight = ((double)iGLOBAL_SCREENHEIGHT)/200.0;
     
-    double newPrecacheBarX = ratioNewToOldWidth * 28.0;
-    double newPrecacheBarY = ratioNewToOldHeight * 178.0;
+    double newPrecacheBarX = ratioNewToOldWidth * 28.0; //PRECACHEBARX = 28
     
-    double newPrecacheBar1LedX = ratioNewToOldWidth * (double)9.0;
+    double newPrecacheBarY = ratioNewToOldHeight * 178.0; //PRECACHEBARY = 178
+    
+    double newPrecacheBar1LedX = ratioNewToOldWidth * (double)9.0; //PRECACHEBAR1LEDX = 9
                         
-    double newPrecacheBar1LedY = ratioNewToOldHeight * (double)8.0;
+    double newPrecacheBar1LedY = ratioNewToOldHeight * (double)8.0; //PRECACHEBAR1LEDY = 8
     
-    double newPrecacheBar2LedX = newPrecacheBar1LedX;
+    double newPrecacheBar2LedX = newPrecacheBar1LedX; //PRECACHEBAR2LEDX = PRECACHEBAR1LEDX
     
-    double newPrecacheBar2LedY = ratioNewToOldHeight * (double)12.0;
+    double newPrecacheBar2LedY = ratioNewToOldHeight * (double)12.0; //PRECACHEBAR2LEDY = 12
     
-    
-
     if (loadedgame==false)
     {
         maxheapsize=Z_HeapSize();
@@ -1210,14 +1209,19 @@ void PreCache( void )
             currentmem=(newheap*MAXLEDS)/maxheapsize;
             while (lastmem<=currentmem)
             {   //SetTextMode (  );
-                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2))),
-                                            (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2))),
-                                          (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
+                //Note: This isn't drawing 4 LED thingys... its just drawing one big one (made up of 4 of the LED thingys)
+                
+                DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2))),
+                                  (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
+                
+                DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2))),
+                                  (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
+                
+                DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
+                                  (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
+                
+                DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
+                                  (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
                 
 /*
                 if ( iGLOBAL_SCREENWIDTH == 320) {
@@ -1259,13 +1263,13 @@ void PreCache( void )
             while (lastcache<=currentcache)
             {
                 DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
-                                            (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
-                                          (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
+                                  (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
+                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
+                                  (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
+                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
+                                  (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
+                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
+                                  (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
 /*
                 if ( iGLOBAL_SCREENWIDTH == 320) {
                     DrawNormalSprite (PRECACHEBARX+PRECACHELED2X+(lastcache<<2),

@@ -33,6 +33,7 @@ fixed FixedDiv2(fixed a, fixed b)
 
 fixed FixedScale(fixed orig, fixed factor, fixed divisor)
 {
+/*
     __int64 x = orig;
     __int64 y = factor;
     __int64 z = divisor;
@@ -40,4 +41,7 @@ fixed FixedScale(fixed orig, fixed factor, fixed divisor)
     __int64 w = (x * y) / z;
 
     return (w) & 0xffffffff;
+*/
+    //changed to this because arithmetic errors occurred with resolutions > 800x600
+    return (float)orig * factor / divisor;
 }

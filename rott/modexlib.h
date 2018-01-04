@@ -108,10 +108,10 @@ int iGLOBAL_SCREENHEIGHT;//bna val 600
 #define PEL_DATA                0x3c9
 #endif
 
-extern  boolean StretchScreen;//bná++
+extern  boolean StretchScreen;//bnï¿½++
 
 //extern  int      ylookup[MAXSCREENHEIGHT];      // Table of row offsets
-extern  int      ylookup[600];      // just set to max res
+extern  int      ylookup[768];      // just set to max res
 extern  int      linewidth;
 extern  byte    *page1start;
 extern  byte    *page2start;

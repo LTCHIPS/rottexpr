@@ -3114,6 +3114,10 @@ void StartupRotateBuffer ( int masked)
     } else if (iGLOBAL_SCREENWIDTH == 800) {
         RotatedImage=SafeMalloc(131072*8);
     }
+    else if (iGLOBAL_SCREENWIDTH == 1024)
+    {
+        RotatedImage=SafeMalloc(131072*14);
+    }
 //SetupScreen(false);//used these 2 to test screen size
 //VW_UpdateScreen ();
     if (masked==0) {
@@ -3124,6 +3128,8 @@ void StartupRotateBuffer ( int masked)
         } else if (iGLOBAL_SCREENWIDTH == 800) {
             //memset(RotatedImage,0,131072);//org
             memset(RotatedImage,0,131072*8);
+        }else if (iGLOBAL_SCREENWIDTH == 1024) { 
+		  memset(RotatedImage,0,131072*14);
         }
     } else {
         if (iGLOBAL_SCREENWIDTH == 320) {
@@ -3133,11 +3139,14 @@ void StartupRotateBuffer ( int masked)
         } else if (iGLOBAL_SCREENWIDTH == 800) {
             memset(RotatedImage,0xff,131072*8);
         }
+        else if (iGLOBAL_SCREENWIDTH == 1024) { 
+            memset(RotatedImage,0xff,131072*14);
+        }
     }
     //memset(RotatedImage,0xff,131072);//org
     //memset(RotatedImage,0xff,131072*8);
 
-    if ((masked == false)&&(iGLOBAL_SCREENWIDTH == 800)) {
+    if ((masked == false)&&(iGLOBAL_SCREENWIDTH >= 800)) {
         DisableScreenStretch();
         // SetTextMode (  );
 
@@ -3323,12 +3332,16 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         xst = (((-cx)*s)+((328)<<16))-(cy*c);
         xct = (((-cx)*c)+((397)<<16)+(1<<18)-(1<<16))+(cy*s);
     }//328 397
+    else if ((iGLOBAL_SCREENWIDTH == 1024 )&&(masked == false)) {
+	   xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
+	   xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
+   }//388 397
 
     mr_xstep=s;
     mr_ystep=c;
 
 
-    if ((iGLOBAL_SCREENWIDTH == 800)&&(masked==0)) {
+    if ((iGLOBAL_SCREENWIDTH >= 800)&&(masked==0)) {
         screen=destscreen+iGLOBAL_SCREENWIDTH;//bna aaaa fix
     } else {
         screen=destscreen;

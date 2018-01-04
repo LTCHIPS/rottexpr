@@ -583,6 +583,9 @@ boolean ParseConfigFile (void)
             } else if (iGLOBAL_SCREENWIDTH == 800) {
                 G_weaponscale=376;
             }
+            else if (iGLOBAL_SCREENWIDTH == 1024) {
+                G_weaponscale=512;
+            }
         }
 
         // Read in MouseAdjustment
@@ -1880,6 +1883,10 @@ void WriteConfig (void)
             G_weaponscale=299;
         } else if (iGLOBAL_SCREENWIDTH == 800) {
             G_weaponscale=376;
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1024)
+        {
+            G_weaponscale=512;
         }
     }
     WriteParameter(file,"Weaponscale         ",G_weaponscale);

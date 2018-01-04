@@ -76,7 +76,7 @@ byte *   mr_src;
 static byte     *floor;
 static byte     *ceiling;
 //static int xstarts[MAXVIEWHEIGHT];
-static int xstarts[600];//set to max hight res
+static int xstarts[768];//set to max hight res
 static byte * skysegs[MAXSKYSEGS];
 static byte * skydata[MAXSKYDATA];
 static int      horizonheight;
@@ -274,7 +274,7 @@ void MakeSkyData ( void )
     byte * ptr;
     int c;
 
-    temp=SafeMalloc(256*800);
+    temp=SafeMalloc(256*1024);
 
     ptr=temp;
 

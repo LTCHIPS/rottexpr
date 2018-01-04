@@ -87,7 +87,7 @@ byte * redmap;
 byte * greenmap;
 byte * playermaps[MAXPLAYERCOLORS];
 //short  pixelangle[MAXVIEWWIDTH];
-short  pixelangle[800];
+short  pixelangle[1024];
 byte   gammatable[GAMMAENTRIES];
 int    gammaindex;
 int    focalwidth=160;
@@ -212,7 +212,7 @@ void SetViewDelta ( void )
         scale = (centerx*focalwidth)/(160);
     } else if ( iGLOBAL_SCREENWIDTH == 640) {
         scale = (centerx*focalwidth)/(160);
-    } else if ( iGLOBAL_SCREENWIDTH == 800) {
+    } else if ( iGLOBAL_SCREENWIDTH >= 800) {
         scale = (centerx*focalwidth)/(160);
     }
 //
@@ -408,6 +408,41 @@ void SetViewSize
         viewsizes[height++]= 600;
         
     }
+    else if ( iGLOBAL_SCREENWIDTH == 1024) {
+	height = 0;
+	viewsizes[height++]= 556; 
+        viewsizes[height++]= 488;
+        
+        viewsizes[height++]= 588; 
+        viewsizes[height++]= 504;
+        
+        viewsizes[height++]= 620; 
+        viewsizes[height++]= 520;
+        
+        viewsizes[height++]= 816; 
+        viewsizes[height++]= 704;
+        
+        viewsizes[height++]= 868; 
+        viewsizes[height++]= 720;
+        
+        viewsizes[height++]= 920; 
+        viewsizes[height++]= 736;
+        
+        viewsizes[height++]= 972; 
+        viewsizes[height++]= 752;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+	}
 
 
     if ((size<0) || (size>=MAXVIEWSIZES)) { //bna added

@@ -38,7 +38,7 @@ typedef struct
     int      posttype;
     int      alttile;
 } wallcast_t;
-extern wallcast_t posts[800+2];//bna++ JUST MAKE IT MAX RES
+extern wallcast_t posts[1024+4];//bna++ JUST MAKE IT MAX RES
 //extern wallcast_t posts[642];//bna++
 //extern wallcast_t posts[321];
 
