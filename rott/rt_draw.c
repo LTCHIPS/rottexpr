@@ -3041,8 +3041,7 @@ void DoLoadGameSequence ( void )
     dy=(-y)/time;
     ds=-((s-0x1000000)/time);
 
-    destscreen=SafeMalloc(64000*24);//bna fixme
-
+    destscreen=SafeMalloc(iGLOBAL_SCREENWIDTH*iGLOBAL_SCREENHEIGHT);
     SetupScreen(false);
     ThreeDRefresh();
 
@@ -3122,6 +3121,14 @@ void StartupRotateBuffer ( int masked)
     {
         RotatedImage=SafeMalloc(131072*20);
     }
+    else if (iGLOBAL_SCREENWIDTH == 1400)
+    {
+        RotatedImage=SafeMalloc(131072*30);
+    }
+    else if (iGLOBAL_SCREENWIDTH == 1920)
+    {
+        RotatedImage=SafeMalloc(131072*50);
+    }
 //SetupScreen(false);//used these 2 to test screen size
 //VW_UpdateScreen ();
     if (masked==0) {
@@ -3139,6 +3146,14 @@ void StartupRotateBuffer ( int masked)
         {
             memset(RotatedImage, 0, 131072*20);
         }
+        else if (iGLOBAL_SCREENWIDTH == 1400)
+        {
+            memset(RotatedImage, 0, 131072*30);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1920)
+        {
+            memset(RotatedImage, 0, 131072*50);
+        }
     } else {
         if (iGLOBAL_SCREENWIDTH == 320) {
             memset(RotatedImage,0xff,131072);
@@ -3153,6 +3168,14 @@ void StartupRotateBuffer ( int masked)
         else if (iGLOBAL_SCREENWIDTH == 1280)
         {
             memset(RotatedImage, 0xff, 131072*20);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1400)
+        {
+            memset(RotatedImage, 0xff, 131072*30);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1920)
+        {
+            memset(RotatedImage, 0xff, 131072*50);
         }
     }
     //memset(RotatedImage,0xff,131072);//org

@@ -53,7 +53,7 @@ char 	   *iG_buf_center;
 
 int    linewidth;
 //int    ylookup[MAXSCREENHEIGHT];
-int    ylookup[1024];//just set to max res
+int    ylookup[1080];//just set to max res
 byte  *page1start;
 byte  *page2start;
 byte  *page3start;
@@ -434,9 +434,9 @@ void GraphicsMode ( void )
 #if defined(PLATFORM_WIN32) || defined(PLATFORM_MACOSX)
     // FIXME: remove this.  --ryan.
     flags = SDL_FULLSCREEN;
-    SDL_WM_GrabInput(SDL_GRAB_ON);
+    
 #endif
-
+    SDL_WM_GrabInput(SDL_GRAB_ON);
     SDL_WM_SetCaption ("Rise of the Triad", "ROTT");
     SDL_ShowCursor (0);
 //    sdl_surface = SDL_SetVideoMode (320, 200, 8, flags);

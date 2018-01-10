@@ -1145,7 +1145,7 @@ void GameLoop (void)
 
     while (1)
     {
-        SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<2, iGLOBAL_SCREENHEIGHT<<2);
+        SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<1, iGLOBAL_SCREENHEIGHT<<1);
         if ( playstate == ex_battledone )
         {
             while( damagecount > 0 )

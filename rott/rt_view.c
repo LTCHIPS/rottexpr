@@ -87,7 +87,7 @@ byte * redmap;
 byte * greenmap;
 byte * playermaps[MAXPLAYERCOLORS];
 //short  pixelangle[MAXVIEWWIDTH];
-short  pixelangle[1280];
+short  pixelangle[1920];
 byte   gammatable[GAMMAENTRIES];
 int    gammaindex;
 int    focalwidth=160;
@@ -478,6 +478,78 @@ void SetViewSize
         
         viewsizes[height++]= 1280; 
         viewsizes[height++]= 1024;
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 1400)
+    {
+        height = 0;
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 1920)
+    {
+        height = 0;
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1080;
     }
 
 
