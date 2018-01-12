@@ -455,7 +455,7 @@ void DrawPlayScreen (boolean bufferofsonly)
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
                 
             //this causes a seg fault when MUSIC_StopSong calls Mix_HaltMusic for some odd reason when player pauses the game...
-            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT, iGLOBAL_SCREENWIDTH, 16, 10,10, shape );
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
                 
             //...yet if we do this...no seg fault
             DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
@@ -2932,27 +2932,29 @@ void ScreenShake (void)
         case 0:
             displayofs += 1;
             MoveScreenUpLeft();//SetTextMode (  );
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 1:
             displayofs -= 1;
             MoveScreenUpRight();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 2:
             displayofs += 3*iGLOBAL_SCREENBWIDE;
             MoveScreenDownLeft();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 3:
             displayofs -= 3*iGLOBAL_SCREENBWIDE;
             MoveScreenDownRight();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
         }
+        if (playstate != ex_gameover)
+            DrawPlayScreen(true);//repaint ammo and life stat
 
     }
 }

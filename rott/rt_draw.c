@@ -3106,6 +3106,13 @@ void StartupRotateBuffer ( int masked)
 
     //   RotatedImage=SafeMalloc(131072);org
     //RotatedImage=SafeMalloc(131072*8);
+    
+    
+    int amountToAlloc = ((iGLOBAL_SCREENWIDTH * iGLOBAL_SCREENHEIGHT)*2) + 3072; //this replaces 131072
+    
+    RotatedImage = SafeMalloc(amountToAlloc);
+    
+/*
     if (iGLOBAL_SCREENWIDTH == 320) {
         RotatedImage=SafeMalloc(131072);
     } else if (iGLOBAL_SCREENWIDTH == 640) {
@@ -3123,15 +3130,20 @@ void StartupRotateBuffer ( int masked)
     }
     else if (iGLOBAL_SCREENWIDTH == 1400)
     {
-        RotatedImage=SafeMalloc(131072*30);
+        RotatedImage=SafeMalloc(131072*20);
     }
     else if (iGLOBAL_SCREENWIDTH == 1920)
     {
         RotatedImage=SafeMalloc(131072*50);
     }
+*/
 //SetupScreen(false);//used these 2 to test screen size
 //VW_UpdateScreen ();
-    if (masked==0) {
+    if (masked==0) 
+        memset(RotatedImage, 0, amountToAlloc);
+    else
+        memset(RotatedImage, 0xff, amountToAlloc);
+/*
         if (iGLOBAL_SCREENWIDTH == 320) {
             memset(RotatedImage,0,131072);
         } else if (iGLOBAL_SCREENWIDTH == 640) {
@@ -3148,7 +3160,7 @@ void StartupRotateBuffer ( int masked)
         }
         else if (iGLOBAL_SCREENWIDTH == 1400)
         {
-            memset(RotatedImage, 0, 131072*30);
+            memset(RotatedImage, 0, 131072*20);
         }
         else if (iGLOBAL_SCREENWIDTH == 1920)
         {
@@ -3171,13 +3183,14 @@ void StartupRotateBuffer ( int masked)
         }
         else if (iGLOBAL_SCREENWIDTH == 1400)
         {
-            memset(RotatedImage, 0xff, 131072*30);
+            memset(RotatedImage, 0xff, 131072*20);
         }
         else if (iGLOBAL_SCREENWIDTH == 1920)
         {
             memset(RotatedImage, 0xff, 131072*50);
         }
-    }
+*/
+    
     //memset(RotatedImage,0xff,131072);//org
     //memset(RotatedImage,0xff,131072*8);
 
@@ -3309,7 +3322,6 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 // RotateBuffer
 //
 //******************************************************************************
-
 void RotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
 {
     int savetics;
