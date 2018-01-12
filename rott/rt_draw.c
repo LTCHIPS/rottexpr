@@ -3322,8 +3322,11 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 // RotateBuffer
 //
 //******************************************************************************
+
+extern boolean skipRotate;
+
 void RotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
-{
+{   
     int savetics;
 
     //save off fastcounter
@@ -3379,7 +3382,7 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         xst = (((-cx)*s)+((328)<<16))-(cy*c);
         xct = (((-cx)*c)+((397)<<16)+(1<<18)-(1<<16))+(cy*s);
     }//328 397
-    else if ((iGLOBAL_SCREENWIDTH == 1024 )&&(masked == false)) {
+    else if ((iGLOBAL_SCREENWIDTH >= 1024 )&&(masked == false)) {
 	xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
 	xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
    }//388 397
@@ -6002,9 +6005,6 @@ void DrawRotRow(int count, byte * dest, byte * src)
             ecx += mr_ystep;
         }
     } else if (iGLOBAL_SCREENWIDTH == 800) {
-
-
-
         srctmp = src;
         desttmp = dest;
 
@@ -6045,7 +6045,7 @@ void DrawRotRow(int count, byte * dest, byte * src)
         }
 
     }
-    else if (iGLOBAL_SCREENWIDTH == 1024) {
+    else if (iGLOBAL_SCREENWIDTH >= 1024) {
         srctmp = src;
         desttmp = dest;
 
@@ -6068,6 +6068,33 @@ void DrawRotRow(int count, byte * dest, byte * src)
             edx += mr_xstep;
             ecx += mr_ystep;
         }
+    }
+    else
+    {
+        srctmp = src;
+        desttmp = dest;
+
+        desttmp -= (iGLOBAL_SCREENWIDTH*1);
+
+/*
+        ecx = mr_yfrac;
+        edx = mr_xfrac;
+*/
+	while (count--) {
+            eax = edx >> 16;
+            if (eax < (256*(iGLOBAL_SCREENWIDTH/320)) && (ecx >> 16) < (512*((iGLOBAL_SCREENWIDTH/320 + iGLOBAL_SCREENHEIGHT/200)<<1))) {
+                eax = (eax << 10) | ((ecx << 6) >> (32-10));
+            } else {
+		eax = 0;
+            }
+			
+            *desttmp++ = srctmp[eax];
+			
+            edx += mr_xstep;
+            ecx += mr_ystep;
+        }
+    
+    
     }
 }
 

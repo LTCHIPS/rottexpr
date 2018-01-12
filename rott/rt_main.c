@@ -255,7 +255,7 @@ int main (int argc, char *argv[])
 
     // Start up Memory manager with a certain amount of reserved memory
 
-    Z_Init(50000,1000000);
+    Z_Init(50000,10000000);
 
     IN_Startup ();
 

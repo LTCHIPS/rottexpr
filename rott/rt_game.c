@@ -2953,7 +2953,8 @@ void ScreenShake (void)
             //DrawPlayScreen(true);//repaint ammo and life stat
             break;
         }
-        if (playstate != ex_gameover)
+        //fix for play screen accidentally being drawn during transmitter explosion cinematic
+        if (playstate != ex_gameover) 
             DrawPlayScreen(true);//repaint ammo and life stat
 
     }
