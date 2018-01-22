@@ -255,7 +255,7 @@ int main (int argc, char *argv[])
 
     // Start up Memory manager with a certain amount of reserved memory
 
-    Z_Init(50000,1000000);
+    Z_Init(50000,10000000);
 
     IN_Startup ();
 
@@ -456,7 +456,7 @@ int main (int argc, char *argv[])
         }
 #endif
     }
-    SDL_WM_GrabInput( SDL_GRAB_ON );
+    //SDL_WM_GrabInput( SDL_GRAB_ON );
     GameLoop();
 
 
@@ -866,16 +866,16 @@ void SetupWads( void )
             if (i < _argc)
             {
                 int width, height;
-                if ( (sscanf(_argv[i], "%dx%d", &width, &height) == 2) &&
-                        ( ( (width == 320) && (height == 200) ) ||
-                          ( (width == 640) && (height == 480) ) ||
-                          ( (width == 800) && (height == 600) ) ) )
+                unsigned int numResParams = sscanf(_argv[i], "%dx%d", &width, &height);
+                if ( numResParams == 2)
                 {
                     iGLOBAL_SCREENWIDTH  = width;
                     iGLOBAL_SCREENHEIGHT = height;
                 }
+/*
                 else
                     printf("Invalid resolution parameter: %s\n", _argv[i]);
+*/
             }
             else
                 printf("Missing resolution parameter\n");
@@ -1145,7 +1145,7 @@ void GameLoop (void)
 
     while (1)
     {
-        SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<2, iGLOBAL_SCREENHEIGHT<<2);
+        SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<1, iGLOBAL_SCREENHEIGHT<<1);
         if ( playstate == ex_battledone )
         {
             while( damagecount > 0 )

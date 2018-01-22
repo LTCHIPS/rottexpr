@@ -3041,8 +3041,7 @@ void DoLoadGameSequence ( void )
     dy=(-y)/time;
     ds=-((s-0x1000000)/time);
 
-    destscreen=SafeMalloc(64000*8);//bna fixme
-
+    destscreen=SafeMalloc(iGLOBAL_SCREENWIDTH*iGLOBAL_SCREENHEIGHT);
     SetupScreen(false);
     ThreeDRefresh();
 
@@ -3094,8 +3093,8 @@ void StartupRotateBuffer ( int masked)
 
 //   int Xres = 320;//org
 //   int Yres = 200;//org
-    int   Xres =   iGLOBAL_SCREENWIDTH;//bna val 800
-    int   Yres = iGLOBAL_SCREENHEIGHT;//bna val 600
+    int   Xres =   iGLOBAL_SCREENWIDTH;
+    int   Yres = iGLOBAL_SCREENHEIGHT;
 
 
     iG_masked = masked;
@@ -3107,6 +3106,13 @@ void StartupRotateBuffer ( int masked)
 
     //   RotatedImage=SafeMalloc(131072);org
     //RotatedImage=SafeMalloc(131072*8);
+    
+    
+    int amountToAlloc = ((iGLOBAL_SCREENWIDTH * iGLOBAL_SCREENHEIGHT)*2) + 3072; //this replaces 131072
+    
+    RotatedImage = SafeMalloc(amountToAlloc);
+    
+/*
     if (iGLOBAL_SCREENWIDTH == 320) {
         RotatedImage=SafeMalloc(131072);
     } else if (iGLOBAL_SCREENWIDTH == 640) {
@@ -3114,9 +3120,30 @@ void StartupRotateBuffer ( int masked)
     } else if (iGLOBAL_SCREENWIDTH == 800) {
         RotatedImage=SafeMalloc(131072*8);
     }
+    else if (iGLOBAL_SCREENWIDTH == 1024)
+    {
+        RotatedImage=SafeMalloc(131072*14);
+    }
+    else if (iGLOBAL_SCREENWIDTH == 1280)
+    {
+        RotatedImage=SafeMalloc(131072*20);
+    }
+    else if (iGLOBAL_SCREENWIDTH == 1400)
+    {
+        RotatedImage=SafeMalloc(131072*20);
+    }
+    else if (iGLOBAL_SCREENWIDTH == 1920)
+    {
+        RotatedImage=SafeMalloc(131072*50);
+    }
+*/
 //SetupScreen(false);//used these 2 to test screen size
 //VW_UpdateScreen ();
-    if (masked==0) {
+    if (masked==0) 
+        memset(RotatedImage, 0, amountToAlloc);
+    else
+        memset(RotatedImage, 0xff, amountToAlloc);
+/*
         if (iGLOBAL_SCREENWIDTH == 320) {
             memset(RotatedImage,0,131072);
         } else if (iGLOBAL_SCREENWIDTH == 640) {
@@ -3124,6 +3151,20 @@ void StartupRotateBuffer ( int masked)
         } else if (iGLOBAL_SCREENWIDTH == 800) {
             //memset(RotatedImage,0,131072);//org
             memset(RotatedImage,0,131072*8);
+        }else if (iGLOBAL_SCREENWIDTH == 1024) { 
+            memset(RotatedImage,0,131072*14);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1280)
+        {
+            memset(RotatedImage, 0, 131072*20);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1400)
+        {
+            memset(RotatedImage, 0, 131072*20);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1920)
+        {
+            memset(RotatedImage, 0, 131072*50);
         }
     } else {
         if (iGLOBAL_SCREENWIDTH == 320) {
@@ -3133,11 +3174,27 @@ void StartupRotateBuffer ( int masked)
         } else if (iGLOBAL_SCREENWIDTH == 800) {
             memset(RotatedImage,0xff,131072*8);
         }
-    }
+        else if (iGLOBAL_SCREENWIDTH == 1024) { 
+            memset(RotatedImage,0xff,131072*14);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1280)
+        {
+            memset(RotatedImage, 0xff, 131072*20);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1400)
+        {
+            memset(RotatedImage, 0xff, 131072*20);
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1920)
+        {
+            memset(RotatedImage, 0xff, 131072*50);
+        }
+*/
+    
     //memset(RotatedImage,0xff,131072);//org
     //memset(RotatedImage,0xff,131072*8);
 
-    if ((masked == false)&&(iGLOBAL_SCREENWIDTH == 800)) {
+    if ((masked == false)&&(iGLOBAL_SCREENWIDTH >= 800)) {
         DisableScreenStretch();
         // SetTextMode (  );
 
@@ -3266,8 +3323,10 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 //
 //******************************************************************************
 
+extern boolean skipRotate;
+
 void RotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
-{
+{   
     int savetics;
 
     //save off fastcounter
@@ -3323,12 +3382,16 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         xst = (((-cx)*s)+((328)<<16))-(cy*c);
         xct = (((-cx)*c)+((397)<<16)+(1<<18)-(1<<16))+(cy*s);
     }//328 397
+    else if ((iGLOBAL_SCREENWIDTH >= 1024 )&&(masked == false)) {
+	xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
+	xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
+   }//388 397
 
     mr_xstep=s;
     mr_ystep=c;
 
 
-    if ((iGLOBAL_SCREENWIDTH == 800)&&(masked==0)) {
+    if ((iGLOBAL_SCREENWIDTH >= 800)&&(masked==0)) {
         screen=destscreen+iGLOBAL_SCREENWIDTH;//bna aaaa fix
     } else {
         screen=destscreen;
@@ -5942,9 +6005,6 @@ void DrawRotRow(int count, byte * dest, byte * src)
             ecx += mr_ystep;
         }
     } else if (iGLOBAL_SCREENWIDTH == 800) {
-
-
-
         srctmp = src;
         desttmp = dest;
 
@@ -5984,6 +6044,57 @@ void DrawRotRow(int count, byte * dest, byte * src)
             ecx += mr_ystep;
         }
 
+    }
+    else if (iGLOBAL_SCREENWIDTH >= 1024) {
+        srctmp = src;
+        desttmp = dest;
+
+        desttmp -= (iGLOBAL_SCREENWIDTH*1);
+
+/*
+        ecx = mr_yfrac;
+        edx = mr_xfrac;
+*/
+	while (count--) {
+            eax = edx >> 16;
+            if (eax < (256*3.1) && (ecx >> 16) < (512*2.0)) {
+                eax = (eax << 10) | ((ecx << 6) >> (32-10));
+            } else {
+		eax = 0;
+            }
+			
+            *desttmp++ = srctmp[eax];
+			
+            edx += mr_xstep;
+            ecx += mr_ystep;
+        }
+    }
+    else
+    {
+        srctmp = src;
+        desttmp = dest;
+
+        desttmp -= (iGLOBAL_SCREENWIDTH*1);
+
+/*
+        ecx = mr_yfrac;
+        edx = mr_xfrac;
+*/
+	while (count--) {
+            eax = edx >> 16;
+            if (eax < (256*(iGLOBAL_SCREENWIDTH/320)) && (ecx >> 16) < (512*((iGLOBAL_SCREENWIDTH/320 + iGLOBAL_SCREENHEIGHT/200)<<1))) {
+                eax = (eax << 10) | ((ecx << 6) >> (32-10));
+            } else {
+		eax = 0;
+            }
+			
+            *desttmp++ = srctmp[eax];
+			
+            edx += mr_xstep;
+            ecx += mr_ystep;
+        }
+    
+    
     }
 }
 

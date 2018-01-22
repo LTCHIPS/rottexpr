@@ -418,6 +418,7 @@ int topBarCenterOffsetX;
 void DrawPlayScreen (boolean bufferofsonly)
 {
     pic_t *shape;
+    
     int    shapenum;
     int ShowKillsYoffset = 0;//bna++
 
@@ -426,30 +427,14 @@ void DrawPlayScreen (boolean bufferofsonly)
     
     if ( SHOW_TOP_STATUS_BAR() )
     {
-        if (iGLOBAL_SCREENWIDTH == 640) 
+        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
             DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
-            
-            shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-        } 
-        else if (iGLOBAL_SCREENWIDTH == 800) 
-        {  
-            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            
-            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
-            
-            shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-            
-        } 
-        else if (iGLOBAL_SCREENWIDTH == 320) 
-        {
-            shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, 0, 0, bufferofsonly );
         }
+        shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+        GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
     }
 
     if ( BATTLEMODE )
@@ -465,36 +450,28 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             ShowKillsYoffset = KILLS_HEIGHT;
         }
-            if (iGLOBAL_SCREENWIDTH == 640) {
-                //bna fix - not to good? but no one has 286 any more
-                //statusbar dosent cover hole screen, because its a lump picture width max 320
-                //first write dummy shape and next over it
-                GameMemToScreen( shape, 320, (224*2)+16-ShowKillsYoffset, bufferofsonly );
-                //copy next shape to mem
-                GameMemToScreen( shape, 0, (224*2)+16-ShowKillsYoffset, bufferofsonly );
-                // delete bullet in middle of shape picture
-                DrawPPic( 310, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-                // delete hart in middle of shape picture
-                DrawPPic( 324, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
+        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
+        {
+            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+                
+            //this causes a seg fault when MUSIC_StopSong calls Mix_HaltMusic for some odd reason when player pauses the game...
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
+                
+            //...yet if we do this...no seg fault
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29, iGLOBAL_SCREENWIDTH, 3, 10,10, shape ); //fill in remaining spots
+            
+            
+            shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+                  
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+            
+            
+            
+        }
+            
+        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
-            } else if (iGLOBAL_SCREENWIDTH == 800) {
-                GameMemToScreen( shape, 800-320, 584-ShowKillsYoffset, bufferofsonly );
-                //copy next shape to mem
-                GameMemToScreen( shape, 300, 584-ShowKillsYoffset, bufferofsonly );
-                //copy next shape to mem
-                GameMemToScreen( shape, 0, 584-ShowKillsYoffset, bufferofsonly );
-                // delete 2 bullets in middle of shape picture
-                DrawPPic( 305, 584+1-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-                // delete hart in middle of shape picture
-                DrawPPic( 610, 584+1-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-
-            } else {
-                GameMemToScreen( shape, 0, 184, bufferofsonly );
-            }
         //}
 
         DrawBarAmmo( bufferofsonly );
@@ -2955,27 +2932,30 @@ void ScreenShake (void)
         case 0:
             displayofs += 1;
             MoveScreenUpLeft();//SetTextMode (  );
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 1:
             displayofs -= 1;
             MoveScreenUpRight();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 2:
             displayofs += 3*iGLOBAL_SCREENBWIDE;
             MoveScreenDownLeft();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 3:
             displayofs -= 3*iGLOBAL_SCREENBWIDE;
             MoveScreenDownRight();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
         }
+        //fix for play screen accidentally being drawn during transmitter explosion cinematic
+        if (playstate != ex_gameover) 
+            DrawPlayScreen(true);//repaint ammo and life stat
 
     }
 }

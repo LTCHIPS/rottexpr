@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define MINFRAGMENT     64
 #define DPMI_INT  0x31
-#define MAXMEMORYSIZE   9000000
+#define MAXMEMORYSIZE   900000000
 
 #define LEVELZONESIZE   250000
 
