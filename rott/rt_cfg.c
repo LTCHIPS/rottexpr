@@ -1711,6 +1711,10 @@ void WriteSoundConfig
 //
 //******************************************************************************
 
+extern boolean writeNewResIntoCfg;
+extern int ScreenWidthToWriteToCfg;
+extern int ScreenHeightToWriteToCfg;
+
 void WriteConfig (void)
 {
     int file;
@@ -1859,8 +1863,21 @@ void WriteConfig (void)
     SafeWriteString(file,"\n;\n");
     SafeWriteString(file,"; Screen Resolution, supported resolutions: \n");
     SafeWriteString(file,"; 320x200, 640x480 and 800x600\n");
-    WriteParameter(file,"ScreenWidth      ",iGLOBAL_SCREENWIDTH);
-    WriteParameter(file,"ScreenHeight     ",iGLOBAL_SCREENHEIGHT);
+    
+    //WriteParameter(file,"ScreenWidth      ",iGLOBAL_SCREENWIDTH);
+    //WriteParameter(file,"ScreenHeight     ",iGLOBAL_SCREENHEIGHT);
+    
+    if (writeNewResIntoCfg)
+    {
+        WriteParameter(file,"ScreenWidth      ",ScreenWidthToWriteToCfg);
+        WriteParameter(file,"ScreenHeight     ",ScreenHeightToWriteToCfg);
+    }
+    else
+    {
+        WriteParameter(file,"ScreenWidth      ",iGLOBAL_SCREENWIDTH);
+        WriteParameter(file,"ScreenHeight     ",iGLOBAL_SCREENHEIGHT);    
+    }
+    
 
     // Write out ViewSize
 

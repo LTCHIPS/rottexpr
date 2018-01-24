@@ -772,17 +772,69 @@ CP_MenuNames ExtGameOptionsNames[] =
 
 CP_MenuNames VisualOptionsNames[] = 
 {
+    "SCREEN RESOLUTION",
     "ADJUST FOCAL WIDTH"
 };
 
-CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 1, 0, 43, VisualOptionsNames, mn_largefont };
+CP_MenuNames ScreenResolutions[] = 
+{
+    "320x200",
+    "640x400",
+    "640x480",
+    "800x600",
+    "1024x768",
+    "1152x864",
+    "1280x720",
+    "1280x768",
+    "1280x800",
+    "1280x960",
+    "1280x1024",
+    "1366x768",
+    "1400x1050",
+    "1440x900",
+    "1600x900",
+    "1680x1050",
+    "1920x1080",
+    "2560x1080",
+    "2560x1440",
+    "3840x2160"
+};
+CP_itemtype ScreenResolutionMenu[] = {
+    {1, "", ' ', WriteNewResolution},
+    {1, "", ' ', WriteNewResolution},
+    {1, "", ' ', WriteNewResolution},
+    {1, "", ' ', WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution},
+    {1, "", ' ',  WriteNewResolution}
+};
+
+CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 2, 0, 43, VisualOptionsNames, mn_largefont };
+
+CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 21, 0, 16, ScreenResolutions, mn_tinyfont};
 
 CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 8, 0, 43, ExtOptionsNames, mn_largefont };
 
 CP_iteminfo ExtGameOptionsItems = { 20, MENU_Y, 4, 0, 43, ExtGameOptionsNames, mn_largefont }; //LT added
 
+void CP_ScreenResolution(void);
+
 CP_itemtype VisualsOptionsMenu[] = 
 {
+    {1, "", 'S', (menuptr)CP_ScreenResolution},
     {1, "", 'F', (menuptr)DoAdjustFocalWidth}
 };
 
@@ -5379,6 +5431,42 @@ void DrawOptionsMenu (void)
     DisplayInfo (0);
     FlipMenuBuf();
 }
+
+void DrawScreenResolutionMenu(void)
+{
+    MenuNum = 1;
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Screen Resolution");
+    
+    MN_GetCursorLocation( &ScreenResolutionItems, &ScreenResolutionMenu[ 0 ] );
+    DrawMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0]);
+    
+    
+    DrawMenuBufItem (ScreenResolutionItems.x, ((ScreenResolutionItems.curpos*14)+(ScreenResolutionItems.y-2)),
+                     W_GetNumForName( SmallCursor ) + CursorFrame[ CursorNum ] );
+    DisplayInfo (0);
+    FlipMenuBuf();
+
+}
+
+int whichResolution = 0;
+
+void CP_ScreenResolution(void)
+{
+    int which;
+    DrawScreenResolutionMenu();
+
+    do
+    {
+        which = HandleMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0], NULL);
+        whichResolution = which;
+    } while (which >= 0);
+
+    DrawVisualsMenu();
+}
+
+
 
 void CP_VisualsMenu(void)
 {
