@@ -36,23 +36,8 @@ extern int FocalWidthOffset;
 
 void RecalculateFocalWidth(void)
 {
-    if (iGLOBAL_SCREENWIDTH == 320) {
-        iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
-        dGLOBAL_FPFOCALWIDTH = 160.0 - FocalWidthOffset;
-    }
-    else if (iGLOBAL_SCREENWIDTH == 640) {
-        iGLOBAL_FOCALWIDTH = 180 - FocalWidthOffset;
-        dGLOBAL_FPFOCALWIDTH = 180.0 - FocalWidthOffset ;
-    }
-    else if (iGLOBAL_SCREENWIDTH == 800) {
-        iGLOBAL_FOCALWIDTH = 200 - FocalWidthOffset;
-        dGLOBAL_FPFOCALWIDTH = 200.0 - FocalWidthOffset;
-    }
-    else if (iGLOBAL_SCREENWIDTH == 1024)
-    {
-        iGLOBAL_FOCALWIDTH = 200 - FocalWidthOffset;
-        dGLOBAL_FPFOCALWIDTH = 200.0 - FocalWidthOffset;
-    }
+    iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
+    dGLOBAL_FPFOCALWIDTH = 160.0 - FocalWidthOffset;
 }
 
 void SetRottScreenRes (int Width, int Height)

@@ -87,7 +87,7 @@ byte * redmap;
 byte * greenmap;
 byte * playermaps[MAXPLAYERCOLORS];
 //short  pixelangle[MAXVIEWWIDTH];
-short  pixelangle[1920];
+short  pixelangle[MAXSCREENWIDTH];
 byte   gammatable[GAMMAENTRIES];
 int    gammaindex;
 int    focalwidth=160;
@@ -518,38 +518,85 @@ void SetViewSize
     else if ( iGLOBAL_SCREENWIDTH == 1920)
     {
         height = 0;
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
         
-        viewsizes[height++]= 1920; 
+        viewsizes[height++]= 1920;
         viewsizes[height++]= 1080;
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 3840)
+    {
+        height = 0;
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+    }
+    else
+    {
+        height = 0;
+        for (height = 0; height < 21;)
+        {
+            viewsizes[height++] = iGLOBAL_SCREENWIDTH;
+            viewsizes[height++] = iGLOBAL_SCREENHEIGHT;
+        }
+    
+    
     }
 
 

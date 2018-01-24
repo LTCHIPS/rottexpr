@@ -53,7 +53,7 @@ char 	   *iG_buf_center;
 
 int    linewidth;
 //int    ylookup[MAXSCREENHEIGHT];
-int    ylookup[1080];//just set to max res
+int    ylookup[MAXSCREENHEIGHT];//just set to max res
 byte  *page1start;
 byte  *page2start;
 byte  *page3start;
