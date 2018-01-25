@@ -11,11 +11,6 @@ int iGLOBAL_SCREENHEIGHT = 480;//bna val 600
 int iGLOBAL_SCREENBWIDE ;
 int iG_SCREENWIDTH;// default screen width in bytes
 
-int ScreenWidthToWriteToCfg = 0;
-int ScreenHeightToWriteToCfg = 0;
-
-int WriteNewResolutionToCfg = 0;
-
 int iGLOBAL_HEALTH_X;
 int iGLOBAL_HEALTH_Y;
 int iGLOBAL_AMMO_X;
@@ -210,14 +205,4 @@ void MoveScreenDownRight()
     for (Ycnt=b+((viewheight-startY-1)*iGLOBAL_SCREENWIDTH); Ycnt>b; Ycnt-=iGLOBAL_SCREENWIDTH) {
         memcpy(Ycnt+startoffset,Ycnt,viewwidth-startX);
     }
-}
-
-
-extern int whichResolution;
-boolean writeNewResIntoCfg = false;
-
-void WriteNewResolution(void)
-{   
-    
-    
 }

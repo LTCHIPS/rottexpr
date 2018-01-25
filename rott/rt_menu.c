@@ -789,7 +789,7 @@ CP_MenuNames ScreenResolutions[] =
     "1280x800",
     "1280x960",
     "1280x1024",
-    "1366x768",
+    //"1366x768",
     "1400x1050",
     "1440x900",
     "1600x900",
@@ -800,31 +800,31 @@ CP_MenuNames ScreenResolutions[] =
     "3840x2160"
 };
 CP_itemtype ScreenResolutionMenu[] = {
-    {1, "", ' ', WriteNewResolution},
-    {1, "", ' ', WriteNewResolution},
-    {1, "", ' ', WriteNewResolution},
-    {1, "", ' ', WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution},
-    {1, "", ' ',  WriteNewResolution}
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    //{1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
 };
 
 CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 2, 0, 43, VisualOptionsNames, mn_largefont };
 
-CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 21, 0, 16, ScreenResolutions, mn_tinyfont};
+CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 19, 0, 16, ScreenResolutions, mn_tinyfont};
 
 CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 8, 0, 43, ExtOptionsNames, mn_largefont };
 
@@ -5442,7 +5442,6 @@ void DrawScreenResolutionMenu(void)
     MN_GetCursorLocation( &ScreenResolutionItems, &ScreenResolutionMenu[ 0 ] );
     DrawMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0]);
     
-    
     DrawMenuBufItem (ScreenResolutionItems.x, ((ScreenResolutionItems.curpos*14)+(ScreenResolutionItems.y-2)),
                      W_GetNumForName( SmallCursor ) + CursorFrame[ CursorNum ] );
     DisplayInfo (0);
@@ -5450,21 +5449,147 @@ void DrawScreenResolutionMenu(void)
 
 }
 
-int whichResolution = 0;
+void CP_RestartProgramMessage
+(
+    void
+)
+
+{
+    CP_ErrorMsg( "Note:",
+                 "Changes will not be applied until the application is restarted. "
+                 "Hit any key to continue.",
+                 mn_smallfont );
+}
+
+extern int ScreenWidthToWriteToCfg;
+extern int ScreenHeightToWriteToCfg;
+extern boolean writeNewResIntoCfg;
 
 void CP_ScreenResolution(void)
 {
     int which;
+    
+    //CP_RestartProgramMessage();
+    
     DrawScreenResolutionMenu();
 
     do
     {
         which = HandleMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0], NULL);
-        whichResolution = which;
+        switch(which)
+        {
+            case 0:
+                ScreenWidthToWriteToCfg = 320;
+                ScreenHeightToWriteToCfg = 200;
+                writeNewResIntoCfg = true;
+                break;
+            case 1:
+                ScreenWidthToWriteToCfg = 640;
+                ScreenHeightToWriteToCfg = 400;
+                writeNewResIntoCfg = true;
+                break;
+            case 2:
+                ScreenWidthToWriteToCfg = 640;
+                ScreenHeightToWriteToCfg = 480;
+                writeNewResIntoCfg = true;
+                break;
+            case 3:
+                ScreenWidthToWriteToCfg = 800;
+                ScreenHeightToWriteToCfg = 600;
+                writeNewResIntoCfg = true;
+                break;
+            case 4:
+                ScreenWidthToWriteToCfg = 1024;
+                ScreenHeightToWriteToCfg = 768;
+                writeNewResIntoCfg = true;
+                break;
+            case 5:
+                ScreenWidthToWriteToCfg = 1152;
+                ScreenHeightToWriteToCfg = 864;
+                writeNewResIntoCfg = true;
+                break;
+            case 6:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 720;
+                writeNewResIntoCfg = true;
+                break;
+            case 7:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 768;
+                writeNewResIntoCfg = true;
+                break;
+            case 8:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 800;
+                writeNewResIntoCfg = true;
+                break;
+            case 9:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 960;
+                writeNewResIntoCfg = true;
+                break;
+            case 10:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 1024;
+                writeNewResIntoCfg = true;
+                break;
+/*          buggy af mode
+            case 11:
+                ScreenWidthToWriteToCfg = 1366;
+                ScreenHeightToWriteToCfg = 768;
+                writeNewResIntoCfg = true;
+                break;
+*/
+            case 11:
+                ScreenWidthToWriteToCfg = 1400;
+                ScreenHeightToWriteToCfg = 1050;
+                writeNewResIntoCfg = true;
+                break;
+            case 12:
+                ScreenWidthToWriteToCfg = 1440;
+                ScreenHeightToWriteToCfg = 900;
+                writeNewResIntoCfg = true;
+                break;
+            case 13:
+                ScreenWidthToWriteToCfg = 1600;
+                ScreenHeightToWriteToCfg = 900;
+                writeNewResIntoCfg = true;
+                break;
+            case 14:
+                ScreenWidthToWriteToCfg = 1680;
+                ScreenHeightToWriteToCfg = 1050;
+                writeNewResIntoCfg = true;
+                break;
+            case 15:
+                ScreenWidthToWriteToCfg = 1920;
+                ScreenHeightToWriteToCfg = 1080;
+                writeNewResIntoCfg = true;
+                break;
+            case 16:
+                ScreenWidthToWriteToCfg = 2560;
+                ScreenHeightToWriteToCfg = 1080;
+                writeNewResIntoCfg = true;
+                break;
+            case 17:
+                ScreenWidthToWriteToCfg = 2560;
+                ScreenHeightToWriteToCfg = 1440;
+                writeNewResIntoCfg = true;
+                break;
+            case 18:
+                ScreenWidthToWriteToCfg = 3840;
+                ScreenHeightToWriteToCfg = 2160;
+                writeNewResIntoCfg = true;
+                break;
+            default:
+                break;
+        }
+        
+        
     } while (which >= 0);
 
     DrawVisualsMenu();
 }
+
 
 
 

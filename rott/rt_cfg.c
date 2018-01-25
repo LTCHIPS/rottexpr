@@ -121,6 +121,11 @@ boolean autoAim = 1;
 boolean enableExtraPistolDrops = 0;
 boolean allowMovementWithMouseYAxis = 1;
 int FocalWidthOffset = 0;
+int ScreenHeightToWriteToCfg = 0;
+
+int ScreenWidthToWriteToCfg = 0;
+boolean writeNewResIntoCfg = false;
+
 
 boolean joystickenabled  = 0;
 boolean joypadenabled    = 0;
