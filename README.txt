@@ -74,6 +74,7 @@ ROTTEXPR is capable of running at higher resolutions than the original release o
 		
 2. The fullscreen toggle (ALT-ENTER) nor the FULLSCREEN option in EXT USER OPTIONS works.
 		This feature is currently nonfunctional in Windows OSes. It currently functions under Linux OSes. If you wish to run ROTTEXPR in a window, run rott.exe with the "window" argument.
+		If you wish to run ROTTEXPR in fullscreen, run rott.exe with the "fullscreen" argument.
 		
 3. The game refuses to run at anything higher than 4k.
 		4k resolution is currently the limit set in code.
