@@ -4667,15 +4667,6 @@ void DoThreshold
                 "Adjust Threshold", "Small", "Large" );
 }
 
-extern int FocalWidthOffset;
-
-void DoAdjustFocalWidth (void)
-{
-    SliderMenu (&FocalWidthOffset, 200, 0, 44, 81, 194, 1, "block2", NULL,
-                "Adjust Focal Width", "Default", "You Crazy" );
-    DrawVisualsMenu ();
-}
-
 //******************************************************************************
 //
 // DRAW CONTROL MENU SCREEN
@@ -5411,6 +5402,7 @@ void CP_ControlMenu (void)
 
 
 
+
 //****************************************************************************
 //
 // DrawOptionsMenu ()
@@ -5432,6 +5424,45 @@ void DrawOptionsMenu (void)
     FlipMenuBuf();
 }
 
+void DrawVisualsMenu (void)
+{
+    MenuNum = 1;
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Visuals Menu");
+    
+    MN_GetCursorLocation( &VisualOptionsItems, &VisualsOptionsMenu[ 0 ] );
+    DrawMenu (&VisualOptionsItems, &VisualsOptionsMenu[0]);
+    DrawMenuBufItem (VisualOptionsItems.x, ((VisualOptionsItems.curpos*14)+(VisualOptionsItems.y-2)),
+                     W_GetNumForName( LargeCursor ) + CursorFrame[ CursorNum ] );
+    DisplayInfo (0);
+    FlipMenuBuf();
+    
+}
+
+void CP_VisualsMenu(void)
+{
+    int which;
+    DrawVisualsMenu();
+
+    do
+    {
+        which = HandleMenu (&VisualOptionsItems, &VisualsOptionsMenu[0], NULL);
+    } while (which >= 0);
+
+    DrawControlMenu();
+}
+
+
+extern int FocalWidthOffset;
+
+void DoAdjustFocalWidth (void)
+{
+    SliderMenu (&FocalWidthOffset, 200, 0, 44, 81, 194, 1, "block2", NULL,
+                "Adjust Focal Width", "Default", "You Crazy" );
+    DrawVisualsMenu ();
+}
+
 void DrawScreenResolutionMenu(void)
 {
     MenuNum = 1;
@@ -5441,9 +5472,7 @@ void DrawScreenResolutionMenu(void)
     
     MN_GetCursorLocation( &ScreenResolutionItems, &ScreenResolutionMenu[ 0 ] );
     DrawMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0]);
-    
-    DrawMenuBufItem (ScreenResolutionItems.x, ((ScreenResolutionItems.curpos*14)+(ScreenResolutionItems.y-2)),
-                     W_GetNumForName( SmallCursor ) + CursorFrame[ CursorNum ] );
+
     DisplayInfo (0);
     FlipMenuBuf();
 
@@ -5586,40 +5615,11 @@ void CP_ScreenResolution(void)
         
         
     } while (which >= 0);
+    
+    if (writeNewResIntoCfg)
+        CP_RestartProgramMessage();
 
     DrawVisualsMenu();
-}
-
-
-
-
-void CP_VisualsMenu(void)
-{
-    int which;
-    DrawVisualsMenu();
-
-    do
-    {
-        which = HandleMenu (&VisualOptionsItems, &VisualsOptionsMenu[0], NULL);
-    } while (which >= 0);
-
-    DrawControlMenu();
-}
-
-void DrawVisualsMenu (void)
-{
-    MenuNum = 1;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle ("Visuals Menu");
-    
-    MN_GetCursorLocation( &VisualOptionsItems, &VisualsOptionsMenu[ 0 ] );
-    DrawMenu (&VisualOptionsItems, &VisualsOptionsMenu[0]);
-    DrawMenuBufItem (VisualOptionsItems.x, ((VisualOptionsItems.curpos*14)+(VisualOptionsItems.y-2)),
-                     W_GetNumForName( LargeCursor ) + CursorFrame[ CursorNum ] );
-    DisplayInfo (0);
-    FlipMenuBuf();
-    
 }
 
 
