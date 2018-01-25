@@ -206,5 +206,3 @@ void MoveScreenDownRight()
         memcpy(Ycnt+startoffset,Ycnt,viewwidth-startX);
     }
 }
-
-
