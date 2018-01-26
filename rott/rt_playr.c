@@ -2200,7 +2200,7 @@ void PollKeyboardMove
 #define MOUSE_TZ_SENSITIVITY_SCALE 65535
 #define MOUSE_RY_SENSITIVITY_SCALE 18725*2
 //#define MOUSE_RY_INPUT_SCALE 6000
-#define MOUSE_TZ_INPUT_SCALE 20
+#define MOUSE_TZ_INPUT_SCALE 120
 int mouse_ry_input_scale = 5000;
 
 int sensitivity_scalar[15] =
@@ -2217,6 +2217,8 @@ int sensitivity_scalar[15] =
 
 extern int inverse_mouse;
 double Y_MouseSpeed=70;
+
+int prevMY = 0;
 
 void PollMouseMove (void)
 {
@@ -2248,6 +2250,7 @@ void PollMouseMove (void)
 
     if ((abs (mouseymove)) >= threshold)
     {   //
+        //MY += FixedMul(MY,mouseadjustment*MOUSE_TZ_SENSITIVITY_SCALE);
         MY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
         MY *= inverse_mouse;
         if (usemouselook == true) {
@@ -2255,19 +2258,28 @@ void PollMouseMove (void)
                 playertype * pstate;
                 pstate=&PLAYERSTATE[consoleplayer];
                 //if (pstate->horizon > 512){
-                pstate->horizon -= Ys * (2*sensitivity_scalar[mouseadjustment]);
+                //printf("%d \n", Ys);
+                //pstate->horizon -= Ys * (2*sensitivity_scalar[mouseadjustment]);
+                
+                //This is based off of Duke3d Mouselook code...
+                
+                pstate->horizon += Ys * ((MY + prevMY) / (314-128));
+                prevMY = Ys * ((MY + prevMY) % (314-128));
                 //}
             }
             else if (MY < 0) {
                 playertype * pstate;
                 pstate=&PLAYERSTATE[consoleplayer];
                 //SetTextMode (  );
-                pstate->horizon += Ys * (2*sensitivity_scalar[mouseadjustment]);
+                //printf("%d \n", Ys);
+                pstate->horizon += Ys * ((MY + prevMY) / (314-128));
+                prevMY = Ys * ((MY + prevMY)%(314-128));
+                //pstate->horizon += Ys * (2*sensitivity_scalar[mouseadjustment]);
                 //buttonpoll[ bt_horizonup ] = true;
             }
             MY = 0;
         } else {
-            // MY += FixedMul(MY,mouseadjustment*MOUSE_TZ_SENSITIVITY_SCALE);
+            
             if (abs(mouseymove)>200)
             {
                 buttonpoll[bt_run]=true;
