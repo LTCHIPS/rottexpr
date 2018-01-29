@@ -2197,10 +2197,10 @@ void PollKeyboardMove
 
 //#define MOUSE_RY_SHIFT 12
 //#define MOUSE_TZ_SHIFT 3
-#define MOUSE_TZ_SENSITIVITY_SCALE 65535
+#define MOUSE_TZ_SENSITIVITY_SCALE 18725*4
 #define MOUSE_RY_SENSITIVITY_SCALE 18725*2
 //#define MOUSE_RY_INPUT_SCALE 6000
-#define MOUSE_TZ_INPUT_SCALE 120
+#define MOUSE_TZ_INPUT_SCALE 20
 int mouse_ry_input_scale = 5000;
 
 int sensitivity_scalar[15] =
@@ -2216,9 +2216,8 @@ int sensitivity_scalar[15] =
 
 
 extern int inverse_mouse;
+extern int iG_playerTilt;
 double Y_MouseSpeed=70;
-
-int prevMY = 0;
 
 void PollMouseMove (void)
 {
@@ -2250,43 +2249,16 @@ void PollMouseMove (void)
 
     if ((abs (mouseymove)) >= threshold)
     {   //
-        //MY += FixedMul(MY,mouseadjustment*MOUSE_TZ_SENSITIVITY_SCALE);
         MY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
-        MY *= inverse_mouse;
-        if (usemouselook == true) {
-            if (MY > 0) {
-                playertype * pstate;
-                pstate=&PLAYERSTATE[consoleplayer];
-                //if (pstate->horizon > 512){
-                //printf("%d \n", Ys);
-                //pstate->horizon -= Ys * (2*sensitivity_scalar[mouseadjustment]);
-                
-                //This is based off of Duke3d Mouselook code...
-                
-                pstate->horizon += Ys * ((MY + prevMY) / (314-128));
-                prevMY = Ys * ((MY + prevMY) % (314-128));
-                //}
-            }
-            else if (MY < 0) {
-                playertype * pstate;
-                pstate=&PLAYERSTATE[consoleplayer];
-                //SetTextMode (  );
-                //printf("%d \n", Ys);
-                pstate->horizon += Ys * ((MY + prevMY) / (314-128));
-                prevMY = Ys * ((MY + prevMY)%(314-128));
-                //pstate->horizon += Ys * (2*sensitivity_scalar[mouseadjustment]);
-                //buttonpoll[ bt_horizonup ] = true;
-            }
-            MY = 0;
-        } else {
-            
-            if (abs(mouseymove)>200)
-            {
-                buttonpoll[bt_run]=true;
-                // buttonpoll[ bt_lookup ] = true;
-            }
+        //MY = FixedMul(MY,sensitivity_scalar[mouseadjustment]*MOUSE_TZ_SENSITIVITY_SCALE);
+        MY *= inverse_mouse;    
+        //MY = 0;
+        if (abs(mouseymove)>200)
+        {
+            buttonpoll[bt_run]=true;
+            // buttonpoll[ bt_lookup ] = true;
         }
-    }
+    }   
 
 
 
@@ -2296,7 +2268,7 @@ void PollMouseMove (void)
     {
         //MX = -MOUSE_RY_INPUT_SCALE*mousexmove;
         MX = -mouse_ry_input_scale*mousexmove;
-        MX += FixedMul(MX,sensitivity_scalar[mouseadjustment]*MOUSE_RY_SENSITIVITY_SCALE);
+        MX = FixedMul(MX,sensitivity_scalar[mouseadjustment]*MOUSE_RY_SENSITIVITY_SCALE);
         //   if (abs(MX) > MAXMOUSETURN)
         //   MX = MAXMOUSETURN*SGN(MX);
         if (usemouselook == true) {
@@ -2309,7 +2281,7 @@ void PollMouseMove (void)
     }
 //   if (MY > 0)
 //      MX -= (MX/2);
-
+    
 //   MX=0;
 //   MY=0;
 
@@ -4430,12 +4402,21 @@ void PlayerTiltHead (objtype * ob)
                 (ob->momentumz > (GRAVITY<<1))//(ob->momentumz>0x1000)
            )
         {
-            SetPlayerHorizon(pstate,FALLINGYZANGLE);
+            if (!usemouselook){
+                SetPlayerHorizon(pstate,FALLINGYZANGLE);
+            }
         }
     }
 
-
-
+    if (usemouselook) {
+	//printf ("%d\n",MY);
+        if (MY!=0 || usemouselook) { //From WINROTTGL
+            SetPlayerHorizon (pstate,(pstate->horizon - HORIZONYZOFFSET+(MY/16)));
+            yzangle = pstate->horizon;
+	}
+    }
+    
+    
     if ((yzangle!=pstate->horizon) && (dyz==0))
     {
         int speed;
