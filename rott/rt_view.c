@@ -595,8 +595,6 @@ void SetViewSize
             viewsizes[height++] = iGLOBAL_SCREENWIDTH;
             viewsizes[height++] = iGLOBAL_SCREENHEIGHT;
         }
-    
-    
     }
 
 
@@ -665,7 +663,7 @@ void SetViewSize
     centerx     = viewwidth >> 1;
     centery     = viewheight >> 1;
     centeryfrac = (centery << 16);
-    yzangleconverter = ( 0xaf85 * viewheight ) / iGLOBAL_SCREENHEIGHT;
+    yzangleconverter = ( 0xaf85 * viewheight ) / 240;
 
     // Center the view horizontally
     screenx = ( iGLOBAL_SCREENWIDTH - viewwidth ) >> 1;

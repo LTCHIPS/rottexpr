@@ -2260,10 +2260,6 @@ void PollMouseMove (void)
         }
     }   
 
-
-
-
-
     if ((abs (mousexmove)) >= threshold)
     {
         //MX = -MOUSE_RY_INPUT_SCALE*mousexmove;
@@ -4307,7 +4303,7 @@ void PlayerTiltHead (objtype * ob)
             )
         )
     )
-        SetNormalHorizon(ob);
+    SetNormalHorizon(ob);
 
     pstate->lastmomz=ob->momentumz;
 
@@ -4447,7 +4443,7 @@ void PlayerTiltHead (objtype * ob)
     ob->yzangle=yzangle-HORIZONYZOFFSET;
     Fix(ob->yzangle);
 
-    iG_playerTilt = ob->yzangle;
+    //iG_playerTilt = ob->yzangle;
 
 }
 
@@ -4599,6 +4595,8 @@ void UpdatePlayers ( void )
 ===================
 */
 
+int currHoriz = 0;
+
 void PlayerMove ( objtype * ob )
 {   playertype *pstate;
 
@@ -4613,6 +4611,8 @@ void PlayerMove ( objtype * ob )
         UpdateLightLevel(player->areanumber);
 
     PlayerTiltHead(ob);
+    
+    currHoriz = pstate->horizon;
 
     if (IsWindow(ob->tilex,ob->tiley))
     {

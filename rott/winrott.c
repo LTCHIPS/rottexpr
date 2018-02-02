@@ -42,7 +42,6 @@ void RecalculateFocalWidth(void)
 
 void SetRottScreenRes (int Width, int Height)
 {
-
     iGLOBAL_SCREENWIDTH = Width;
     iGLOBAL_SCREENHEIGHT = Height;
     
