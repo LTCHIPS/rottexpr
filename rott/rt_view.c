@@ -287,6 +287,8 @@ void CalcProjection ( void )
 =
 ==========================
 */
+//250 actually lands shots in the middle for 320x200...
+int yzangleDeno = 200;
 
 void SetViewSize
 (
@@ -659,11 +661,51 @@ void SetViewSize
 
     weaponscale = ( height << 16 ) / 168;//( height << 16 ) = 170 * 65536
 
-
     centerx     = viewwidth >> 1;
     centery     = viewheight >> 1;
     centeryfrac = (centery << 16);
-    yzangleconverter = ( 0xaf85 * viewheight ) / 240;
+    //yzangleconverter = ( 0xaf85 * viewheight ) / (iGLOBAL_SCREENHEIGHT);
+    
+    //yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
+
+    switch(iGLOBAL_SCREENWIDTH)
+    {
+        case 320: //4:3
+            yzangleconverter = ( 0xaf85 * viewheight ) / (250);
+            break;
+        case 640:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (300);
+            break;
+        case 800:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (300);
+            break;
+        case 1024:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (300);
+            break;
+        case 1152:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (300);
+            break;
+        case 1280:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (330);
+            break;
+        case 1440:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (260);
+            break;
+        case 1600:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (237);
+            break;
+        case 1680:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (260);
+            break;
+        case 1920:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (237);
+            break;
+        default:
+            yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
+            break;    
+    }
+    
+    //yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
 
     // Center the view horizontally
     screenx = ( iGLOBAL_SCREENWIDTH - viewwidth ) >> 1;

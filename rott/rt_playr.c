@@ -1487,7 +1487,9 @@ void  GunAttack (objtype *ob)
     }
     if(autoAim)
         AutoTargetHorizon(ob);
-    RayShoot (ob, damage, (characters[pstate->player].accuracy+gamestate.difficulty)<<3);
+    //RayShoot (ob, damage, (characters[pstate->player].accuracy+gamestate.difficulty)<<3);
+    
+    RayShoot (ob, damage, 0);
 
 }
 
@@ -2889,6 +2891,9 @@ void PollAssassin (void)
 //******************************************************************************
 
 
+extern int yzangleDeno;
+//239 seems to work fine for 1080
+
 void PollControls (void)
 {
     int   i;
@@ -2993,12 +2998,19 @@ void PollControls (void)
 //bna section
     if (Keyboard[sc_5]) {
         //	 SetTextMode (  );
-        weaponscale +=  1000;
+        yzangleDeno +=  1;
+        char msgYZANG[4];
+        itoa(yzangleDeno, msgYZANG, 10);
+        AddMessage(msgYZANG,MSG_BONUS);
+        
         //testval++;
     }
     if (Keyboard[sc_6]) {
         //	 SetTextMode (  );
-        weaponscale -=  1000;
+        yzangleDeno -=  1;
+        char msgYZANG[4];
+        itoa(yzangleDeno, msgYZANG, 10);
+        AddMessage(msgYZANG,MSG_BONUS);
         //  testval--;
     }
 //bna section end

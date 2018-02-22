@@ -2297,6 +2297,14 @@ void WallRefresh (void)
         centery-=FixedMul(FINEANGLES-yzangle,yzangleconverter);
     else
         centery+=FixedMul(yzangle,yzangleconverter);
+    
+    
+    
+    printf("%d \n", viewheight);
+    printf("%d \n", centery);
+    printf("%d \n", yzangle);
+    printf("%d \n \n", yzangleconverter);
+    
 
     centeryfrac=(centery<<16);
 
