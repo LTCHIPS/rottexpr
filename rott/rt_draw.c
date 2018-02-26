@@ -2298,14 +2298,6 @@ void WallRefresh (void)
     else
         centery+=FixedMul(yzangle,yzangleconverter);
     
-    
-    
-    printf("%d \n", viewheight);
-    printf("%d \n", centery);
-    printf("%d \n", yzangle);
-    printf("%d \n \n", yzangleconverter);
-    
-
     centeryfrac=(centery<<16);
 
     if (pheight < 1)
@@ -2701,6 +2693,7 @@ void InterpolateMaskedWall (visobj_t * plane)
 */
 #define PLX  (320-24)
 #define PLY  16
+
 void DrawPlayerLocation ( void )
 {
     int i;

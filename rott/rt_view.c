@@ -287,7 +287,7 @@ void CalcProjection ( void )
 =
 ==========================
 */
-//250 actually lands shots in the middle for 320x200...
+
 int yzangleDeno = 200;
 
 void SetViewSize
@@ -666,11 +666,11 @@ void SetViewSize
     centeryfrac = (centery << 16);
     //yzangleconverter = ( 0xaf85 * viewheight ) / (iGLOBAL_SCREENHEIGHT);
     
-    //yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
+    //yzangleconverter = ( 0xaf85 * viewheight ) / (200);
 
     switch(iGLOBAL_SCREENWIDTH)
     {
-        case 320: //4:3
+        case 320:
             yzangleconverter = ( 0xaf85 * viewheight ) / (250);
             break;
         case 640:
@@ -704,6 +704,14 @@ void SetViewSize
             yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
             break;    
     }
+    
+    
+    if (playstate == ex_stillplaying)
+    {
+        printf("%d \n", yzangleconverter);
+        printf("%d \n \n", viewheight);
+    }
+    
     
     //yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
 

@@ -1459,6 +1459,8 @@ void AutoTargetHorizon(objtype *ob)
     }
 }
 
+extern boolean perfectAccuracy;
+
 void  GunAttack (objtype *ob)
 {
     playertype * pstate;
@@ -1487,10 +1489,12 @@ void  GunAttack (objtype *ob)
     }
     if(autoAim)
         AutoTargetHorizon(ob);
-    //RayShoot (ob, damage, (characters[pstate->player].accuracy+gamestate.difficulty)<<3);
     
-    RayShoot (ob, damage, 0);
-
+    if (perfectAccuracy)
+        RayShoot (ob, damage, 0);
+    else
+        RayShoot (ob, damage, (characters[pstate->player].accuracy+gamestate.difficulty)<<3);
+    
 }
 
 
@@ -2200,7 +2204,7 @@ void PollKeyboardMove
 //#define MOUSE_RY_SHIFT 12
 //#define MOUSE_TZ_SHIFT 3
 #define MOUSE_TZ_SENSITIVITY_SCALE 18725*4
-#define MOUSE_RY_SENSITIVITY_SCALE 18725*2
+#define MOUSE_RY_SENSITIVITY_SCALE 18725*4
 //#define MOUSE_RY_INPUT_SCALE 6000
 #define MOUSE_TZ_INPUT_SCALE 20
 int mouse_ry_input_scale = 5000;
@@ -2251,9 +2255,20 @@ void PollMouseMove (void)
 
     if ((abs (mouseymove)) >= threshold)
     {   //
-        MY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
-        //MY = FixedMul(MY,sensitivity_scalar[mouseadjustment]*MOUSE_TZ_SENSITIVITY_SCALE);
-        MY *= inverse_mouse;    
+        
+        //MY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
+        MY = mouseymove;
+        MY = FixedMul(MY,sensitivity_scalar[mouseadjustment]*MOUSE_TZ_SENSITIVITY_SCALE);
+        MY *= inverse_mouse;
+        
+        
+        
+/*
+        if (usemouselook)
+        {
+            MY = MY/(32*(sensitivity_scalar[mouseadjustment]*2));
+        }
+*/
         //MY = 0;
         if (abs(mouseymove)>200)
         {
@@ -2589,6 +2604,10 @@ void PollMove (void)
     {
         if (y != 0)
         {
+            if (usemouselook)
+            {
+                
+            }
             controlbuf[0] = -FixedMul (y, viewcos);
             controlbuf[1] = FixedMul (y, viewsin);
         }
@@ -2996,7 +3015,17 @@ void PollControls (void)
         AddExitCommand();
     }
 //bna section
-    if (Keyboard[sc_5]) {
+    
+    if (Keyboard[sc_5])
+    {
+        weaponscale += 1000;
+    }
+    if (Keyboard[sc_6])
+    {
+        weaponscale -= 1000;
+    
+    }
+    if (Keyboard[sc_7]) {
         //	 SetTextMode (  );
         yzangleDeno +=  1;
         char msgYZANG[4];
@@ -3005,7 +3034,7 @@ void PollControls (void)
         
         //testval++;
     }
-    if (Keyboard[sc_6]) {
+    if (Keyboard[sc_8]) {
         //	 SetTextMode (  );
         yzangleDeno -=  1;
         char msgYZANG[4];
@@ -4419,7 +4448,7 @@ void PlayerTiltHead (objtype * ob)
     if (usemouselook) {
 	//printf ("%d\n",MY);
         if (MY!=0 || usemouselook) { //From WINROTTGL
-            SetPlayerHorizon (pstate,(pstate->horizon - HORIZONYZOFFSET+(MY/16)));
+            SetPlayerHorizon (pstate,(pstate->horizon - HORIZONYZOFFSET+(MY/12)));
             yzangle = pstate->horizon;
 	}
     }

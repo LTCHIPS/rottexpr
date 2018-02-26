@@ -51,6 +51,8 @@ extern boolean iG_aimCross;
 
 boolean ricochetingRocketsEnabled = false;
 
+boolean perfectAccuracy = false;
+
 
 extern void DisplayMessage   (int num,int position);
 
@@ -166,6 +168,8 @@ enum
     JUKEBOXALT,                // JukeBox
     MAPCHEAT,                  // Map Cheat
     MAPCHEATALT,               // Map Cheat Alt,
+    PERFECTACC,           //perfect accuracy
+    PERFECTACCALT,        //perfect accuracy
     MAXCODES
 };
 
@@ -276,10 +280,13 @@ CodeStruct Codes[MAXCODES + 6] =
     {"EEL\\",       4},        // JukeBox
     {"REITRAC",     7},        // Map Cheat
     {"PAM\\",       4},        // Map Cheat
+    {"DIKEHTYLLIB", 11},    //perfect accuracy
+    {"REPINS", 6},          //perfect accuracy
     {"UOY\\",       4},        // Secret Message
     {"EVAH",        4},        // Secret Message
     {"ON\\",        3},        // Secret Message
     {"EFIL",        4}        // Secret Message
+    
 
 };
 
@@ -1360,6 +1367,8 @@ void WeaponCheat (int weapon)
 
 extern boolean ricochetingRocketsEnabled;
 
+extern boolean perfectAccuracy;
+
 void CheckCode (int which)
 {
     int pos = (LastLetter-1)&(MAXLETTERS-1);
@@ -1654,6 +1663,15 @@ void CheckCode (int which)
                 AddMessage("Ricocheting Rockets \\cEnabled!", MSG_CHEAT);                
             else
                 AddMessage("Ricocheting Rockets \\cDisabled!", MSG_CHEAT);
+            break;
+        case PERFECTACC:
+        case PERFECTACCALT:
+            perfectAccuracy ^= 1;
+            if (perfectAccuracy)
+                AddMessage("Perfect Bullet Weapon Accuracy \\cEnabled!", MSG_CHEAT);
+            else
+                AddMessage("Perfect Bullet Weapon Accuracy \\cDisabled!", MSG_CHEAT);
+            break;
         }
     }
 }

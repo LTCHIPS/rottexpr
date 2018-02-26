@@ -5747,10 +5747,6 @@ void SetupZomROTTStuff()
     int x;
     for (x = 0; x < 8; x++)
     {
-        //if (enemiesToRes[x]->head != NULL && enemiesToRes[x]->tail != NULL)
-        //{
-            //clearQueue(enemiesToRes[x]);
-        //}
         Queue * enemyQueue = malloc(sizeof(Queue));
         queueInit(enemyQueue, sizeof(objtype));
         enemiesToRes[x] = enemyQueue;
