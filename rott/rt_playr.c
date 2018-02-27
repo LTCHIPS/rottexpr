@@ -2260,9 +2260,6 @@ void PollMouseMove (void)
         MY = mouseymove;
         MY = FixedMul(MY,sensitivity_scalar[mouseadjustment]*MOUSE_TZ_SENSITIVITY_SCALE);
         MY *= inverse_mouse;
-        
-        
-        
 /*
         if (usemouselook)
         {
