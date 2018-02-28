@@ -5706,6 +5706,9 @@ void CP_ExtOptionsMenu (void)
         {
         case 0:
             usemouselook  ^= 1;
+            allowMovementWithMouseYAxis = 0;
+            autoAimMissileWeps = 0;
+            autoAim = 0;
             DrawExtOptionsButtons ();
             break;
         case 1:
@@ -5717,7 +5720,8 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 2:
-            allowMovementWithMouseYAxis   ^= 1;
+            if (!usemouselook)
+                allowMovementWithMouseYAxis   ^= 1;
             DrawExtOptionsButtons ();
             break;
         case 3:
@@ -5736,11 +5740,13 @@ void CP_ExtOptionsMenu (void)
             }
             break;
         case 6:
-            autoAimMissileWeps ^= 1;
+            if(!usemouselook)
+                autoAimMissileWeps ^= 1;
             DrawExtOptionsButtons();
             break;
         case 7:
-            autoAim ^= 1;
+            if(!usemouselook)
+                autoAim ^= 1;
             DrawExtOptionsButtons();
             break;
         }

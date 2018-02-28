@@ -2254,24 +2254,24 @@ void PollMouseMove (void)
 
 
     if ((abs (mouseymove)) >= threshold)
-    {   //
-        
-        //MY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
-        MY = mouseymove;
-        MY = FixedMul(MY,sensitivity_scalar[mouseadjustment]*MOUSE_TZ_SENSITIVITY_SCALE);
-        MY *= inverse_mouse;
-/*
-        if (usemouselook)
+    {  
+        if(usemouselook)
         {
-            MY = MY/(32*(sensitivity_scalar[mouseadjustment]*2));
+            MY = mouseymove;
+            MY = FixedMul(MY,sensitivity_scalar[mouseadjustment]*MOUSE_TZ_SENSITIVITY_SCALE);
+            MY *= inverse_mouse;
         }
-*/
-        //MY = 0;
-        if (abs(mouseymove)>200)
+        else
         {
-            buttonpoll[bt_run]=true;
-            // buttonpoll[ bt_lookup ] = true;
+            MY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
+            //MY *= inverse_mouse;
+            if (abs(mouseymove)>200)
+            {
+                buttonpoll[bt_run]=true;
+                // buttonpoll[ bt_lookup ] = true;
+            }
         }
+         
     }   
 
     if ((abs (mousexmove)) >= threshold)
@@ -4444,7 +4444,7 @@ void PlayerTiltHead (objtype * ob)
 
     if (usemouselook) {
 	//printf ("%d\n",MY);
-        if (MY!=0 || usemouselook) { //From WINROTTGL
+        if (MY!=0 || usemouselook) { //From WINROTTGL, well based off of it
             SetPlayerHorizon (pstate,(pstate->horizon - HORIZONYZOFFSET+(MY/12)));
             yzangle = pstate->horizon;
 	}
@@ -4481,7 +4481,7 @@ void PlayerTiltHead (objtype * ob)
     ob->yzangle=yzangle-HORIZONYZOFFSET;
     Fix(ob->yzangle);
 
-    //iG_playerTilt = ob->yzangle;
+    iG_playerTilt = ob->yzangle;
 
 }
 

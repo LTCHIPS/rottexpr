@@ -290,6 +290,9 @@ void CalcProjection ( void )
 
 int yzangleDeno = 200;
 
+extern int FocalWidthOffset;
+
+
 void SetViewSize
 (
     int size
@@ -668,6 +671,9 @@ void SetViewSize
     
     //yzangleconverter = ( 0xaf85 * viewheight ) / (200);
 
+    
+    //what the hell is the significance of 0xaf85???
+    
     switch(iGLOBAL_SCREENWIDTH)
     {
         case 320:
@@ -703,13 +709,6 @@ void SetViewSize
         default:
             yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
             break;    
-    }
-    
-    
-    if (playstate == ex_stillplaying)
-    {
-        printf("%d \n", yzangleconverter);
-        printf("%d \n \n", viewheight);
     }
     
     

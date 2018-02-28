@@ -2217,6 +2217,10 @@ void TransformPushWalls( void )
 ====================
 */
 
+extern int FocalWidthOffset;
+
+extern int MY;
+
 void WallRefresh (void)
 {
     volatile int dtime;
@@ -2297,6 +2301,8 @@ void WallRefresh (void)
         centery-=FixedMul(FINEANGLES-yzangle,yzangleconverter);
     else
         centery+=FixedMul(yzangle,yzangleconverter);
+    
+    //centery+=FocalWidthOffset;
     
     centeryfrac=(centery<<16);
 
@@ -2694,6 +2700,10 @@ void InterpolateMaskedWall (visobj_t * plane)
 #define PLX  (320-24)
 #define PLY  16
 
+extern int centery;
+extern int centeryfrac;
+extern int yzangleconverter;
+
 void DrawPlayerLocation ( void )
 {
     int i;
@@ -2715,9 +2725,22 @@ void DrawPlayerLocation ( void )
     px=PLX;
     py=PLY+6;
     VW_DrawPropString(strupr(itoa(player->y,&buf[0],16)));
+    
     px=PLX;
     py=PLY+12;
     VW_DrawPropString(strupr(itoa(player->angle,&buf[0],16)));
+    
+    px=PLX;
+    py=PLY+18;
+    VW_DrawPropString(strupr(itoa(centery,&buf[0],10)));
+    px=PLX;
+    py=PLY+24;
+    VW_DrawPropString(strupr(itoa(player->yzangle,&buf[0],10)));
+    
+    px=PLX;
+    py=PLY+30;
+    VW_DrawPropString(strupr(itoa(yzangleconverter,&buf[0],10)));
+    
 }
 
 
