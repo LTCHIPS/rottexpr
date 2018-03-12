@@ -118,6 +118,14 @@ boolean allowBlitzMoreMissileWeps = 0;
 boolean enableAmmoPickups = 0;
 boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
+boolean enableExtraPistolDrops = 0;
+boolean allowMovementWithMouseYAxis = 1;
+int FocalWidthOffset = 0;
+int ScreenHeightToWriteToCfg = 0;
+
+int ScreenWidthToWriteToCfg = 0;
+boolean writeNewResIntoCfg = false;
+
 
 boolean joystickenabled  = 0;
 boolean joypadenabled    = 0;
@@ -516,20 +524,23 @@ boolean ParseConfigFile (void)
     if (version == ROTTVERSION)
     {
         //Read in allowBlitzguardMoreMissileWeps
-
         ReadBoolean("AllowBlitzguardMoreMissileWeps", &allowBlitzMoreMissileWeps);
 
         //Read in enableAmmoPickups
-
         ReadBoolean("EnableAmmoPickups", &enableAmmoPickups);
 
         //Read in AutoAim
-
         ReadBoolean("AutoAim", &autoAim);
 
         //Read in AutoAimMissileWeps
-
         ReadBoolean("AutoAimMissileWeps", &autoAimMissileWeps);
+        
+        //Read in EnableExtraPistolDrops
+        ReadBoolean("EnableExtraPistolDrops", &enableExtraPistolDrops);
+        
+        //Read in scaleOffset
+        
+        ReadInt("FocalWidthOffset", &FocalWidthOffset);
 
         // Read in MouseEnabled
         ReadBoolean("MouseEnabled",&mouseenabled);
@@ -538,6 +549,8 @@ boolean ParseConfigFile (void)
         ReadBoolean("UseMouseLook",&usemouselook);
 
         ReadInt("InverseMouse",&inverse_mouse);
+
+        ReadBoolean("AllowMovementWithMouseYAxis", &allowMovementWithMouseYAxis);
 
         // Read in UseJump
         ReadBoolean("UseJump",&usejump);
@@ -552,7 +565,6 @@ boolean ParseConfigFile (void)
         ReadBoolean("JoypadEnabled",&joypadenabled);
 
         // Read in JoystickPort
-
         ReadInt("JoystickPort",&joystickport);
 
         // Read in fullscreen
@@ -567,7 +579,6 @@ boolean ParseConfigFile (void)
         ReadInt("ViewSize",&viewsize);
 
         // Read in Weaponscale
-
         ReadInt("Weaponscale",&G_weaponscale);//bna added
         if ((G_weaponscale <150)||(G_weaponscale>600)) {
             if (iGLOBAL_SCREENWIDTH == 320) {
@@ -577,64 +588,53 @@ boolean ParseConfigFile (void)
             } else if (iGLOBAL_SCREENWIDTH == 800) {
                 G_weaponscale=376;
             }
+            else if (iGLOBAL_SCREENWIDTH == 1024) {
+                G_weaponscale=512;
+            }
         }
 
         // Read in MouseAdjustment
-
         ReadInt("MouseAdjustment",&mouseadjustment);
 
         // Read in threshold
-
         ReadInt("Threshold",&threshold);
 
         // Read in Auto Detail
-
         ReadBoolean ("AutoDetail", &AutoDetailOn);
 
         // Read in Light Dim
-
         ReadInt ("LightDim", &fulllight);
 
         // Read in Bobbin' On
-
         ReadBoolean ("BobbingOn", &BobbinOn);
 
         // Read in Double Click Speed
-
         ReadInt ("DoubleClickSpeed", &DoubleClickSpeed);
 
         // Read in Menu Flip Speed
-
         ReadInt ("MenuFlipSpeed", &Menuflipspeed);
 
         // Read in Detail Level
-
         ReadInt ("DetailLevel", &DetailLevel);
 
         // Read in Floor and Ceiling
-
         ReadInt ("FloorCeiling", &fandc);
 
         // Read in MessagesEnabled
-
         ReadBoolean ("Messages", &MessagesEnabled );
 
         // Read in Autorun
-
         ReadInt ("AutoRun", &gamestate.autorun );
 
         // Read in GammaIndex
-
         ReadInt ("GammaIndex", &gammaindex);
 
         // Read screen blanking time
-
         ReadInt ("BlankTime", &blanktime);
 
         blanktime=blanktime*60*VBLCOUNTER;
 
         // Read keys
-
         ReadInt ("Fire",        &buttonscan[0]);
         ReadInt ("Strafe",      &buttonscan[1]);
         ReadInt ("Run",         &buttonscan[2]);
@@ -1716,6 +1716,10 @@ void WriteSoundConfig
 //
 //******************************************************************************
 
+extern boolean writeNewResIntoCfg;
+extern int ScreenWidthToWriteToCfg;
+extern int ScreenHeightToWriteToCfg;
+
 void WriteConfig (void)
 {
     int file;
@@ -1784,7 +1788,19 @@ void WriteConfig (void)
     SafeWriteString(file, "; 1 - Missile weapons will be automatically aimed at targets like bullet weapons.\n");
     SafeWriteString(file, "; 0 - Missile weapons are not automatically aimed at targets. (ROTT default)\n");
     WriteParameter(file, "AutoAimMissileWeps    ", autoAimMissileWeps);
-
+    
+    //Write out enableExtraPistolDrops
+    
+    SafeWriteString(file, "\n;\n");
+    SafeWriteString(file, "; 1 - Enemies equipped with pistols have a chance of dropping an extra pistol when killed.\n");
+    SafeWriteString(file, "; 0 - Enemies will not drop extra pistols at all. (Default)\n");
+    WriteParameter(file, "EnableExtraPistolDrops     ", enableExtraPistolDrops);
+    
+    //Write out scaleOffset
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file,"; Field Of View offset\n");
+    WriteParameter(file,"FocalWidthOffset     ",FocalWidthOffset);
+    
     // Write out MouseEnabled
 
     SafeWriteString(file,"\n;\n");
@@ -1803,6 +1819,11 @@ void WriteConfig (void)
     SafeWriteString(file,"; 1 - Normal Mouse Enabled\n");
     SafeWriteString(file,"; -1 - Inverse Mouse Enabled\n");
     WriteParameter(file,"InverseMouse     ",inverse_mouse);
+    
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file,"; 1 - Allows X and Y movement with Mouse. (Default)\n");
+    SafeWriteString(file,"; 0 - Allow only X movement with Mouse.\n");
+    WriteParameter(file,"allowMovementWithMouseYAxis    ",allowMovementWithMouseYAxis);
 
     // Write out UseJump
     SafeWriteString(file,"\n;\n");
@@ -1847,8 +1868,21 @@ void WriteConfig (void)
     SafeWriteString(file,"\n;\n");
     SafeWriteString(file,"; Screen Resolution, supported resolutions: \n");
     SafeWriteString(file,"; 320x200, 640x480 and 800x600\n");
-    WriteParameter(file,"ScreenWidth      ",iGLOBAL_SCREENWIDTH);
-    WriteParameter(file,"ScreenHeight     ",iGLOBAL_SCREENHEIGHT);
+    
+    //WriteParameter(file,"ScreenWidth      ",iGLOBAL_SCREENWIDTH);
+    //WriteParameter(file,"ScreenHeight     ",iGLOBAL_SCREENHEIGHT);
+    
+    if (writeNewResIntoCfg)
+    {
+        WriteParameter(file,"ScreenWidth      ",ScreenWidthToWriteToCfg);
+        WriteParameter(file,"ScreenHeight     ",ScreenHeightToWriteToCfg);
+    }
+    else
+    {
+        WriteParameter(file,"ScreenWidth      ",iGLOBAL_SCREENWIDTH);
+        WriteParameter(file,"ScreenHeight     ",iGLOBAL_SCREENHEIGHT);    
+    }
+    
 
     // Write out ViewSize
 
@@ -1871,6 +1905,10 @@ void WriteConfig (void)
             G_weaponscale=299;
         } else if (iGLOBAL_SCREENWIDTH == 800) {
             G_weaponscale=376;
+        }
+        else if (iGLOBAL_SCREENWIDTH == 1024)
+        {
+            G_weaponscale=512;
         }
     }
     WriteParameter(file,"Weaponscale         ",G_weaponscale);

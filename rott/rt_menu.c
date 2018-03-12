@@ -714,6 +714,7 @@ CP_itemtype PlayerMenu[] =
 
 CP_MenuNames ControlMMenuNames[] =
 {
+    "VISUAL OPTIONS",
     "CONTROLS",
     "USER OPTIONS",
     "EXT USER OPTIONS",//bna added
@@ -722,18 +723,18 @@ CP_MenuNames ControlMMenuNames[] =
     "SOUND FX VOLUME"
 
 };
-CP_iteminfo ControlMItems = {32, 48-8, 6, 0, 32, ControlMMenuNames, mn_largefont };//bna added
+CP_iteminfo ControlMItems = {32, 48-8, 7, 0, 32, ControlMMenuNames, mn_largefont };//bna added
 //CP_iteminfo ControlMItems = {32, 48, 4, 0, 32, ControlMMenuNames, mn_largefont };
-
+void CP_VisualsMenu(void);
 CP_itemtype ControlMMenu[] =
 {
+    {1, "adjfwid\0", 'W', (menuptr)CP_VisualsMenu},
     {2, "cntl\0",     'C', (menuptr)CP_Control},
     {1, "uopt\0",     'U', (menuptr)CP_OptionsMenu},
     {1, "euopt\0", 'E', (menuptr)CP_ExtOptionsMenu},//bna added
     {1, "eaopt\0", 'A', (menuptr)CP_ExtGameOptionsMenu},
     {1, "muvolumn\0", 'M', (menuptr)MusicVolume},
     {1, "fxvolumn\0", 'S', (menuptr)FXVolume}
-
 };
 
 CP_MenuNames OptionsNames[] =
@@ -753,6 +754,7 @@ CP_MenuNames ExtOptionsNames[] =
 {
     "MOUSELOOK",
     "INVERSE MOUSE",
+    "ALLOW Y AXIS MOUSE",
     "CROSS HAIR",
     "JUMPING",
     "FULLSCREEN",
@@ -768,19 +770,84 @@ CP_MenuNames ExtGameOptionsNames[] =
     "ENABLE ZOMROTT"
 }; //LT added
 
-CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 7, 0, 43, ExtOptionsNames, mn_largefont };
+CP_MenuNames VisualOptionsNames[] = 
+{
+    "SCREEN RESOLUTION",
+    "ADJUST FOCAL WIDTH"
+};
+
+CP_MenuNames ScreenResolutions[] = 
+{
+    "320x200",
+    "640x400",
+    "640x480",
+    "800x600",
+    "1024x768",
+    "1152x864",
+    "1280x720",
+    "1280x768",
+    "1280x800",
+    "1280x960",
+    "1280x1024",
+    //"1366x768",
+    "1400x1050",
+    "1440x900",
+    "1600x900",
+    "1680x1050",
+    "1920x1080",
+    "2560x1080",
+    "2560x1440",
+    "3840x2160"
+};
+CP_itemtype ScreenResolutionMenu[] = {
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    //{1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+    {1, "", ' ',NULL},
+};
+
+CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 2, 0, 43, VisualOptionsNames, mn_largefont };
+
+CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 19, 0, 16, ScreenResolutions, mn_tinyfont};
+
+CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 8, 0, 43, ExtOptionsNames, mn_largefont };
 
 CP_iteminfo ExtGameOptionsItems = { 20, MENU_Y, 4, 0, 43, ExtGameOptionsNames, mn_largefont }; //LT added
+
+void CP_ScreenResolution(void);
+
+CP_itemtype VisualsOptionsMenu[] = 
+{
+    {1, "", 'S', (menuptr)CP_ScreenResolution},
+    {1, "", 'F', (menuptr)DoAdjustFocalWidth}
+};
 
 CP_itemtype ExtOptionsMenu[] =
 {
     {1, "", 'M', NULL},
     {1, "", 'I', NULL},
+    {1, "", 'D', NULL},
     {1, "", 'C', NULL},
     {1, "", 'J', NULL},
     {1, "", 'F', NULL},
     {1, "", 'A', NULL},
-    {1, "", 'U', NULL}
+    {1, "", 'U', NULL},
 };
 
 CP_itemtype ExtGameMenu[] =
@@ -1697,6 +1764,10 @@ void CleanUpControlPanel (void)
     FreeSavedScreenPtr ();
 
     WriteConfig ();
+    
+    //change the focal width if modified
+    
+    RecalculateFocalWidth();
 
     INL_GetJoyDelta (joystickport, &joyx, &joyy);
 
@@ -4903,8 +4974,6 @@ void ReadAnyControl (ControlInfo *ci)
 
             mouseactive = 1;
         }
-#else
-#error please define your platform.  /* or maybe just nuke the DOS section? */
 #endif
 
         buttons = IN_GetMouseButtons();
@@ -5333,6 +5402,7 @@ void CP_ControlMenu (void)
 
 
 
+
 //****************************************************************************
 //
 // DrawOptionsMenu ()
@@ -5353,6 +5423,206 @@ void DrawOptionsMenu (void)
     DisplayInfo (0);
     FlipMenuBuf();
 }
+
+void DrawVisualsMenu (void)
+{
+    MenuNum = 1;
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Visuals Menu");
+    
+    MN_GetCursorLocation( &VisualOptionsItems, &VisualsOptionsMenu[ 0 ] );
+    DrawMenu (&VisualOptionsItems, &VisualsOptionsMenu[0]);
+    DrawMenuBufItem (VisualOptionsItems.x, ((VisualOptionsItems.curpos*14)+(VisualOptionsItems.y-2)),
+                     W_GetNumForName( LargeCursor ) + CursorFrame[ CursorNum ] );
+    DisplayInfo (0);
+    FlipMenuBuf();
+    
+}
+
+void CP_VisualsMenu(void)
+{
+    int which;
+    DrawVisualsMenu();
+
+    do
+    {
+        which = HandleMenu (&VisualOptionsItems, &VisualsOptionsMenu[0], NULL);
+    } while (which >= 0);
+
+    DrawControlMenu();
+}
+
+
+extern int FocalWidthOffset;
+
+void DoAdjustFocalWidth (void)
+{
+    SliderMenu (&FocalWidthOffset, 200, 0, 44, 81, 194, 1, "block2", NULL,
+                "Adjust Focal Width", "Default", "You Crazy" );
+    DrawVisualsMenu ();
+}
+
+void DrawScreenResolutionMenu(void)
+{
+    MenuNum = 1;
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Screen Resolution");
+    
+    MN_GetCursorLocation( &ScreenResolutionItems, &ScreenResolutionMenu[ 0 ] );
+    DrawMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0]);
+
+    DisplayInfo (0);
+    FlipMenuBuf();
+
+}
+
+void CP_RestartProgramMessage
+(
+    void
+)
+
+{
+    CP_ErrorMsg( "Note:",
+                 "Changes will not be applied until the application is restarted. "
+                 "Hit any key to continue.",
+                 mn_smallfont );
+}
+
+extern int ScreenWidthToWriteToCfg;
+extern int ScreenHeightToWriteToCfg;
+extern boolean writeNewResIntoCfg;
+
+void CP_ScreenResolution(void)
+{
+    int which;
+    
+    //CP_RestartProgramMessage();
+    
+    DrawScreenResolutionMenu();
+
+    do
+    {
+        which = HandleMenu (&ScreenResolutionItems, &ScreenResolutionMenu[0], NULL);
+        switch(which)
+        {
+            case 0:
+                ScreenWidthToWriteToCfg = 320;
+                ScreenHeightToWriteToCfg = 200;
+                writeNewResIntoCfg = true;
+                break;
+            case 1:
+                ScreenWidthToWriteToCfg = 640;
+                ScreenHeightToWriteToCfg = 400;
+                writeNewResIntoCfg = true;
+                break;
+            case 2:
+                ScreenWidthToWriteToCfg = 640;
+                ScreenHeightToWriteToCfg = 480;
+                writeNewResIntoCfg = true;
+                break;
+            case 3:
+                ScreenWidthToWriteToCfg = 800;
+                ScreenHeightToWriteToCfg = 600;
+                writeNewResIntoCfg = true;
+                break;
+            case 4:
+                ScreenWidthToWriteToCfg = 1024;
+                ScreenHeightToWriteToCfg = 768;
+                writeNewResIntoCfg = true;
+                break;
+            case 5:
+                ScreenWidthToWriteToCfg = 1152;
+                ScreenHeightToWriteToCfg = 864;
+                writeNewResIntoCfg = true;
+                break;
+            case 6:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 720;
+                writeNewResIntoCfg = true;
+                break;
+            case 7:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 768;
+                writeNewResIntoCfg = true;
+                break;
+            case 8:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 800;
+                writeNewResIntoCfg = true;
+                break;
+            case 9:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 960;
+                writeNewResIntoCfg = true;
+                break;
+            case 10:
+                ScreenWidthToWriteToCfg = 1280;
+                ScreenHeightToWriteToCfg = 1024;
+                writeNewResIntoCfg = true;
+                break;
+/*          buggy af mode
+            case 11:
+                ScreenWidthToWriteToCfg = 1366;
+                ScreenHeightToWriteToCfg = 768;
+                writeNewResIntoCfg = true;
+                break;
+*/
+            case 11:
+                ScreenWidthToWriteToCfg = 1400;
+                ScreenHeightToWriteToCfg = 1050;
+                writeNewResIntoCfg = true;
+                break;
+            case 12:
+                ScreenWidthToWriteToCfg = 1440;
+                ScreenHeightToWriteToCfg = 900;
+                writeNewResIntoCfg = true;
+                break;
+            case 13:
+                ScreenWidthToWriteToCfg = 1600;
+                ScreenHeightToWriteToCfg = 900;
+                writeNewResIntoCfg = true;
+                break;
+            case 14:
+                ScreenWidthToWriteToCfg = 1680;
+                ScreenHeightToWriteToCfg = 1050;
+                writeNewResIntoCfg = true;
+                break;
+            case 15:
+                ScreenWidthToWriteToCfg = 1920;
+                ScreenHeightToWriteToCfg = 1080;
+                writeNewResIntoCfg = true;
+                break;
+            case 16:
+                ScreenWidthToWriteToCfg = 2560;
+                ScreenHeightToWriteToCfg = 1080;
+                writeNewResIntoCfg = true;
+                break;
+            case 17:
+                ScreenWidthToWriteToCfg = 2560;
+                ScreenHeightToWriteToCfg = 1440;
+                writeNewResIntoCfg = true;
+                break;
+            case 18:
+                ScreenWidthToWriteToCfg = 3840;
+                ScreenHeightToWriteToCfg = 2160;
+                writeNewResIntoCfg = true;
+                break;
+            default:
+                break;
+        }
+        
+        
+    } while (which >= 0);
+    
+    if (writeNewResIntoCfg)
+        CP_RestartProgramMessage();
+
+    DrawVisualsMenu();
+}
+
+
 //****************************************************************************
 //
 // DrawExtOptionsMenu ()  () bna added
@@ -5370,10 +5640,47 @@ void DrawExtOptionsMenu (void)
     MN_GetCursorLocation( &ExtOptionsItems, &ExtOptionsMenu[ 0 ] );
     DrawMenu (&ExtOptionsItems, &ExtOptionsMenu[0]);
     DrawExtOptionsButtons ();
+    
     DisplayInfo (0);
 
     FlipMenuBuf();
 }
+
+static char * ExtOptionsDesc[8] = {
+    "Allow mouse look.",
+    "Invert the mouse.",
+    "Move forward and backward using mouse.",
+    "Enable Crosshairs.",
+    "Allow Jumping (may completely break levels)",
+    "Toggle Fullscreen",
+    "Missile weapons are auto aimed after 1st shot.",
+    "Allow auto aim"
+
+};
+
+void DrawExtOptionDescription (int w)
+{
+
+    int     width;
+    int     height;
+    char   *string;
+    font_t *temp;
+
+    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+
+    temp = CurrentFont;
+    CurrentFont = tinyfont;
+
+    string = ExtOptionsDesc[ w ];
+
+    VW_MeasurePropString ( string, &width, &height );
+    DrawMenuBufPropString ( ( 288 - width ) / 2, 4, string );
+
+    CurrentFont = temp;
+
+
+}
+
 extern int inverse_mouse;
 extern boolean usemouselook;
 extern boolean iG_aimCross;
@@ -5381,6 +5688,9 @@ extern boolean usejump;
 extern boolean sdl_fullscreen;
 extern boolean autoAimMissileWeps;
 extern boolean autoAim;
+extern boolean allowMovementWithMouseYAxis;
+
+
 
 void CP_ExtOptionsMenu (void)
 {
@@ -5390,7 +5700,7 @@ void CP_ExtOptionsMenu (void)
 
     do
     {
-        which = HandleMenu (&ExtOptionsItems, &ExtOptionsMenu[0], NULL);
+        which = HandleMenu (&ExtOptionsItems, &ExtOptionsMenu[0], DrawExtOptionDescription);
 
         switch (which)
         {
@@ -5407,25 +5717,29 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 2:
-            iG_aimCross   ^= 1;
+            allowMovementWithMouseYAxis   ^= 1;
             DrawExtOptionsButtons ();
             break;
         case 3:
-            usejump       ^= 1;
+            iG_aimCross   ^= 1;
             DrawExtOptionsButtons ();
             break;
         case 4:
+            usejump       ^= 1;
+            DrawExtOptionsButtons ();
+            break;
+        case 5:
             if (SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()))
             {
                 sdl_fullscreen ^= 1;
                 DrawExtOptionsButtons ();
             }
             break;
-        case 5:
+        case 6:
             autoAimMissileWeps ^= 1;
             DrawExtOptionsButtons();
             break;
-        case 6:
+        case 7:
             autoAim ^= 1;
             DrawExtOptionsButtons();
             break;
@@ -5435,6 +5749,7 @@ void CP_ExtOptionsMenu (void)
 
     DrawControlMenu();
 }
+
 void DrawExtOptionsButtons (void)
 {
     int i,
@@ -5463,18 +5778,21 @@ void DrawExtOptionsButtons (void)
                 if (inverse_mouse == -1)on = 1;
                 break;
             case 2:
-                if (iG_aimCross   == 1) on = 1;
+                if (allowMovementWithMouseYAxis   == 1) on = 1;
                 break;
             case 3:
-                if (usejump       == 1) on = 1;
+                if (iG_aimCross   == 1) on = 1;
                 break;
             case 4:
-                if (sdl_fullscreen== 1) on = 1;
+                if (usejump       == 1) on = 1;
                 break;
             case 5:
-                if (autoAimMissileWeps == 1) on = 1;
+                if (sdl_fullscreen== 1) on = 1;
                 break;
             case 6:
+                if (autoAimMissileWeps == 1) on = 1;
+                break;
+            case 7:
                 if (autoAim == 1) on = 1;
                 break;
             }
@@ -5488,7 +5806,14 @@ void DrawExtOptionsButtons (void)
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
 extern boolean enableZomROTT = 0;
-extern boolean enableExtraPistolDrops = 0;
+extern boolean enableExtraPistolDrops;
+static char *ExtGameOptionsDesc[ sizeof(ExtGameOptionsItems)] =
+{
+    "Allow Blitzguards to be randomly given any missile weapon.",
+    "Take ammo from dropped missile weapons upon touching them.",
+    "Guards with pistols drop their pistol when killed.",
+    "If enabled, guards will respawn UNLESS if GIBBED."
+};
 
 void DrawExtGameOptionsButtons (void)
 {
@@ -5512,16 +5837,36 @@ void DrawExtGameOptionsButtons (void)
             switch (i)
             {
             case 0:
-                if (allowBlitzMoreMissileWeps  == 1) on = 1;
+                if (allowBlitzMoreMissileWeps  == 1){
+                    on = 1;
+                }
                 break;
             case 1:
-                if (enableAmmoPickups == 1) on = 1;
+                if (enableAmmoPickups == 1) {
+/*
+                    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+                    DrawOptionDescription( ExtGameOptionsDesc, 1);
+*/
+                    on = 1;
+                }
                 break;
             case 2:
-                if (enableExtraPistolDrops == 1) on = 1;
+                if (enableExtraPistolDrops == 1){
+/*
+                    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+                    DrawOptionDescription( ExtGameOptionsDesc, 2 );
+*/
+                    on = 1;
+                }
                 break;
             case 3:
-                if (enableZomROTT == 1) on = 1;
+                if (enableZomROTT == 1) {
+/*
+                    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+                    DrawOptionDescription( ExtGameOptionsDesc, 3 );
+*/
+                    on = 1;
+                }
                 break;
             }
 
@@ -5533,9 +5878,6 @@ void DrawExtGameOptionsButtons (void)
         }
 
 }
-
-
-
 
 void DrawExtGameMenu (void)
 {
@@ -5555,6 +5897,31 @@ void DrawExtGameMenu (void)
     FlipMenuBuf();
 
 }
+
+void DrawExtGameOptionDescription (int w)
+{
+
+    int     width;
+    int     height;
+    char   *string;
+    font_t *temp;
+
+    EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+
+    temp = CurrentFont;
+    CurrentFont = tinyfont;
+
+    string = ExtGameOptionsDesc[ w ];
+
+    VW_MeasurePropString ( string, &width, &height );
+    DrawMenuBufPropString ( ( 288 - width ) / 2, 4, string );
+
+    CurrentFont = temp;
+
+
+}
+
+
 //****************************************************************************
 //
 // DrawExtGameOptionsMenu ()  () LT added
@@ -5569,8 +5936,13 @@ void CP_ExtGameOptionsMenu (void)
 
     do
     {
-        which = HandleMenu (&ExtGameOptionsItems, &ExtGameMenu[0], NULL);
+        //EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+        //DrawOptionDescription( ExtGameOptionsDesc, w );
+        which = HandleMenu (&ExtGameOptionsItems, &ExtGameMenu[0], DrawExtGameOptionDescription);
 
+        //EraseMenuBufRegion (25, 4, 287 - 25, 10 );
+        //DrawOptionDescription( ExtGameOptionsDesc, which);
+        
         switch (which)
         {
         case 0:

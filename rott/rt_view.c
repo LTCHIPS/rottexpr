@@ -87,7 +87,7 @@ byte * redmap;
 byte * greenmap;
 byte * playermaps[MAXPLAYERCOLORS];
 //short  pixelangle[MAXVIEWWIDTH];
-short  pixelangle[800];
+short  pixelangle[MAXSCREENWIDTH];
 byte   gammatable[GAMMAENTRIES];
 int    gammaindex;
 int    focalwidth=160;
@@ -212,7 +212,7 @@ void SetViewDelta ( void )
         scale = (centerx*focalwidth)/(160);
     } else if ( iGLOBAL_SCREENWIDTH == 640) {
         scale = (centerx*focalwidth)/(160);
-    } else if ( iGLOBAL_SCREENWIDTH == 800) {
+    } else if ( iGLOBAL_SCREENWIDTH >= 800) {
         scale = (centerx*focalwidth)/(160);
     }
 //
@@ -309,53 +309,294 @@ void SetViewSize
     */
 
     if ( iGLOBAL_SCREENWIDTH == 640) {
-        height = 0;//we use height as dummy cnt
-        viewsizes[height++]= 380;
-        viewsizes[height++]= 336;
-        viewsizes[height++]= 428;
-        viewsizes[height++]= 352;
-        viewsizes[height++]= 460;
-        viewsizes[height++]= 368;
-        viewsizes[height++]= 492;
-        viewsizes[height++]= 384;
-        viewsizes[height++]= 524;
-        viewsizes[height++]= 400;
-        viewsizes[height++]= 556;
-        viewsizes[height++]= 416;
-        viewsizes[height++]= 588;
-        viewsizes[height++]= 432;
-        viewsizes[height++]= 640;
-        viewsizes[height++]= 448;
-        viewsizes[height++]= 640;
-        viewsizes[height++]= 464;
-        viewsizes[height++]= 640;
-        viewsizes[height++]= 480;
-        viewsizes[height++]= 640;
-        viewsizes[height++]= 480;
+        if (iGLOBAL_SCREENHEIGHT == 400)
+        {
+            height = 0;//we use height as dummy cnt
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 32;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400 - 16;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400;
+            
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 400;
+        
+        }
+        else{
+            height = 0;//we use height as dummy cnt
+            viewsizes[height++]= 380;
+            viewsizes[height++]= 336;
+            viewsizes[height++]= 428;
+            viewsizes[height++]= 352;
+            viewsizes[height++]= 460;
+            viewsizes[height++]= 368;
+            viewsizes[height++]= 492;
+            viewsizes[height++]= 384;
+            viewsizes[height++]= 524;
+            viewsizes[height++]= 400;
+            viewsizes[height++]= 556;
+            viewsizes[height++]= 416;
+            viewsizes[height++]= 588;
+            viewsizes[height++]= 432;
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 448;
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 464;
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 480;
+            viewsizes[height++]= 640;
+            viewsizes[height++]= 480;
+        }
+
     } else if ( iGLOBAL_SCREENWIDTH == 800) {
         height = 0;
         viewsizes[height++]= 556;
         viewsizes[height++]= 488;
+        
         viewsizes[height++]= 588;
         viewsizes[height++]= 504;
+        
         viewsizes[height++]= 620;
         viewsizes[height++]= 520;
+        
         viewsizes[height++]= 652;
         viewsizes[height++]= 536;
+        
         viewsizes[height++]= 684;
         viewsizes[height++]= 552;
+        
         viewsizes[height++]= 716;
         viewsizes[height++]= 568;
+        
         viewsizes[height++]= 748;
         viewsizes[height++]= 584;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
         viewsizes[height++]= 800;
         viewsizes[height++]= 600;
+        
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 1024) {
+	height = 0;
+	viewsizes[height++]= 556; 
+        viewsizes[height++]= 488;
+        
+        viewsizes[height++]= 588; 
+        viewsizes[height++]= 504;
+        
+        viewsizes[height++]= 620; 
+        viewsizes[height++]= 520;
+        
+        viewsizes[height++]= 816; 
+        viewsizes[height++]= 704;
+        
+        viewsizes[height++]= 868; 
+        viewsizes[height++]= 720;
+        
+        viewsizes[height++]= 920; 
+        viewsizes[height++]= 736;
+        
+        viewsizes[height++]= 972; 
+        viewsizes[height++]= 752;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+        
+        viewsizes[height++]= 1024; 
+        viewsizes[height++]= 768;
+	}
+    else if ( iGLOBAL_SCREENWIDTH == 1280)
+    {
+        height = 0;
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+        
+        viewsizes[height++]= 1280; 
+        viewsizes[height++]= 1024;
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 1400)
+    {
+        height = 0;
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+        
+        viewsizes[height++]= 1400; 
+        viewsizes[height++]= 1050;
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 1920)
+    {
+        height = 0;
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+        
+        viewsizes[height++]= 1920;
+        viewsizes[height++]= 1080;
+    }
+    else if ( iGLOBAL_SCREENWIDTH == 3840)
+    {
+        height = 0;
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+        
+        viewsizes[height++]= 3840;
+        viewsizes[height++]= 2160;
+    }
+    else
+    {
+        height = 0;
+        for (height = 0; height < 21;)
+        {
+            viewsizes[height++] = iGLOBAL_SCREENWIDTH;
+            viewsizes[height++] = iGLOBAL_SCREENHEIGHT;
+        }
+    
+    
     }
 
 

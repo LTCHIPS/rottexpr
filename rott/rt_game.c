@@ -65,6 +65,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "develop.h"
 //MED
 #include "memcheck.h"
+#include "queue.h"
 
 #if (SHAREWARE == 1)
 #define NUMAMMOGRAPHICS 10
@@ -417,6 +418,7 @@ int topBarCenterOffsetX;
 void DrawPlayScreen (boolean bufferofsonly)
 {
     pic_t *shape;
+    
     int    shapenum;
     int ShowKillsYoffset = 0;//bna++
 
@@ -425,30 +427,14 @@ void DrawPlayScreen (boolean bufferofsonly)
     
     if ( SHOW_TOP_STATUS_BAR() )
     {
-        if (iGLOBAL_SCREENWIDTH == 640) 
+        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
             DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
-            
-            shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-        } 
-        else if (iGLOBAL_SCREENWIDTH == 800) 
-        {  
-            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            
-            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
-            
-            shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-            
-        } 
-        else if (iGLOBAL_SCREENWIDTH == 320) 
-        {
-            shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-            GameMemToScreen( shape, 0, 0, bufferofsonly );
         }
+        shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+        GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
     }
 
     if ( BATTLEMODE )
@@ -464,37 +450,28 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             ShowKillsYoffset = KILLS_HEIGHT;
         }
+        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
+        {
+            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+                
+            //this causes a seg fault when MUSIC_StopSong calls Mix_HaltMusic for some odd reason when player pauses the game...
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
+                
+            //...yet if we do this...no seg fault
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29, iGLOBAL_SCREENWIDTH, 3, 10,10, shape ); //fill in remaining spots
+            
+            
+            shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+                  
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+            
+            
+            
+        }
+            
+        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
-            if (iGLOBAL_SCREENWIDTH == 640) {
-                //bna fix - not to good? but no one has 286 any more
-                //statusbar dosent cover hole screen, because its a lump picture width max 320
-                //first write dummy shape and next over it
-                GameMemToScreen( shape, 320, (224*2)+16-ShowKillsYoffset, bufferofsonly );
-                //copy next shape to mem
-                GameMemToScreen( shape, 0, (224*2)+16-ShowKillsYoffset, bufferofsonly );
-                // delete bullet in middle of shape picture
-                DrawPPic( 310, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-                // delete hart in middle of shape picture
-                DrawPPic( 324, (224*2)+17-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-
-            } else if (iGLOBAL_SCREENWIDTH == 800) {
-                GameMemToScreen( shape, 800-320, 584-ShowKillsYoffset, bufferofsonly );
-                //copy next shape to mem
-                GameMemToScreen( shape, 300, 584-ShowKillsYoffset, bufferofsonly );
-                //copy next shape to mem
-                GameMemToScreen( shape, 0, 584-ShowKillsYoffset, bufferofsonly );
-                // delete 2 bullets in middle of shape picture
-                DrawPPic( 305, 584+1-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-                // delete hart in middle of shape picture
-                DrawPPic( 610, 584+1-ShowKillsYoffset, 8 >> 2, 16,
-                          ( byte * )&erase->data, 2, true, bufferofsonly );
-
-            } else {
-                GameMemToScreen( shape, 0, 184, bufferofsonly );
-            }
         //}
 
         DrawBarAmmo( bufferofsonly );
@@ -1424,60 +1401,55 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
 
     M_LINKSTATE(ob, pstate);
 
-    signed char * playerCurrentAmmo = pstate->ammo;
-    signed char * ammoInItem = item_pickup->ammo;
-    signed char * maxAmmoInWeapon = stats[item_pickup->itemnumber].ammo;
-    signed char newAmmoAmount = (signed char)((int)ammoInItem + (int)playerCurrentAmmo);
+    signed char * playerCurrentAmmo = (signed char *) (int)pstate->ammo;
+    signed char * ammoInItem = (signed char *) (int)item_pickup->ammo;
+    signed char * maxAmmoInWeapon = (signed char *) (int)stats[item_pickup->itemnumber].ammo;
+    signed char * newAmmoAmount = (signed char *)((int)ammoInItem + (int)playerCurrentAmmo);
 
     if (newAmmoAmount > maxAmmoInWeapon)
     {
-        ammoInItem = (signed char)((int)newAmmoAmount - (int)maxAmmoInWeapon);
+        ammoInItem = (signed char *)((int)newAmmoAmount - (int)maxAmmoInWeapon);
         if (ammoInItem < 0)
         {
             Error("Ammo in item cannot be set to a negative number!");
         }
-        item_pickup->ammo = ammoInItem;
+        item_pickup->ammo = (int) ammoInItem;
         newAmmoAmount = maxAmmoInWeapon;
     }
     else
     {
         ammoInItem = 0;
     }
-    pstate->ammo = newAmmoAmount;
+    pstate->ammo = (int)newAmmoAmount;
 
-    //if (!gamestate.BattleOptions.WeaponPersistence)
-    //{
     if (pstate->ammo &&
         (pstate->missileweapon != -1) &&
         (!(WEAPON_IS_MAGICAL(which))) &&
         (!(WEAPON_IS_MAGICAL(pstate->missileweapon))))
+    {
+        int nx,ny;
+
+
+        nx = ob->tilex;
+        ny = ob->tiley;
+
+        //If the missile weapon still has ammo in it after taking ammo from it, spawn it on the ground
+        if (ammoInItem)
         {
-            int nx,ny;
-
-
-            nx = ob->tilex;
-            ny = ob->tiley;
-
-            //If the missile weapon still has ammo in it after taking ammo from it, spawn it on the ground
-            if (ammoInItem)
+            if (IsPlatform(nx,ny))
+                SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),9);
+            else
             {
-                if (IsPlatform(nx,ny))
-                    SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),9);
-                else
-                {
-                    int newz = sprites[ob->tilex][ob->tiley]->z;
-                    SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),-1);
-                    LASTSTAT->z = newz;
-                }
-
-                //update ammo count on missile weapon on ground
-                LASTSTAT->ammo = ammoInItem;
-                EnableOldWeapon(pstate);
+                int newz = sprites[ob->tilex][ob->tiley]->z;
+                SpawnStatic(nx,ny,GetItemForWeapon(pstate->missileweapon),-1);
+                LASTSTAT->z = newz;
             }
 
-
+            //update ammo count on missile weapon on ground
+            LASTSTAT->ammo = (int)ammoInItem;
+            EnableOldWeapon(pstate);
         }
-    //}
+    }
 }
 
 //******************************************************************************
@@ -2960,27 +2932,30 @@ void ScreenShake (void)
         case 0:
             displayofs += 1;
             MoveScreenUpLeft();//SetTextMode (  );
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 1:
             displayofs -= 1;
             MoveScreenUpRight();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 2:
             displayofs += 3*iGLOBAL_SCREENBWIDE;
             MoveScreenDownLeft();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
 
         case 3:
             displayofs -= 3*iGLOBAL_SCREENBWIDE;
             MoveScreenDownRight();
-            DrawPlayScreen(true);//repaint ammo and life stat
+            //DrawPlayScreen(true);//repaint ammo and life stat
             break;
         }
+        //fix for play screen accidentally being drawn during transmitter explosion cinematic
+        if (playstate != ex_gameover) 
+            DrawPlayScreen(true);//repaint ammo and life stat
 
     }
 }
@@ -4906,6 +4881,7 @@ void SaveTag (int handle, char * tag, int size)
 extern boolean enableZomROTT;
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
+extern Queue * enemiesToRes[8];
 
 boolean SaveTheGame (int num, gamestorage_t * game)
 {
@@ -5179,10 +5155,26 @@ boolean SaveTheGame (int num, gamestorage_t * game)
     
     //ZomROTT Stuff
     if(enableZomROTT)
-    {
-        SaveResurrectList(&altbuffer, &size);
-        StoreBuffer(savehandle,altbuffer,size);
-        SafeFree(altbuffer);
+    {   
+        int z;
+        for (z = 0; z < 8; z++)
+        {
+            size = sizeof(int);
+            SafeWrite(savehandle,&enemiesToRes[z]->sizeOfQueue, size);
+            if (enemiesToRes[z]->sizeOfQueue == 0)
+            {
+                continue;
+            }
+            
+            int x;
+            node * thingToSave = enemiesToRes[z]->head;
+            size = sizeof(objtype);
+            for (x = 0; x < enemiesToRes[z]->sizeOfQueue; x++)
+            {
+                SafeWrite(savehandle, (objtype *) thingToSave->data, size);
+                thingToSave = thingToSave->next;
+            }
+        }
     }
 
     close (savehandle);
@@ -5244,7 +5236,7 @@ int LoadBuffer (byte ** dest, byte ** src)
 //
 //******************************************************************************
 
-extern objtype* enemiesToRes;
+
 extern unsigned int freeSlot;
 
 boolean LoadTheGame (int num, gamestorage_t * game)
@@ -5574,18 +5566,43 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     //ZomROTT Stuff
     if(enableZomROTT)
     {
-        enemiesToRes = calloc(sizeof(objtype), gamestate.killtotal);
-        memset(enemiesToRes, 0, sizeof(enemiesToRes));
-        size = sizeof(enemiesToRes);
-        memcpy(enemiesToRes, bufptr, size);
-        bufptr += size;
-        
-        objtype * findFreeSlotPtr;
-        //find index of free
-        for (findFreeSlotPtr = &enemiesToRes[0]; findFreeSlotPtr != 0; findFreeSlotPtr++)
+        int z;
+        for (z = 0; z < 8; z++)
         {
-            freeSlot++;
-        }
+            size = sizeof(int);
+            
+            int origQueueSize = 0;
+            Queue * enemyQueue;
+            
+            origQueueSize = 0;
+                
+            enemyQueue = malloc(sizeof(Queue));
+            queueInit(enemyQueue, sizeof(objtype));
+                
+            memcpy(&origQueueSize, bufptr, size);
+            bufptr+=size;
+            enemiesToRes[z] = enemyQueue;
+        
+            //memcpy(&origQueueSize, bufptr, size);
+            //bufptr+=size;
+        
+            size = sizeof(objtype);
+        
+            int x = 0;
+        
+            while(x < origQueueSize)
+            {
+                objtype * item = (objtype *) malloc(sizeof(objtype));
+            
+                memcpy(item, bufptr, size);
+            
+                enqueue(enemyQueue, item);
+            
+                bufptr+=size;
+            
+                x++;
+            }
+        }   
     }
 
     // Set the viewsize

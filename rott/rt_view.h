@@ -76,7 +76,7 @@ typedef enum
 
 extern byte * playermaps[MAXPLAYERCOLORS];
 //extern short  pixelangle[MAXVIEWWIDTH];
-extern short  pixelangle[800];
+extern short  pixelangle[MAXSCREENWIDTH];
 extern byte   gammatable[GAMMAENTRIES];
 extern int    gammaindex;
 extern byte   uniformcolors[MAXPLAYERCOLORS];

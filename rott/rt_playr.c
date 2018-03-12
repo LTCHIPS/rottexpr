@@ -2480,6 +2480,8 @@ void PollVirtualReality (void)
 //******************************************************************************
 
 boolean aimbuttonpressed=false;
+extern boolean allowMovementWithMouseYAxis;
+
 void PollMove (void)
 {
     int angle;
@@ -2487,6 +2489,7 @@ void PollMove (void)
 
 
     x = KX + MX + JX + CX + VX;
+    
     y = KY + MY + JY + CY + VY;
 
     if (buttonpoll[bt_aimbutton])
@@ -2512,6 +2515,16 @@ void PollMove (void)
     else
     {
         aimbuttonpressed=false;
+    }
+    
+    if (!allowMovementWithMouseYAxis)
+    {
+        y = KY + JY + CY + VY;
+    }
+    //kill any movement
+    if (aimbuttonpressed)
+    {
+        y = 0;
     }
 
     if (player->flags & FL_FLEET)
@@ -2910,14 +2923,27 @@ void PollControls (void)
     controlbuf[0] = controlbuf[1] = controlbuf[2] = 0;
     CYBERLOOKUP = CYBERLOOKDOWN = false;
 
-    if (gamestate.autorun==1)
-        buttonpoll[bt_run] = true;
+    //if (gamestate.autorun==1)
+        //buttonpoll[bt_run] = true;
 
 
 //
 // get button states
 //
     PollKeyboardButtons ();
+    
+    if (gamestate.autorun == 1)
+    {
+        if (buttonpoll[bt_run])
+        {
+            buttonpoll[bt_run] = false;
+        }
+        else
+        {
+            buttonpoll[bt_run] = true;
+            
+        }
+    }
 
     if (mouseenabled && !cybermanenabled)
         PollMouseButtons ();

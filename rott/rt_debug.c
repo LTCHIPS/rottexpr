@@ -49,6 +49,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern int		iDemoNames;
 extern boolean iG_aimCross;
 
+boolean ricochetingRocketsEnabled = false;
+
 
 extern void DisplayMessage   (int num,int position);
 

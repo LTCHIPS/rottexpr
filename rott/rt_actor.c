@@ -58,6 +58,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fx_man.h"
 //MED
 #include "memcheck.h"
+#include "queue.h"
 
 
 
@@ -1632,9 +1633,6 @@ void OutfitBlitzguardWith(objtype *ob)
         ob->temp3 = stat_kes;
         ob->temp2 = 3;
     }
-    //TODO: Figure out a way to allow biltzguards to attack with excalibat w/o crashing the game
-    
-   //TODO: Figure out a way to allow blitzguards to attack effectively with split missiles (like actually split them)
 
 #endif
     else
@@ -3767,24 +3765,98 @@ void SetReverseDeathState(objtype * actor)
     }
 }
 
-extern objtype* enemiesToRes;
-extern unsigned int freeSlot;
-void AddEnemyToResurrectList(objtype * ob)
+int DetermineTimeUntilEnemyIsResurrected(classtype obclass)
 {
-    SetReverseDeathState(ob);
-    enemiesToRes[freeSlot] = *ob;
-    freeSlot++;
+    switch(obclass)
+    {
+        case lowguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 60;
+            break;
+        case highguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 90;
+            break;
+
+        case strikeguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 65;
+            break;
+        case blitzguardobj:
+            return gamestate.TimeCount/VBLCOUNTER + 60;
+            break;
+        case triadenforcerobj:
+            return gamestate.TimeCount/VBLCOUNTER + 200;
+            break;
+    #if (SHAREWARE == 0)
+        case overpatrolobj:
+            return gamestate.TimeCount/VBLCOUNTER + 75;
+            break;
+        case deathmonkobj:
+            return gamestate.TimeCount/VBLCOUNTER + 150;
+            break;
+        case dfiremonkobj:
+            return gamestate.TimeCount/VBLCOUNTER + 175;
+            break;
+    #endif
+        default:
+            return -1; //TODO: Return -1 for every entry that isn't any of the above
+            break;
+    }
+    
 }
 
-void CleanUpResurrectList()
+extern Queue * enemiesToRes[8];
+
+void AddEnemyToResurrectList(objtype * ob)
 {
-    memset(enemiesToRes, 0, sizeof(*enemiesToRes));
-    freeSlot = 0;
+    ob->resurrectAtTime = DetermineTimeUntilEnemyIsResurrected(ob->obclass);
+    if (ob->resurrectAtTime == -1)
+    {
+        free(ob);
+        return;
+    }
+    SetReverseDeathState(ob);
+    switch(ob->obclass)
+    {
+        case lowguardobj:
+            enqueue(enemiesToRes[0], ob);
+            break;
+        case highguardobj:
+            enqueue(enemiesToRes[1], ob);
+            break;
+
+        case strikeguardobj:
+            enqueue(enemiesToRes[2], ob);
+            break;
+        case blitzguardobj:
+            enqueue(enemiesToRes[3], ob);
+            break;
+        case triadenforcerobj:
+            enqueue(enemiesToRes[4], ob);
+            break;
+    #if (SHAREWARE == 0)
+        case overpatrolobj:
+            enqueue(enemiesToRes[5], ob);
+            break;
+        case deathmonkobj:
+            enqueue(enemiesToRes[6], ob);
+            break;
+        case dfiremonkobj:
+            enqueue(enemiesToRes[7], ob);
+            break;
+    #endif
+        default:
+            Error("Unknown organic enemy type detected in AddEnemyToResurrectList");
+            break;
+    }
+    //enqueue(&enemiesToRes, ob);
 }
 
 void FreeUpResurrectList()
 {
-    free(enemiesToRes);
+    int x = 0;
+    for (x = 0; x < 8; x++)
+    {
+        clearQueue(enemiesToRes[x]);
+    }
 }
 
 void SetAfterResurrectState(objtype * actor, statetype * doWhat)
@@ -3843,65 +3915,31 @@ void SpawnDuringGameWithState (classtype which, int tilex, int tiley, int dir, i
     ConnectAreas();
 }
 
+
 void ResurrectEnemies()
 {   
     objtype * actor;
     
-    for (actor = &enemiesToRes[0]; actor < &enemiesToRes[freeSlot]; actor++)
-    {
-        SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
-        SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
-    }
+    int currTime = gamestate.TimeCount/VBLCOUNTER;
     
-    CleanUpResurrectList();
+    int index;
     
-}
-
-/*
-void SetStandAfterResurrect(objtype * actor)
-{
-    switch(actor->obclass)
+    for (index = 0; index < 8; index++)
     {
-        case lowguardobj:
-            SetAfterResurrectState(actor, &s_lowgrdstand);
-            //actor->state = &s_lowgrdchase1;
-            break;
-        case highguardobj:
-            SetAfterResurrectState(actor, &s_highgrdstand);
-            //actor->state = &s_highgrdchase1;
-            break;
-        case strikeguardobj:
-            SetAfterResurrectState(actor, &s_strikestand);
-            //actor->state = &s_strikechase1;
-            break;
-        case blitzguardobj:
-            SetAfterResurrectState(actor, &s_blitzstand);
-            //actor->state = &s_blitzchase1;
-            break;
-        case triadenforcerobj:
-            SetAfterResurrectState(actor, &s_enforcerstand);
-            //actor->state = &s_enforcerchase1;
-            break;
-        case overpatrolobj:
-            SetAfterResurrectState(actor, &s_opstand);
-            //actor->state = &s_opchase1;
-            break;
-        case deathmonkobj:
-            SetAfterResurrectState(actor, &s_dmonkstand);
-            //actor->state = &s_dmonkchase1;
-            break;
-        case dfiremonkobj:
-            SetAfterResurrectState(actor, &s_firemonkstand);
-            //actor->state = &s_firemonkchase1;
-            break;
-        default:
-            Error("SetStandAfterResurrect was called with something that can't be handled!");
-            break;
+        if (enemiesToRes[index]->sizeOfQueue == 0)
+        {
+            continue;
+        }
+        actor = enemiesToRes[index]->head->data;
+        if (currTime >= actor->resurrectAtTime)
+        {
+            SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
+            SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
+            dequeue(enemiesToRes[index], actor);
+            gamestate.killcount--;
+        }
     }
 }
-*/
-
-
 
 void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush)
 {   
@@ -3948,19 +3986,6 @@ void SpawnDuringGame (classtype which, int tilex, int tiley, int dir, int ambush
         }
     }
     ConnectAreas();
-}
-
-void SaveResurrectList(byte ** buffer, int *size)
-{
-    byte*tptr;
-    
-    *size = sizeof(enemiesToRes);
-    *buffer = (byte*)SafeMalloc(*size);
-    tptr = *buffer;
-    
-    memcpy(tptr, enemiesToRes, sizeof(*enemiesToRes));
-    tptr += sizeof(enemiesToRes);
-
 }
 
 /*
@@ -4072,7 +4097,6 @@ void BeginPlayerFatality(objtype *ob,objtype *attacker)
 {
     playertype *pstate;
     M_LINKSTATE(ob,pstate);
-
 
     ob->flags &= ~(FL_ELASTO|FL_GODMODE|FL_DOGMODE|FL_NOFRICTION|FL_RIDING);
 
@@ -5493,7 +5517,7 @@ void MissileMovement(objtype*ob)
    return false;                     \
    }
 
-extern boolean ricochetingRocketsEnabled = 0;
+extern boolean ricochetingRocketsEnabled;
 
 boolean MissileTryMove(objtype*ob,int tryx,int tryy,int tryz)
 {

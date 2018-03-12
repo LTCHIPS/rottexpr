@@ -5,6 +5,10 @@
 
 //husk at rette i winrott.c
 
+#define MAXSCREENWIDTH 3840
+#define MAXSCREENHEIGHT 2160 //max res is set to be 4k
+
+
 extern int iGLOBAL_SCREENWIDTH;//bna val 800
 extern int iGLOBAL_SCREENHEIGHT;//bna val 600
 
@@ -23,7 +27,7 @@ extern double dGLOBAL_FPFOCALWIDTH;
 
 void EnableScreenStretch(void);
 void DisableScreenStretch(void);
-
+void WriteNewResolution(void);
 /*
 double dYZANGLELIMIT;
 
