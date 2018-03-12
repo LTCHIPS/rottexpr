@@ -1635,11 +1635,6 @@ void OutfitBlitzguardWith(objtype *ob)
     }
 
 #endif
-    else
-    {
-        ob->temp3 = stat_bazooka;
-        ob->temp2 = 3;
-    }
 }
 
 extern boolean allowBlitzMoreMissileWeps;
@@ -1648,8 +1643,8 @@ extern boolean allowBlitzMoreMissileWeps;
 void ConsiderOutfittingBlitzguard(objtype *ob)
 {
     //WILEYBLITZCHANCE is defined to be 20
-    if //((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
-        ((gamestate.difficulty >= gd_medium)
+    if ((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
+        (gamestate.difficulty >= gd_medium)
        )
     {
         if (allowBlitzMoreMissileWeps)
@@ -1658,13 +1653,13 @@ void ConsiderOutfittingBlitzguard(objtype *ob)
         }
         else 
         {
-            ob->temp3 = stat_bat;
+            ob->temp3 = stat_bazooka;
             ob->temp2 = 3;
         }
     }
 }
 
-void A_BatAttack(objtype*ob, objtype*target)
+void BlitzBatAttack(objtype*ob, objtype*target)
 {   
     objtype *temp,*temp2;
     //objtype *grenadetarget;
@@ -1691,7 +1686,7 @@ void A_BatAttack(objtype*ob, objtype*target)
         return;
     
     SD_PlaySoundRTP(SD_EXCALISWINGSND,ob->x,ob->y);
-    magangle = abs(ob->angle - AngleBetween(ob,target));
+    //magangle = abs(ob->angle - AngleBetween(ob,target));
     //if (magangle > VANG180)
         //magangle = ANGLES - magangle;
 
@@ -12195,7 +12190,7 @@ void A_Shoot (objtype *ob)
         {
             //is the target close enough for me to hit with my bat?
             if ((abs(dx) <= 0x10000) && (abs(dy) <= 0x10000) && (abs(dz) <= 20))
-                A_BatAttack(ob, target);
+                BlitzBatAttack(ob, target);
             else
                 //resort to pistol to damage target
                 goto pistol;
