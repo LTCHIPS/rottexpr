@@ -1648,8 +1648,8 @@ extern boolean allowBlitzMoreMissileWeps;
 void ConsiderOutfittingBlitzguard(objtype *ob)
 {
     //WILEYBLITZCHANCE is defined to be 20
-    if ((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
-            (gamestate.difficulty >= gd_medium)
+    //if ((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
+          if(  (gamestate.difficulty >= gd_medium)
        )
     {
         if (allowBlitzMoreMissileWeps)
@@ -1658,13 +1658,13 @@ void ConsiderOutfittingBlitzguard(objtype *ob)
         }
         else 
         {
-            ob->temp3 = stat_bazooka;
+            ob->temp3 = stat_bat;
             ob->temp2 = 3;
         }
     }
 }
 
-void EnemyBatAttack(objtype*ob)
+void A_BatAttack(objtype*ob)
 {   
     objtype *temp,*temp2;
     //objtype *grenadetarget;
@@ -1674,7 +1674,8 @@ void EnemyBatAttack(objtype*ob)
     int tileylow,tileyhigh;
     int radius =0x10000;
     int x,y;
-
+    
+    //TODO: replace for loop with a pointer to the player object
     SD_PlaySoundRTP(SD_EXCALISWINGSND,ob->x,ob->y);
     for(temp=firstareaactor[ob->areanumber]; temp; temp=temp->nextinarea)
     {   if (temp == ob)
@@ -1688,6 +1689,9 @@ void EnemyBatAttack(objtype*ob)
                 (!(temp->flags & FL_SHOOTABLE) ||
                  (temp->obclass >= roboguardobj))
            )
+            continue;
+    
+        if (temp->obclass != playerobj)
             continue;
 
         dx = abs(temp->x - ob->x);
@@ -1707,20 +1711,9 @@ void EnemyBatAttack(objtype*ob)
         angle= ob->angle+ANGLES/16;
         Fix(angle);
 
-        if ((temp->obclass >= grenadeobj) && (temp->obclass <= p_godballobj))
-        {
-            temp->angle += ANGLES/2;
-            Fix(temp->angle);
-            temp->momentumx = temp->momentumy = temp->momentumz = 0;
-            ParseMomentum(temp,temp->angle);
-            temp->whatever = ob;
-            temp->target = NULL;
-            continue;
-        }
 
-
-        else if (temp->obclass != grenadeobj)
-        {   momx = FixedMul(0x3000l,costable[angle]);
+        //if (temp->obclass != grenadeobj)
+        momx = FixedMul(0x3000l,costable[angle]);
             momy = -FixedMul(0x3000l,sintable[angle]);
             if (levelheight > 2)
             {   op = FixedMul(GRAVITY,(maxheight-100)<<16) << 1;
@@ -1737,53 +1730,7 @@ void EnemyBatAttack(objtype*ob)
             if ((temp->flags & FL_HBM) && (temp->hitpoints > 0))
                 temp->flags &= ~FL_HBM;
             Collision(temp,ob,momx,momy);
-/*
-            if ((temp->obclass == blitzguardobj) && (temp->state == &s_blitzplead7))
-            {   temp->shapeoffset += deathshapeoffset[temp->obclass];
-                temp->flags |= FL_ALTERNATE;
-                NewState(temp,&s_blitzdie3);
-                temp->momentumx = temp->momentumy = 0;
-            }
-*/
-        }
         
-        //an enemy probably doesn't want to play baseball with a friend's grenade...
-/*
-        else // find target to hit grenade back at
-        {   int rand;
-
-            rand = GameRandomNumber("bat/grenade target",0);
-            if (rand < 80)
-            {   grenadetarget = (objtype*)(temp->whatever); // hit back at george
-                GetMomenta(grenadetarget,ob,&(temp->momentumx),&(temp->momentumy),&(temp->momentumz),0x3000);
-            }
-            else if (rand < 160) // hit back at first eligible
-            {
-
-                for(temp2 = firstareaactor[ob->areanumber]; temp2; temp2 = temp2->nextinarea)
-                {   magangle = abs(ob->angle-AngleBetween(ob,temp2));
-                    if (magangle > VANG180)
-                        magangle = ANGLES - magangle;
-
-                    if (magangle > ANGLES/8)
-                        continue;
-                    GetMomenta(temp2,ob,&(temp->momentumx),&(temp->momentumy),&(temp->momentumz),0x3000);
-                    break;
-                }
-            }
-            else // hit wherever
-            {   ob->angle += (rand >> 1);
-                Fix(ob->angle);
-                ob->momentumx = ob->momentumy = 0;
-                ParseMomentum(ob,ob->angle);
-            }
-
-
-            temp->temp1 = 0x70000;
-            NewState(temp,&s_grenade1);
-        }
-        break;
-*/
     }
 
     for(tstat=firstactivestat; tstat; tstat=tstat->statnext)
@@ -12295,9 +12242,12 @@ void A_Shoot (objtype *ob)
         dz = target->z-ob->z;
 
 
-        if((ob->obclass == blitzguardobj && ob->temp3 == stat_bat && abs(dx)< 0x10000 && abs(dy) < 0x10000 && ob->z < 20))
-        {
-            EnemyBatAttack(ob);
+        if(ob->obclass == blitzguardobj && ob->temp3 == stat_bat )
+        {            
+            if ((dx > 0x10000) || (dy > 0x10000) || (dz > 20))
+                A_BatAttack(ob);
+            ob->target = NULL;
+            return;
         }
         
         else if ((ob->obclass == blitzguardobj) && (ob->temp3) &&
