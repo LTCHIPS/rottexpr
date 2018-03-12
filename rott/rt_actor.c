@@ -1648,8 +1648,8 @@ extern boolean allowBlitzMoreMissileWeps;
 void ConsiderOutfittingBlitzguard(objtype *ob)
 {
     //WILEYBLITZCHANCE is defined to be 20
-    //if ((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
-          if(  (gamestate.difficulty >= gd_medium)
+    if //((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
+        ((gamestate.difficulty >= gd_medium)
        )
     {
         if (allowBlitzMoreMissileWeps)
@@ -1664,7 +1664,7 @@ void ConsiderOutfittingBlitzguard(objtype *ob)
     }
 }
 
-void A_BatAttack(objtype*ob)
+void A_BatAttack(objtype*ob, objtype*target)
 {   
     objtype *temp,*temp2;
     //objtype *grenadetarget;
@@ -1676,105 +1676,54 @@ void A_BatAttack(objtype*ob)
     int x,y;
     
     //TODO: replace for loop with a pointer to the player object
-    SD_PlaySoundRTP(SD_EXCALISWINGSND,ob->x,ob->y);
-    for(temp=firstareaactor[ob->areanumber]; temp; temp=temp->nextinarea)
-    {   if (temp == ob)
-            continue;
-
-        if (temp->flags & FL_DYING)
-            continue;
-
-        if ((temp->obclass != grenadeobj) &&
-                (!((temp->obclass >= grenadeobj) && (temp->obclass <= p_godballobj))) &&
-                (!(temp->flags & FL_SHOOTABLE) ||
-                 (temp->obclass >= roboguardobj))
-           )
-            continue;
     
-        if (temp->obclass != playerobj)
-            continue;
+    //for(temp=firstareaactor[ob->areanumber]; temp; temp=temp->nextinarea)
+    //{   
+       // if (temp == ob)
+           // continue;
 
-        dx = abs(temp->x - ob->x);
-        dy = abs(temp->y - ob->y);
-        dz = abs(temp->z - ob->z);
-        if ((dx > 0x10000) || (dy > 0x10000) || (dz > 20))
-            continue;
+    if (target->flags & FL_DYING)
+        return;
+    dx = abs(target->x - ob->x);
+    dy = abs(target->y - ob->y);
+    dz = abs(target->z - ob->z);
+    if ((dx > 0x10000) || (dy > 0x10000) || (dz > 20))
+        return;
+    
+    SD_PlaySoundRTP(SD_EXCALISWINGSND,ob->x,ob->y);
+    magangle = abs(ob->angle - AngleBetween(ob,target));
+    //if (magangle > VANG180)
+        //magangle = ANGLES - magangle;
 
-        magangle = abs(ob->angle - AngleBetween(ob,temp));
-        if (magangle > VANG180)
-            magangle = ANGLES - magangle;
-
-        if (magangle > ANGLES/8)
-            continue;
+    //if (magangle > ANGLES/8)
+        //return;
 
 
-        angle= ob->angle+ANGLES/16;
-        Fix(angle);
+    angle= ob->angle+ANGLES/16;
+    Fix(angle);
 
-
-        //if (temp->obclass != grenadeobj)
-        momx = FixedMul(0x3000l,costable[angle]);
-            momy = -FixedMul(0x3000l,sintable[angle]);
-            if (levelheight > 2)
-            {   op = FixedMul(GRAVITY,(maxheight-100)<<16) << 1;
-                temp->momentumz = -FixedSqrtHP(op);
-            }
-            temp->flags |= FL_NOFRICTION;
-            SD_PlaySoundRTP(SD_EXCALIHITSND,ob->x,ob->y);
-            if ((gamestate.violence == vl_excessive) && (GameRandomNumber("Bat Gibs",0) < 150))
-            {   temp->flags |= FL_HBM;
-                DamageThing(temp,50);
-            }
-            else
-                DamageThing(temp,10);
-            if ((temp->flags & FL_HBM) && (temp->hitpoints > 0))
-                temp->flags &= ~FL_HBM;
-            Collision(temp,ob,momx,momy);
-        
+    
+    //if (temp->obclass != grenadeobj)
+    momx = FixedMul(0x3000l,costable[angle]);
+    momy = -FixedMul(0x3000l,sintable[angle]);
+    if (levelheight > 2)
+    {   op = FixedMul(GRAVITY,(maxheight-100)<<16) << 1;
+        target->momentumz = -FixedSqrtHP(op);
     }
-
-    for(tstat=firstactivestat; tstat; tstat=tstat->statnext)
-    {
-        if (!(tstat->flags & FL_SHOOTABLE))
-            continue;
-
-        dx = abs(tstat->x - ob->x);
-        dy = abs(tstat->y - ob->y);
-        dz = abs(tstat->z - ob->z);
-
-        if ((dx > 0xc000) || (dy > 0xc000) || (dz > 20))
-            continue;
-
-        magangle = abs(ob->angle - AngleBetween(ob,(objtype*)tstat));
-        if (magangle > VANG180)
-            magangle = ANGLES - magangle;
-
-        if (magangle > ANGLES/8)
-            continue;
-
-        DamageThing(tstat,50);
-        
-        
+    target->flags |= FL_NOFRICTION;
+    SD_PlaySoundRTP(SD_EXCALIHITSND,ob->x,ob->y);
+    if ((gamestate.violence == vl_excessive) && (GameRandomNumber("Bat Gibs",0) < 150))
+    {   target->flags |= FL_HBM;
+        DamageThing(target,50);
     }
-
-    tilexlow = (int)((ob->x-radius) >>TILESHIFT);
-    tileylow = (int)((ob->y-radius) >>TILESHIFT);
-
-    tilexhigh = (int)((ob->x+radius) >>TILESHIFT);
-    tileyhigh = (int)((ob->y+radius) >>TILESHIFT);
-
-    for (y=tileylow; y<=tileyhigh; y++)
-        for (x=tilexlow; x<=tilexhigh; x++)
-        {   if ((tilemap[x][y]&0x8000) && (tilemap[x][y]&0x4000))
-            {   maskedwallobj_t * mw;
-
-                mw=maskobjlist[tilemap[x][y]&0x3ff];
-                if (mw->flags&MW_SHOOTABLE)
-                    UpdateMaskedWall(tilemap[x][y]&0x3ff);
-            }
-        }
-
+    else
+        DamageThing(target,10);
+    if ((target->flags & FL_HBM) && (target->hitpoints > 0))
+        target->flags &= ~FL_HBM;
+    Collision(target,ob,momx,momy);
+        
 }
+
 
 
 /*
@@ -12243,9 +12192,13 @@ void A_Shoot (objtype *ob)
 
 
         if(ob->obclass == blitzguardobj && ob->temp3 == stat_bat )
-        {            
-            if ((dx > 0x10000) || (dy > 0x10000) || (dz > 20))
-                A_BatAttack(ob);
+        {
+            //is the target close enough for me to hit with my bat?
+            if ((abs(dx) <= 0x10000) && (abs(dy) <= 0x10000) && (abs(dz) <= 20))
+                A_BatAttack(ob, target);
+            else
+                //resort to pistol to damage target
+                goto pistol;
             ob->target = NULL;
             return;
         }
@@ -12291,7 +12244,7 @@ void A_Shoot (objtype *ob)
         //if (!CheckLine(ob,target,SHOOT))       // player is behind a wall
         //return;
 
-
+pistol:
         savedangle=ob->angle;
         ob->angle = atan2_appx (dx,dy);
         dist = FindDistance(dx,dy);
