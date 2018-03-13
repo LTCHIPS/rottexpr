@@ -1669,13 +1669,6 @@ void BlitzBatAttack(objtype*ob, objtype*target)
     int tileylow,tileyhigh;
     int radius =0x10000;
     int x,y;
-    
-    //TODO: replace for loop with a pointer to the player object
-    
-    //for(temp=firstareaactor[ob->areanumber]; temp; temp=temp->nextinarea)
-    //{   
-       // if (temp == ob)
-           // continue;
 
     if (target->flags & FL_DYING)
         return;
