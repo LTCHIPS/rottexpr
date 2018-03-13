@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <io.h>
 #include <direct.h>
 #elif USE_SDL
-#include "SDL.h"
+#include "SDL2/SDL.h"
 #endif
 
 #include <stdarg.h>
@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <SDL2/SDL_render.h>
 #include "watcom.h"
 #include "_rt_util.h"
 #include "rt_util.h"
@@ -1250,7 +1251,7 @@ void GetaPalette (byte *palette)
         palette[i] = inp (PEL_DATA)<<2;
 #else
     int i;
-    SDL_Palette *pal = SDL_GetVideoSurface()->format->palette;
+    SDL_Palette *pal = sdl_surface->format->palette;
 
     for (i = 0; i < 256; i++) {
         palette[0] = pal->colors[i].r;
@@ -1291,7 +1292,8 @@ void SetaPalette (byte *pal)
         cmap[i].b = pal[i*3+2];
     }
 
-    SDL_SetColors (SDL_GetVideoSurface (), cmap, 0, 256);
+    SDL_SetPaletteColors(sdl_surface->format->palette, cmap, 0, 256);
+    //SDL_SetColors (SDL_GetWindowSurface(window), cmap, 0, 256);
 #endif
 }
 
@@ -1305,7 +1307,7 @@ void GetPalette(char * palette)
         *(palette+(unsigned char)i)=inp(0x3c9)<<2;
 #else
     int i;
-    SDL_Palette *pal = SDL_GetVideoSurface()->format->palette;
+    SDL_Palette *pal = sdl_surface->format->palette;
 
     for (i = 0; i < 256; i++) {
         palette[0] = pal->colors[i].r;
@@ -1406,7 +1408,9 @@ void VL_FillPalette (int red, int green, int blue)
         cmap[i].b = blue << 2;
     }
 
-    SDL_SetColors (SDL_GetVideoSurface (), cmap, 0, 256);
+    //SDL_SetColors (SDL_GetVideoSurface (), cmap, 0, 256);
+    SDL_SetPaletteColors(sdl_surface->format->palette, cmap, 0, 256);
+    
 #endif
 }
 
@@ -1506,7 +1510,9 @@ void VL_SetPalette (byte *palette)
         cmap[i].b = gammatable[(gammaindex<<6)+(*palette++)] << 2;
     }
 
-    SDL_SetColors (SDL_GetVideoSurface (), cmap, 0, 256);
+    //SDL_SetColors (SDL_GetWindowSurface(window), cmap, 0, 256);
+    SDL_SetPaletteColors(sdl_surface->format->palette, cmap, 0, 256);
+    
 #endif
 }
 
@@ -1535,7 +1541,8 @@ void VL_GetPalette (byte *palette)
         *palette++ = inp (PEL_DATA);
 #else
     int i;
-    SDL_Palette *pal = SDL_GetVideoSurface()->format->palette;
+    SDL_Palette *pal = sdl_surface->format->palette;
+    //SDL_Palette *pal = SDL_GetVideoSurface()->format->palette;
 
     for (i = 0; i < 256; i++) {
         palette[0] = pal->colors[i].r >> 2;

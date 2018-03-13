@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <io.h>
 #elif PLATFORM_UNIX
 #include <unistd.h>
-#include "SDL.h"
+#include "SDL2/SDL.h"
 #endif
 
 #include <sys/types.h>
@@ -5729,11 +5729,11 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 5:
-            if (SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()))
-            {
-                sdl_fullscreen ^= 1;
-                DrawExtOptionsButtons ();
-            }
+            //if (SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()))
+            //{
+                //sdl_fullscreen ^= 1;
+            DrawExtOptionsButtons ();
+            //}
             break;
         case 6:
             autoAimMissileWeps ^= 1;

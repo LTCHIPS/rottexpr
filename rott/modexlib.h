@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "WinRott.h"
 #include "rt_def.h"
+#include "SDL2/SDL.h"
 /*
 int iGLOBAL_SCREENWIDTH;//bna val 800
 int iGLOBAL_SCREENHEIGHT;//bna val 600
@@ -120,6 +121,10 @@ extern  int      screensize;
 extern  byte    *bufferofs;
 extern  byte    *displayofs;
 extern  boolean  graphicsmode;
+
+//extern SDL_Window* window;
+
+extern SDL_Surface * sdl_surface;
 
 
 void  GraphicsMode ( void );

@@ -15,7 +15,7 @@
 #include "rt_def.h"
 
 #if defined(USE_SDL)
-#include "SDL.h"
+#include "SDL2/SDL.h"
 #endif
 
 /*
@@ -236,7 +236,7 @@ void crash_print (int sig)
     printf ("Here is where:\n");
     print_stack (1);
 #if defined(USE_SDL)
-    SDL_Quit ();
+    atexit(SDL_Quit);
 #endif
     exit (1);
 }

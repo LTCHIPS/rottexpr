@@ -2,7 +2,7 @@
 # Make sure only one of the following is set to 1 at once
 # Triple 0 will build the commercial/registered version
 
-SHAREWARE   ?= 1
+SHAREWARE   ?= 0
 SUPERROTT   ?= 0
 SITELICENSE ?= 0
 
@@ -18,7 +18,7 @@ CC ?= gcc
 
 CFLAGS ?= -g -O2
 CFLAGS += -Wall -Wno-unused
-CFLAGS += $(shell sdl-config --cflags)
+CFLAGS += $(shell sdl2-config --cflags)
 CFLAGS += $(EXTRACFLAGS)
 
 CPPFLAGS += -DUSE_SDL=1
@@ -27,7 +27,7 @@ CPPFLAGS += $(EXTRACPPFLAGS)
 
 LDFLAGS += $(EXTRALDFLAGS)
 
-LDLIBS += $(shell sdl-config --libs)
+LDLIBS += $(shell sdl2-config --libs)
 LDLIBS += -lSDL_mixer
 LDLIBS += $(EXTRALDLIBS)
 

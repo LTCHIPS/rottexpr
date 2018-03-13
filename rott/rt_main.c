@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #if USE_SDL
 /* Need to redefine main to SDL_main on some platforms... */
-#include "SDL.h"
+#include "SDL2/SDL.h"
 #endif
 
 #include "rt_actor.h"
@@ -1145,7 +1145,8 @@ void GameLoop (void)
 
     while (1)
     {
-        SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<1, iGLOBAL_SCREENHEIGHT<<1);
+        //no longer needed in SDL2
+        //SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<1, iGLOBAL_SCREENHEIGHT<<1);
         if ( playstate == ex_battledone )
         {
             while( damagecount > 0 )
