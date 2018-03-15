@@ -209,5 +209,6 @@ void IN_ClearKeyboardQueue (void);
 int IN_InputUpdateKeyboard (void);
 void IN_PumpEvents (void);
 void QueueLetterInput (void);
+void ClearScanCodes();
 
 #endif

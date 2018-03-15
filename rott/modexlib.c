@@ -457,7 +457,6 @@ void GraphicsMode ( void )
     //if (sdl_fullscreen)
         //flags = SDL_FULLSCREEN;
     
-    //replaces sdl_surface
     window = SDL_CreateWindow("Rise of the Triad",
                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT,
@@ -466,7 +465,7 @@ void GraphicsMode ( void )
     //SDL_CreateWindowAndRenderer(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 0, &window, &renderer);
     
     
-    renderer = SDL_CreateRenderer(window, -1, 0);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     
     sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888,
                                     SDL_TEXTUREACCESS_STREAMING, iGLOBAL_SCREENWIDTH,

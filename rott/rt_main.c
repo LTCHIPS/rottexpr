@@ -459,7 +459,6 @@ int main (int argc, char *argv[])
     //SDL_WM_GrabInput( SDL_GRAB_ON );
     GameLoop();
 
-
     QuitGame();
 
     return 0;
@@ -1727,7 +1726,8 @@ void QuitGame ( void )
         int time=GetTicCount();
         while (GetTicCount()==time) {}
     }
-
+    
+    
     PrintMapStats();
     PrintTileStats();
     SetTextMode();
@@ -1810,6 +1810,8 @@ void QuitGame ( void )
     ShutDown();
 #endif
 
+    ClearScanCodes();
+    
     exit(0);
 }
 

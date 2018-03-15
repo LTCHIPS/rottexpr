@@ -702,8 +702,6 @@ void INL_SetJoyScale (word joy)
     def->joyMultYH = JoyScaleMax / (def->joyMaxY - def->threshMaxY);
 }
 
-
-
 //******************************************************************************
 //
 // IN_SetupJoy () - Sets up thresholding values and calls INL_SetJoyScale()
@@ -1043,6 +1041,11 @@ void IN_Startup (void)
     IN_Started = true;
 }
 
+void ClearScanCodes()
+{
+    ClearHashTable(scancodes);
+}
+
 
 #if 0
 //******************************************************************************
@@ -1352,17 +1355,7 @@ byte IN_JoyButtons (void)
 {
     unsigned joybits = 0;
 
-#if USE_SDL
     joybits = sdl_sticks_joybits;
-
-#elif PLATFORM_DOS
-    joybits = inp (0x201);  // Get all the joystick buttons
-    joybits >>= 4;          // only the high bits are useful
-    joybits ^= 15;          // return with 1=pressed
-
-#else
-#error define your platform.
-#endif
 
     return (byte) joybits;
 }
