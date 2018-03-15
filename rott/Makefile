@@ -83,6 +83,7 @@ OBJS += byteordr.o
 OBJS += dukemusc.o
 OBJS += winrott.o
 OBJS += queue.o
+OBJS += HashTable.o
 
 AUDIOLIB := audiolib/audiolib.a
 
