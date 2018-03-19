@@ -6,6 +6,7 @@ void InitLinkedList(LinkedList * linkedList)
 {
     linkedList->NumOfItems = 0;
     linkedList->head = NULL;
+    linkedList->IsInit = 1;
 }
 
 void InsertInList(LinkedList * linkedList, int key, int item)
@@ -59,6 +60,10 @@ int SearchWithKey(LinkedList * linkedList, int key)
         if (x->key == key)
         {
             return x->data;
+        }
+        if (x->next == NULL)
+        {
+            break;
         }
     }
     return 0;

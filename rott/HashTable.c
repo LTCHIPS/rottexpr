@@ -69,10 +69,12 @@ int Lookup(HashTable * hashTable, int key)
 {
     int index = HashFunc(hashTable,key);
     
-    if (hashTable->table == 0)
+    if (hashTable->table[index] == 0)
     {
-        printf("ERROR: HashTable Lookup lead to a NULL Entry.");
-        exit(1);
+        //printf("ERROR: HashTable Lookup lead to a NULL Entry. \n");
+        return 0;
+        
+        //exit(1);
     }
     
     return SearchWithKey(hashTable->table[index], key);

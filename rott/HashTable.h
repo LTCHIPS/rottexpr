@@ -1,7 +1,7 @@
 
 /* 
  * File:   HashTable.h
- * Author: Steven LeVesque
+ * Author: LTCHIPS
  *
  * Created on March 13, 2018, 5:10 PM
  */

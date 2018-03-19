@@ -22,6 +22,7 @@ typedef struct listNode
 typedef struct LinkedList
 {
     int NumOfItems;
+    int IsInit;
     struct listNode * head;
 } LinkedList;
 
