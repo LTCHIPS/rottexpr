@@ -357,15 +357,15 @@ static int sdl_key_filter(const SDL_Event *event)
     k = handle_keypad_enter_hack(event);
     if (!k)
     {
-        if (event->key.keysym.sym == SDLK_a)
-        {
-            k = 0x1e;
-        }
-        else
-        {
+        //if (event->key.keysym.sym == SDLK_a)
+        //{
+            //k = 0x1e;
+        //}
+        //else
+        //{
             k = Lookup(scancodes, event->key.keysym.sym);
             //k = scancodes[event->key.keysym.sym];
-        }
+        //}
         
         if (!k)   /* No DOS equivalent defined. */
             return(0);
@@ -822,13 +822,6 @@ void IN_Startup (void)
     if (IN_Started==true)
         return;
 
-#if USE_SDL
-
-#if PLATFORM_WIN32
-// fixme: remove this.
-    sdl_mouse_grabbed = 1;
-#endif
-    
     /*
       all keys are now mapped to the wolf3d-style names,
       except where no such name is available.
@@ -901,7 +894,7 @@ void IN_Startup (void)
     
     Insert(scancodes, SDLK_LALT, sc_Alt);
     Insert(scancodes, SDLK_RALT, sc_Alt);
-    Insert(scancodes, SDLK_MODE, sc_Alt);
+    //Insert(scancodes, SDLK_MODE, sc_Alt);
     Insert(scancodes, SDLK_RCTRL, sc_Control);
     Insert(scancodes, SDLK_SPACE, sc_Space);
     Insert(scancodes, SDLK_CAPSLOCK, sc_CapsLock);
@@ -909,6 +902,8 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_F2, sc_F2);
     Insert(scancodes, SDLK_F3, sc_F3);
     Insert(scancodes, SDLK_F4, sc_F4);
+    Insert(scancodes, SDLK_KP_PLUS, sc_Plus);
+    Insert(scancodes, SDLK_PLUS, sc_Plus);
     Insert(scancodes, SDLK_F5, sc_F5);
     Insert(scancodes, SDLK_F6, sc_F6);
     Insert(scancodes, SDLK_F7, sc_F7);
@@ -934,7 +929,6 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_KP_6, sc_RightArrow);
     Insert(scancodes, SDLK_LEFT, sc_LeftArrow);
     Insert(scancodes, SDLK_RIGHT, sc_RightArrow);
-    Insert(scancodes, SDLK_KP_PLUS, sc_Plus);
     
     Insert(scancodes, SDLK_KP_1, sc_End);
     Insert(scancodes, SDLK_KP_2, sc_DownArrow);
@@ -946,7 +940,6 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_KP_0, sc_Insert);
     Insert(scancodes, SDLK_INSERT, sc_Insert);
     Insert(scancodes, SDLK_KP_ENTER, sc_Return);
-#endif
 
     checkjoys        = true;
     checkmouse       = true;

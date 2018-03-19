@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "HashTable.h"
+#include "LinkedList.h"
 
 #if !defined(ARRAY_SIZE)
     #define ARRAY_SIZE(x) (sizeof((x)) / sizeof((x)[0]))
@@ -9,82 +11,69 @@
 void InitHashTable(HashTable * hashTable, int initSize)
 {
     hashTable->totalSize = initSize;
-    hashTable->table = malloc(sizeof(int) * initSize);
-    hashTable->keys =  malloc(sizeof(int) * initSize);
+    hashTable->table = malloc(sizeof(LinkedList) * initSize);
     
-    memset(hashTable->table,(int) NULL, sizeof(int) * initSize);
-    memset(hashTable->keys,(int) NULL, sizeof(int) * initSize);
+    memset(hashTable->table,0, sizeof(LinkedList) * initSize);
 }
 
-int HashFunc(HashTable * hashTable, int key, int item)
+int HashFunc(HashTable * hashTable, int key)
 {
-    return (key * (item)) % hashTable->totalSize;
+    return abs((key)) % hashTable->totalSize;
 }
 
 void Delete(HashTable * hashTable, int key)
 {   
-    if (hashTable->keys[key] == -1)
-    {
-        printf("ERROR: Tried to delete something that doesn't exist in the hash table!");
-        exit(1);
-    }
+    int index = HashFunc(hashTable,key);
     
-    hashTable->table[hashTable->keys[key]] = (int) NULL;
-    free(&hashTable->table[hashTable->keys[key]]);
-    free(&hashTable->keys[key]);
+    LinkedList * list = hashTable->table[index];
+    
+    DeleteWithKey(list, key);
+    free(&hashTable->table[index]);
 }
 
 void ClearHashTable (HashTable * hashTable)
-{
+{ 
+    int x = 0;
+    for (x; x < ARRAY_SIZE(hashTable->table); x++)
+    {
+        if (hashTable->table[x] != 0)
+        {
+            DestroyList(hashTable->table[x]);
+        }
+        
+    }
     free(hashTable->table);
-    free(hashTable->keys);
-} 
+}
 
 void Insert(HashTable * hashTable, int key, int item)
 {
-    int index = HashFunc(hashTable,key,item);
+    int index = HashFunc(hashTable,key);
     int found = 0;
-    if (hashTable->table[index] != (int) NULL)
+    if (hashTable->table[index] != 0)
     {
-        //printf("COLLISION \n");
-        int x;
-        for (x = index; x < 0; x-- )
-        {
-            if (hashTable->table[x] == (int) NULL)
-            {   
-                hashTable->table[x] = item;
-                hashTable->keys[key] = x;
-                found++;
-                break;
-            }
-        }
-        if (!found)
-        {
-            for (x = index; x > ARRAY_SIZE(hashTable->table); x++ )
-            {
-                if (hashTable->table[x] == (int) NULL)
-                {
-                    hashTable->table[x] = item;
-                    hashTable->keys[key] = x;
-                    found++;
-                    break;
-                }
-            }
-            if(!found)
-            {
-                printf("ERROR: Hash Table was unable to find a blank entry! \n");
-                exit(1);
-            }
-        }
+        InsertInList(hashTable->table[index], key, item);    
     }
     else
     {
-        hashTable->keys[key] = index;
-        hashTable->table[index] = item;
+        LinkedList * newList = malloc(sizeof(LinkedList));
+        
+        InitLinkedList(newList);
+        
+        InsertInList(newList, key, item);
+        
+        hashTable->table[index] = newList;
     }
 }
 
 int Lookup(HashTable * hashTable, int key)
 {
-    return hashTable->table[hashTable->keys[key]];
+    int index = HashFunc(hashTable,key);
+    
+    if (hashTable->table == 0)
+    {
+        printf("ERROR: HashTable Lookup lead to a NULL Entry.");
+        exit(1);
+    }
+    
+    return SearchWithKey(hashTable->table[index], key);
 }

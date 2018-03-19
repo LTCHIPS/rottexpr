@@ -1,12 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 
 /* 
  * File:   HashTable.h
- * Author: LTCHIPS
+ * Author: Steven LeVesque
  *
  * Created on March 13, 2018, 5:10 PM
  */
@@ -21,9 +16,15 @@ typedef struct HashTable
     int * table;
 } HashTable;
 
+typedef struct Key 
+{
+    int IndexInTable;
+    int IndexInLinkedList;
+} Key;
+
 void InitHashTable(HashTable * hashTable, int initSize);
 
-int HashFunc(HashTable * hashTable, int key, int item);
+int HashFunc(HashTable * hashTable, int key);
 
 void Delete(HashTable * hashTable, int key);
 

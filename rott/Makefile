@@ -84,6 +84,7 @@ OBJS += dukemusc.o
 OBJS += winrott.o
 OBJS += queue.o
 OBJS += HashTable.o
+OBJS += LinkedList.o
 
 AUDIOLIB := audiolib/audiolib.a
 
