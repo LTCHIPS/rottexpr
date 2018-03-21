@@ -21,6 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <string.h>
 #include <SDL2/SDL_scancode.h>
+#include <SDL2/SDL_keycode.h>
+#include <SDL2/SDL_mouse.h>
 
 #if PLATFORM_DOS
 #include <conio.h>
@@ -272,8 +274,6 @@ static int sdl_mouse_motion_filter(SDL_Event const *event)
  *                  surface's current flags are used.
  *  @return non-zero on success, zero on failure.
  */
-//TODO: Write new fullscreen toggle....
-
 /*
  * The windib driver can't alert us to the keypad enter key, which
  *  Ken's code depends on heavily. It sends it as the same key as the
@@ -894,7 +894,7 @@ void IN_Startup (void)
     
     Insert(scancodes, SDLK_LALT, sc_Alt);
     Insert(scancodes, SDLK_RALT, sc_Alt);
-    //Insert(scancodes, SDLK_MODE, sc_Alt);
+    Insert(scancodes, SDLK_MODE, sc_Alt);
     Insert(scancodes, SDLK_RCTRL, sc_Control);
     Insert(scancodes, SDLK_SPACE, sc_Space);
     Insert(scancodes, SDLK_CAPSLOCK, sc_CapsLock);
@@ -917,6 +917,7 @@ void IN_Startup (void)
     
     Insert(scancodes, SDLK_MINUS, sc_Minus);
     
+    Insert(scancodes, SDLK_KP_PERIOD, sc_Delete);
     Insert(scancodes, SDLK_KP_7, sc_Home);
     Insert(scancodes, SDLK_KP_8, sc_UpArrow);
     Insert(scancodes, SDLK_KP_9, sc_PgUp);

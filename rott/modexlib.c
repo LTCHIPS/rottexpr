@@ -54,7 +54,7 @@ char 	   *iG_buf_center;
 
 SDL_Surface *sdl_surface = NULL;
 
-static SDL_Window * window = NULL;
+SDL_Window * window = NULL;
 
 static SDL_Renderer * renderer = NULL;
 
@@ -431,8 +431,6 @@ void XFlipPage ( void )
 =
 ====================
 */
-
-
 void GraphicsMode ( void )
 {
     Uint32 flags = 0;
@@ -454,16 +452,15 @@ void GraphicsMode ( void )
     //SDL_WM_SetCaption ("Rise of the Triad", "ROTT");
     //SDL_ShowCursor (0);
 //    sdl_surface = SDL_SetVideoMode (320, 200, 8, flags);
-    //if (sdl_fullscreen)
-        //flags = SDL_FULLSCREEN;
+    if (sdl_fullscreen)
+        flags = SDL_WINDOW_FULLSCREEN;
     
     window = SDL_CreateWindow("Rise of the Triad",
                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT,
-                               0);
+                               flags);
     
     //SDL_CreateWindowAndRenderer(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 0, &window, &renderer);
-    
     
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     
@@ -475,11 +472,14 @@ void GraphicsMode ( void )
     //sdl_surface = SDL_SetVideoMode (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 8, flags);
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,
                                         8,0,0,0,0);
+    
+    //ToggleFullscreen();
     if (window == NULL)
     {
         Error ("Could not set video mode\n");
     }
 }
+
 
 /*
 ====================

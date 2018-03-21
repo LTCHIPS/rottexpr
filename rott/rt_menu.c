@@ -120,6 +120,8 @@ int py;
 int bufferheight;
 int bufferwidth;
 
+extern SDL_Window *window;
+
 cfont_t *IFont;
 font_t  *CurrentFont;
 font_t  *newfont1;
@@ -5729,11 +5731,12 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 5:
-            //if (SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()))
-            //{
-                //sdl_fullscreen ^= 1;
+            if (!sdl_fullscreen)
+                SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+            else
+                SDL_SetWindowFullscreen(window, 0); //0 means make it windowed
+            sdl_fullscreen ^= 1;
             DrawExtOptionsButtons ();
-            //}
             break;
         case 6:
             autoAimMissileWeps ^= 1;
