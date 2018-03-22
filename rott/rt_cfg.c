@@ -113,6 +113,8 @@ boolean usemouselook     = 0;
 int     inverse_mouse    = 1; //set  to -1 to invert mouse
 boolean usejump          = 0;
 boolean sdl_fullscreen   = 1;
+boolean borderWindow = 0;
+boolean borderlessWindow = 0;
 
 boolean allowBlitzMoreMissileWeps = 0;
 boolean enableAmmoPickups = 0;
@@ -569,6 +571,11 @@ boolean ParseConfigFile (void)
 
         // Read in fullscreen
         ReadBoolean("FullScreen", &sdl_fullscreen);
+        
+        ReadBoolean("BorderWindow", &borderWindow);
+        
+        ReadBoolean("BorderlessWindow", &borderlessWindow);
+        
 
         // Read in resolution
         ReadInt("ScreenWidth", &iGLOBAL_SCREENWIDTH);
@@ -1863,6 +1870,16 @@ void WriteConfig (void)
     SafeWriteString(file,"; 0 - Start in windowed mode\n");
     SafeWriteString(file,"; 1 - Start in fullscreen mode\n");
     WriteParameter(file,"FullScreen       ",sdl_fullscreen);
+    
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file, "; 0 - Don't start in bordered window mode\n");
+    SafeWriteString(file, "; 1 - Start in bordered window mode\n");
+    WriteParameter(file, "BorderWindow      ", borderWindow);
+    
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file, "; 0 - Don't start in borderless window mode\n");
+    SafeWriteString(file, "; 1 - Start in borderless window mode\n");
+    WriteParameter(file, "BorderlessWindow      ", borderlessWindow);
 
     // Write out resolution
     SafeWriteString(file,"\n;\n");

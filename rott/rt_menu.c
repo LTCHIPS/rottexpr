@@ -759,7 +759,6 @@ CP_MenuNames ExtOptionsNames[] =
     "ALLOW Y AXIS MOUSE",
     "CROSS HAIR",
     "JUMPING",
-    "FULLSCREEN",
     "AUTOAIM MISSILE WEPS",
     "ENABLE AUTOAIM"
 };
@@ -775,7 +774,8 @@ CP_MenuNames ExtGameOptionsNames[] =
 CP_MenuNames VisualOptionsNames[] = 
 {
     "SCREEN RESOLUTION",
-    "ADJUST FOCAL WIDTH"
+    "ADJUST FOCAL WIDTH",
+    "DISPLAY OPTIONS"
 };
 
 CP_MenuNames ScreenResolutions[] = 
@@ -824,20 +824,37 @@ CP_itemtype ScreenResolutionMenu[] = {
     {1, "", ' ',NULL},
 };
 
-CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 2, 0, 43, VisualOptionsNames, mn_largefont };
+CP_MenuNames DisplayOptionsNames[] = {
+    "Fullscreen",
+    "Bordered Window",
+    "Borderless Window",
+};
+
+CP_itemtype DisplayOptionsItems[] = {
+    {1, "", 'F', NULL},
+    {1, "", 'B', NULL},
+    {1, "", 'B', NULL}
+};
+
+CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 3, 0, 43, VisualOptionsNames, mn_largefont };
 
 CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 19, 0, 16, ScreenResolutions, mn_tinyfont};
 
-CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 8, 0, 43, ExtOptionsNames, mn_largefont };
+CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 7, 0, 43, ExtOptionsNames, mn_largefont };
 
 CP_iteminfo ExtGameOptionsItems = { 20, MENU_Y, 4, 0, 43, ExtGameOptionsNames, mn_largefont }; //LT added
 
+CP_iteminfo DisplayOptionsMenu = { 20, MENU_Y, 3, 0, 43, DisplayOptionsNames, mn_largefont }; //LT added
+
 void CP_ScreenResolution(void);
+
+void CP_DisplayOptions(void);
 
 CP_itemtype VisualsOptionsMenu[] = 
 {
     {1, "", 'S', (menuptr)CP_ScreenResolution},
-    {1, "", 'F', (menuptr)DoAdjustFocalWidth}
+    {1, "", 'F', (menuptr)DoAdjustFocalWidth},
+    {1, "", 'D', (menuptr)CP_DisplayOptions}
 };
 
 CP_itemtype ExtOptionsMenu[] =
@@ -847,7 +864,6 @@ CP_itemtype ExtOptionsMenu[] =
     {1, "", 'D', NULL},
     {1, "", 'C', NULL},
     {1, "", 'J', NULL},
-    {1, "", 'F', NULL},
     {1, "", 'A', NULL},
     {1, "", 'U', NULL},
 };
@@ -5623,6 +5639,132 @@ void CP_ScreenResolution(void)
 
     DrawVisualsMenu();
 }
+extern boolean sdl_fullscreen;
+extern boolean borderWindow;
+extern boolean borderlessWindow;
+
+void DrawDisplayOptionsButtons (void)
+{
+    int i,
+        on;
+    int button_on;
+    int button_off;
+
+    button_on  = W_GetNumForName ("snd_on");
+    button_off = W_GetNumForName ("snd_off");
+
+    for (i = 0; i < DisplayOptionsMenu.amount; i++)
+        if (DisplayOptionsItems[i].active != CP_Active3)
+        {
+            //
+            // DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
+            //
+
+            on = 0;
+
+            switch (i)
+            {
+            case 0:
+                if (sdl_fullscreen  == 1) on = 1;
+                break;
+            case 1:
+                if (borderWindow == 1)on = 1;
+                break;
+            case 2:
+                if (borderlessWindow == 1) on = 1;
+                break;
+            default:
+                break;
+            }
+
+            if (on)
+                DrawMenuBufItem (20+22, DisplayOptionsMenu.y+i*14-1, button_on);
+            else
+                DrawMenuBufItem (20+22, DisplayOptionsMenu.y+i*14-1, button_off);
+        }
+}
+
+/*
+CP_MenuNames DisplayOptionsNames[] = {
+    "Fullscreen",
+    "Bordered Window",
+    "Borderless Window",
+};
+*/
+
+void DrawDisplayOptionsMenu (void)
+{
+    MenuNum = 1;
+
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Display Options");
+
+    MN_GetCursorLocation( &DisplayOptionsMenu, &DisplayOptionsItems[ 0 ] );
+    DrawMenu (&DisplayOptionsMenu, &DisplayOptionsItems[0]);
+    DrawDisplayOptionsButtons();
+    
+    DisplayInfo (0);
+
+    FlipMenuBuf();
+}
+
+
+void CP_DisplayOptions(void)
+{
+    DrawDisplayOptionsMenu();
+
+    int which;
+    
+    do
+    {
+        which = HandleMenu (&DisplayOptionsMenu, &DisplayOptionsItems[0], NULL);
+        switch(which)
+        {
+            case 0:
+                if (!sdl_fullscreen){
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                    sdl_fullscreen ^= 1;
+                    borderWindow = 0;
+                    borderlessWindow = 0;
+                }
+                DrawDisplayOptionsButtons ();
+                break;
+            case 1:
+                if (!borderWindow){
+                    if (sdl_fullscreen)
+                    {
+                        SDL_SetWindowFullscreen(window, 0);
+                    }
+                    SDL_SetWindowBordered(window, SDL_TRUE);
+                    sdl_fullscreen = 0;
+                    borderWindow ^=1;
+                    borderlessWindow = 0;
+                }
+                DrawDisplayOptionsButtons ();
+                break;
+            case 2:
+                if (!borderlessWindow){
+                    if (sdl_fullscreen)
+                    {
+                        SDL_SetWindowFullscreen(window, 0);
+                    }
+                    SDL_SetWindowBordered(window, SDL_FALSE);
+                    sdl_fullscreen = 0;
+                    borderWindow = 0;
+                    borderlessWindow^=1;
+                }
+                DrawDisplayOptionsButtons();
+                break;
+            default:
+                break;
+        }
+        
+    } while (which >= 0);
+    
+    DrawVisualsMenu();
+
+}
 
 
 //****************************************************************************
@@ -5648,16 +5790,14 @@ void DrawExtOptionsMenu (void)
     FlipMenuBuf();
 }
 
-static char * ExtOptionsDesc[8] = {
+static char * ExtOptionsDesc[7] = {
     "Allow mouse look.",
     "Invert the mouse.",
     "Move forward and backward using mouse.",
     "Enable Crosshairs.",
     "Allow Jumping (may completely break levels)",
-    "Toggle Fullscreen",
     "Missile weapons are auto aimed after 1st shot.",
-    "Allow auto aim"
-
+    "Allow auto aim."
 };
 
 void DrawExtOptionDescription (int w)
@@ -5687,7 +5827,6 @@ extern int inverse_mouse;
 extern boolean usemouselook;
 extern boolean iG_aimCross;
 extern boolean usejump;
-extern boolean sdl_fullscreen;
 extern boolean autoAimMissileWeps;
 extern boolean autoAim;
 extern boolean allowMovementWithMouseYAxis;
@@ -5731,18 +5870,10 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 5:
-            if (!sdl_fullscreen)
-                SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-            else
-                SDL_SetWindowFullscreen(window, 0); //0 means make it windowed
-            sdl_fullscreen ^= 1;
-            DrawExtOptionsButtons ();
-            break;
-        case 6:
             autoAimMissileWeps ^= 1;
             DrawExtOptionsButtons();
             break;
-        case 7:
+        case 6:
             autoAim ^= 1;
             DrawExtOptionsButtons();
             break;
@@ -5790,12 +5921,9 @@ void DrawExtOptionsButtons (void)
                 if (usejump       == 1) on = 1;
                 break;
             case 5:
-                if (sdl_fullscreen== 1) on = 1;
-                break;
-            case 6:
                 if (autoAimMissileWeps == 1) on = 1;
                 break;
-            case 7:
+            case 6:
                 if (autoAim == 1) on = 1;
                 break;
             }
