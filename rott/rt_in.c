@@ -431,6 +431,10 @@ static int root_sdl_event_filter(const SDL_Event *event)
         fprintf(stderr, "\n\n\nSDL_QUIT!\n\n\n");
         SDL_Quit();
         exit(42);
+        break;
+    case SDL_WINDOWEVENT:
+        sdl_handle_window_events();
+        break;
     } /* switch */
 
     return(1);

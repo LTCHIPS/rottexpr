@@ -60,7 +60,7 @@ static SDL_Renderer * renderer = NULL;
 
 SDL_Surface *unstretch_sdl_surface = NULL;
 
-static SDL_Texture *sdl_texture = NULL; //sort of a replacement for surface...
+static SDL_Texture *sdl_texture = NULL;
 
 
 int    linewidth;
@@ -452,8 +452,10 @@ void GraphicsMode ( void )
     //SDL_WM_SetCaption ("Rise of the Triad", "ROTT");
     //SDL_ShowCursor (0);
 //    sdl_surface = SDL_SetVideoMode (320, 200, 8, flags);
+    
+    //SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     if (sdl_fullscreen)
-        flags = SDL_WINDOW_FULLSCREEN;
+        flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
     
     window = SDL_CreateWindow("Rise of the Triad",
                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
@@ -470,16 +472,17 @@ void GraphicsMode ( void )
     
     
     //sdl_surface = SDL_SetVideoMode (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 8, flags);
-    sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,
-                                        8,0,0,0,0);
-    
+    sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
+         
+    SDL_SetSurfaceRLE(sdl_surface, 1);
+                                        
+    SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
     //ToggleFullscreen();
     if (window == NULL)
     {
         Error ("Could not set video mode\n");
     }
 }
-
 
 /*
 ====================
@@ -554,8 +557,6 @@ void VL_SetVGAPlaneMode ( void )
 
 //    screensize=MAXSCREENHEIGHT*MAXSCREENWIDTH;
     screensize=iGLOBAL_SCREENHEIGHT*iGLOBAL_SCREENWIDTH;
-
-
 
     page1start=sdl_surface->pixels;
     page2start=sdl_surface->pixels;
@@ -825,6 +826,8 @@ void DisableScreenStretch(void)
     page2start = sdl_surface->pixels;
     page3start = sdl_surface->pixels;
     StretchScreen = 0;
+    SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
+    
 }
 
 
@@ -844,6 +847,8 @@ static void StretchMemPicture ()
     dest.w = iGLOBAL_SCREENWIDTH;
     dest.h = iGLOBAL_SCREENHEIGHT;
     SDL_SoftStretch(unstretch_sdl_surface, &src, sdl_surface, &dest);
+    SDL_RenderSetLogicalSize(renderer, 320, 200); //help keep aspect ratio of menus so that the game doesn't look stretched
+    
 }
 
 // bna function added start
@@ -899,5 +904,32 @@ void DrawCenterAim ()
 
 // bna section -------------------------------------------
 
+void sdl_handle_window_events(void)
+{
+    SDL_Event event;
+    while(SDL_PollEvent(&event))
+    {
+        switch(event.window.type)
+        {
+            case SDL_WINDOWEVENT_FOCUS_LOST:
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+                break;
+            case SDL_WINDOWEVENT_FOCUS_GAINED:
+                SDL_SetRelativeMouseMode(SDL_TRUE);
+                break;
+            case SDL_WINDOWEVENT_MINIMIZED:
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+                break;
+            case SDL_WINDOWEVENT_RESTORED:
+                SDL_SetRelativeMouseMode(SDL_TRUE);
+                break;
+            case SDL_WINDOWEVENT_CLOSE:
+                event.type = SDL_QUIT;
+                SDL_PushEvent(&event);
+                break;
+        }
+    
+    }
 
+}
 
