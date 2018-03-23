@@ -168,6 +168,8 @@ int G_weaponscale;
 extern int iDropDemo;
 extern boolean iG_aimCross;
 extern boolean sdl_fullscreen;
+extern boolean borderWindow;
+extern boolean borderlessWindow;
 
 extern void ComSetTime ( void );
 extern void VH_UpdateScreen (void);
@@ -843,7 +845,7 @@ void SetupWads( void )
     char  *newargs[99];
     int i, arg, argnum = 0;
     char *tempstr = NULL;
-    char *PStrings[] = {"AIM", "FULLSCREEN", "WINDOW", "RESOLUTION", NULL };
+    char *PStrings[] = {"AIM", "FULLSCREEN", "WINDOW", "BORDERLESS", "RESOLUTION", NULL };
 
     // These must be checked here so that they can override the cfg file
     for (i = 1; i < _argc; i++)
@@ -856,11 +858,20 @@ void SetupWads( void )
             break;
         case 1:
             sdl_fullscreen = 1;
+            borderWindow = 0;
+            borderlessWindow = 0;
             break;
         case 2:
             sdl_fullscreen = 0;
+            borderWindow = 1;
+            borderlessWindow = 0;
             break;
         case 3:
+            sdl_fullscreen = 0;
+            borderWindow = 0;
+            borderlessWindow = 1;
+            break;
+        case 4:
             i++;
             if (i < _argc)
             {
@@ -1146,6 +1157,8 @@ void GameLoop (void)
     {
         //no longer needed in SDL2
         //SDL_WarpMouse(iGLOBAL_SCREENWIDTH<<1, iGLOBAL_SCREENHEIGHT<<1);
+        
+        
         if ( playstate == ex_battledone )
         {
             while( damagecount > 0 )

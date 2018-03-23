@@ -128,6 +128,7 @@ extern SDL_Surface * sdl_surface;
 
 
 void  GraphicsMode ( void );
+void  ChangeResolution( int, int);
 void  SetTextMode ( void );
 void  VL_SetVGAPlaneMode ( void );
 void  VL_ClearBuffer (byte *buf, byte color);

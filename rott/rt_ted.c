@@ -1214,48 +1214,20 @@ void PreCache( void )
                 DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2))),
                                   (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
                 
-                DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2))),
+                if (iGLOBAL_SCREENWIDTH > 320)
+                {
+                    DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2))),
                                   (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
+                
+                }
                 
                 DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
                                   (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
-                
-                DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
+                if (iGLOBAL_SCREENWIDTH > 320)
+                {
+                    DrawNormalSprite ((int)(newPrecacheBarX + newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
                                   (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
-                
-/*
-                if ( iGLOBAL_SCREENWIDTH == 320) {
-                    DrawNormalSprite (PRECACHEBARX+PRECACHELED1X+(lastmem<<2),
-                                      PRECACHEBARY+PRECACHELED1Y,
-                                      W_GetNumForName ("led1"));//led1 progressbar
-                } else if ( iGLOBAL_SCREENWIDTH == 640) {
-                    if (iGLOBAL_SCREENHEIGHT == 400)
-                    {
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2))),
-                                            (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2))),
-                                          (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar1LedY),W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar1LedX+(Gs*(lastmem<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar1LedY + 3),W_GetNumForName ("led1"));//led1 progressbar
-                    }
-                    else
-                    {
-                        DrawNormalSprite (72+(Gs*(lastmem<<2)),446,W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite (72+(Gs*(lastmem<<2)),446+3,W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite (72+3+(Gs*(lastmem<<2)),446,W_GetNumForName ("led1"));//led1 progressbar
-                        DrawNormalSprite (72+3+(Gs*(lastmem<<2)),446+3,W_GetNumForName ("led1"));//led1 progressbar
-                    }
-                    
-                } else if ( iGLOBAL_SCREENWIDTH == 800) {
-                    DrawNormalSprite (91+(Gs*(lastmem<<2)),559,W_GetNumForName ("led1"));//led1 progressbar
-                    DrawNormalSprite (91+(Gs*(lastmem<<2)),559+3,W_GetNumForName ("led1"));//led1 progressbar
-                    DrawNormalSprite (91+3+(Gs*(lastmem<<2)),559,W_GetNumForName ("led1"));//led1 progressbar
-                    DrawNormalSprite (91+3+(Gs*(lastmem<<2)),559+3,W_GetNumForName ("led1"));//led1 progressbar
                 }
-*/
-
                 lastmem++;
                 VW_UpdateScreen (); // was missing, fixed
             }
@@ -1264,45 +1236,15 @@ void PreCache( void )
             {
                 DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
                                   (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
-                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
-                                  (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
-                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
-                                  (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
-                DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
-                                  (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
-/*
-                if ( iGLOBAL_SCREENWIDTH == 320) {
-                    DrawNormalSprite (PRECACHEBARX+PRECACHELED2X+(lastcache<<2),
-                                      PRECACHEBARY+PRECACHELED2Y,
-                                      W_GetNumForName ("led2"));//led2 progressbar
-                } 
-                else if ( iGLOBAL_SCREENWIDTH == 640) {
-                    if (iGLOBAL_SCREENHEIGHT == 400)
-                    {
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
-                                            (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
-                                          (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
-                                          (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
-                    }
-                    else
-                    {
-                        DrawNormalSprite (72+(Gs*(lastcache<<2)),458,W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite (72+(Gs*(lastcache<<2)),458+3,W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite (72+3+(Gs*(lastcache<<2)),458,W_GetNumForName ("led2"));//led2 progressbar
-                        DrawNormalSprite (72+3+(Gs*(lastcache<<2)),458+3,W_GetNumForName ("led2"));//led2 progressbar
-                    }
-
-                } else if ( iGLOBAL_SCREENWIDTH == 800) {
-                    DrawNormalSprite (91+(Gs*(lastcache<<2)),573,W_GetNumForName ("led2"));//led2 progressbar
-                    DrawNormalSprite (91+(Gs*(lastcache<<2)),573+3,W_GetNumForName ("led2"));//led2 progressbar
-                    DrawNormalSprite (91+3+(Gs*(lastcache<<2)),573,W_GetNumForName ("led2"));//led2 progressbar
-                    DrawNormalSprite (91+3+(Gs*(lastcache<<2)),573+3,W_GetNumForName ("led2"));//led2 progressbar
+                if (iGLOBAL_SCREENWIDTH > 320)
+                {
+                    DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2))),
+                                      (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
+                    DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
+                                      (int)(newPrecacheBarY + newPrecacheBar2LedY),W_GetNumForName ("led2"));//led2 progressbar
+                    DrawNormalSprite ((int)(newPrecacheBarX+newPrecacheBar2LedX+(Gs*(lastcache<<2)) + 3),
+                                      (int)(newPrecacheBarY + newPrecacheBar2LedY + 3),W_GetNumForName ("led2"));//led2 progressbar
                 }
-*/
                 DisableScreenStretch();//bna++
                 VW_UpdateScreen ();//bna++
                 lastcache++;
