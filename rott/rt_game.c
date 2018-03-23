@@ -434,7 +434,9 @@ void DrawPlayScreen (boolean bufferofsonly)
             DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
         }
         shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+        
         GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
+        
     }
 
     if ( BATTLEMODE )
@@ -454,20 +456,11 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
                 
-            //this causes a seg fault when MUSIC_StopSong calls Mix_HaltMusic for some odd reason when player pauses the game...
-            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
-                
-            //...yet if we do this...no seg fault
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29, iGLOBAL_SCREENWIDTH, 3, 10,10, shape ); //fill in remaining spots
-            
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
             
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
                   
-            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
-            
-            
-            
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
             
         GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
