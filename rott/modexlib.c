@@ -62,6 +62,8 @@ SDL_Surface *unstretch_sdl_surface = NULL;
 
 static SDL_Texture *sdl_texture = NULL;
 
+SDL_Surface *statusBarSurf = NULL;
+
 
 int    linewidth;
 //int    ylookup[MAXSCREENHEIGHT];
@@ -473,6 +475,8 @@ void GraphicsMode ( void )
     
     //sdl_surface = SDL_SetVideoMode (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 8, flags);
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
+    
+    statusBarSurf = SDL_CreateRGBSurface(0, 320, 16, 8,0,0,0,0);
          
     SDL_SetSurfaceRLE(sdl_surface, 1);
                                         
@@ -716,6 +720,17 @@ void VL_DePlaneVGA (void)
 {
 }
 
+SDL_Texture* GetAreaTextrue(SDL_Rect rect, SDL_Renderer* renderer, SDL_Texture* source)
+{
+  SDL_Texture* result = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, rect.w, rect.h);          
+  SDL_SetRenderTarget(renderer, result);
+  SDL_RenderCopy(renderer, source, &rect, NULL);
+  // the folowing line should reset the target to default(the screen)
+  SDL_SetRenderTarget(renderer, NULL);  
+  // I also removed the RenderPresent funcion as it is not needed here      
+  return result;
+}
+
 
 /* C version of rt_vh_a.asm */
 
@@ -728,18 +743,35 @@ void VH_UpdateScreen (void)
         DrawCenterAim ();
     }
     
-    //SDL_UpdateRect (SDL_GetVideoSurface (), 0, 0, 0, 0);
+    SDL_Rect statusBarRect;
+    
+    statusBarRect.w = 320;
+    statusBarRect.h = 16;
+    statusBarRect.x = (iGLOBAL_SCREENWIDTH - statusBarRect.w) >> 1;;
+    statusBarRect.y = 0;
+    
+    SDL_Rect statusBarRect2;
+    
+    statusBarRect2.w = 320<<1;
+    statusBarRect2.h = 16<<1;
+    statusBarRect2.x = (iGLOBAL_SCREENWIDTH - statusBarRect.w) >> 1;
+    statusBarRect2.y = 0;
     SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     if (newTex == NULL) {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
         exit(1);
     }
     
+    SDL_Texture * statusBar = GetAreaTextrue(statusBarRect, renderer, newTex);
+    
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, newTex, NULL, NULL);
+    SDL_RenderCopy(renderer, myTexPart, NULL, &statusBarRect2);
+    
     SDL_RenderPresent(renderer);
     
     SDL_DestroyTexture(newTex);
+    SDL_DestroyTexture(statusBar);
 }
 
 
@@ -767,23 +799,45 @@ void XFlipPage ( void )
     if (bufferofs > page3start)
         bufferofs = page1start;
 #else
+    
+    
     if (StretchScreen) { //bna++
         StretchMemPicture ();
     } else {
         DrawCenterAim ();
     }
+    SDL_Rect statusBarRect;
     
+    statusBarRect.w = 320;
+    statusBarRect.h = 16;
+    statusBarRect.x = (iGLOBAL_SCREENWIDTH - statusBarRect.w) >> 1;;
+    statusBarRect.y = 0;
+    
+    SDL_Rect statusBarRect2;
+    
+    statusBarRect2.w = 320<<1;
+    statusBarRect2.h = 16<<1;
+    statusBarRect2.x = (iGLOBAL_SCREENWIDTH - statusBarRect2.w) >> 1;
+    statusBarRect2.y = 0;
     SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     if (newTex == NULL) {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
         exit(1);
     }
     
+    SDL_Texture * statusBar = GetAreaTextrue(statusBarRect, renderer, newTex);
+
+
+    
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, newTex, NULL, NULL);
+    SDL_RenderCopy(renderer, statusBar, NULL, &statusBarRect2);
+    
     SDL_RenderPresent(renderer);
     
     SDL_DestroyTexture(newTex);
+    SDL_DestroyTexture(statusBar);
+    
     //SDL_UpdateRect (sdl_surface, 0, 0, 0, 0);s
 
 #endif
