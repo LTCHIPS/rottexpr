@@ -62,9 +62,6 @@ SDL_Surface *unstretch_sdl_surface = NULL;
 
 static SDL_Texture *sdl_texture = NULL;
 
-SDL_Surface *statusBarSurf = NULL;
-
-
 int    linewidth;
 //int    ylookup[MAXSCREENHEIGHT];
 int    ylookup[MAXSCREENHEIGHT];//just set to max res
@@ -475,8 +472,6 @@ void GraphicsMode ( void )
     
     //sdl_surface = SDL_SetVideoMode (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 8, flags);
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
-    
-    statusBarSurf = SDL_CreateRGBSurface(0, 320, 16, 8,0,0,0,0);
          
     SDL_SetSurfaceRLE(sdl_surface, 1);
                                         
@@ -720,16 +715,21 @@ void VL_DePlaneVGA (void)
 {
 }
 
-SDL_Texture* GetAreaTextrue(SDL_Rect rect, SDL_Renderer* renderer, SDL_Texture* source)
+int hudRescaleFactor = 4;
+
+//DO NOT CALL UNTIL AFTER THE INITIAL SCENE IS RENDERERED
+void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
-  SDL_Texture* result = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, rect.w, rect.h);          
-  SDL_SetRenderTarget(renderer, result);
-  SDL_RenderCopy(renderer, source, &rect, NULL);
-  // the folowing line should reset the target to default(the screen)
-  SDL_SetRenderTarget(renderer, NULL);  
-  // I also removed the RenderPresent funcion as it is not needed here      
-  return result;
+    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
+    SDL_SetRenderTarget(renderer, sourceToResize);
+    SDL_RenderCopy(renderer, source, &src, NULL);
+    // the folowing line should reset the target to default(the screen)
+    SDL_SetRenderTarget(renderer, NULL);
+    
+    SDL_RenderCopy(renderer, sourceToResize, NULL, &dest);
+    SDL_DestroyTexture(sourceToResize);
 }
+
 
 
 /* C version of rt_vh_a.asm */
@@ -743,36 +743,29 @@ void VH_UpdateScreen (void)
         DrawCenterAim ();
     }
     
-    SDL_Rect statusBarRect;
-    
-    statusBarRect.w = 320;
-    statusBarRect.h = 16;
-    statusBarRect.x = (iGLOBAL_SCREENWIDTH - statusBarRect.w) >> 1;;
-    statusBarRect.y = 0;
-    
-    SDL_Rect statusBarRect2;
-    
-    statusBarRect2.w = 320<<1;
-    statusBarRect2.h = 16<<1;
-    statusBarRect2.x = (iGLOBAL_SCREENWIDTH - statusBarRect.w) >> 1;
-    statusBarRect2.y = 0;
     SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    if (newTex == NULL) {
+    if (newTex == NULL) 
+    {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
         exit(1);
     }
-    
-    SDL_Texture * statusBar = GetAreaTextrue(statusBarRect, renderer, newTex);
-    
+   
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, newTex, NULL, NULL);
-    SDL_RenderCopy(renderer, myTexPart, NULL, &statusBarRect2);
+    
+    if (!StretchScreen && hudRescaleFactor > 1)
+    {
+        RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
+        RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+    }
     
     SDL_RenderPresent(renderer);
     
     SDL_DestroyTexture(newTex);
-    SDL_DestroyTexture(statusBar);
 }
+
 
 
 /*
@@ -806,39 +799,27 @@ void XFlipPage ( void )
     } else {
         DrawCenterAim ();
     }
-    SDL_Rect statusBarRect;
     
-    statusBarRect.w = 320;
-    statusBarRect.h = 16;
-    statusBarRect.x = (iGLOBAL_SCREENWIDTH - statusBarRect.w) >> 1;;
-    statusBarRect.y = 0;
-    
-    SDL_Rect statusBarRect2;
-    
-    statusBarRect2.w = 320<<1;
-    statusBarRect2.h = 16<<1;
-    statusBarRect2.x = (iGLOBAL_SCREENWIDTH - statusBarRect2.w) >> 1;
-    statusBarRect2.y = 0;
     SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    if (newTex == NULL) {
+    if (newTex == NULL) 
+    {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
         exit(1);
     }
     
-    SDL_Texture * statusBar = GetAreaTextrue(statusBarRect, renderer, newTex);
-
-
-    
     SDL_RenderClear(renderer);
     SDL_RenderCopy(renderer, newTex, NULL, NULL);
-    SDL_RenderCopy(renderer, statusBar, NULL, &statusBarRect2);
+    if (!StretchScreen && hudRescaleFactor > 1 ){
+        RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
+        RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+    }
     
     SDL_RenderPresent(renderer);
     
     SDL_DestroyTexture(newTex);
-    SDL_DestroyTexture(statusBar);
-    
-    //SDL_UpdateRect (sdl_surface, 0, 0, 0, 0);s
+
 
 #endif
 }
