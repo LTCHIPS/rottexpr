@@ -288,6 +288,8 @@ void CalcProjection ( void )
 ==========================
 */
 
+extern int hudRescaleFactor;
+
 void SetViewSize
 (
     int size
@@ -630,8 +632,8 @@ void SetViewSize
         StatusBar |= TOP_STATUS_BAR;
 
         // Account for height of top status bar
-        maxheight -= 16;
-        topy      += 16;
+        maxheight -= 16 * hudRescaleFactor;
+        topy      += 16 * hudRescaleFactor;
     }
 
 //   if ( size == 7 ){maxheight -= 16;}//bna++
@@ -642,7 +644,7 @@ void SetViewSize
         // Turn on health and ammo bar
         StatusBar |= BOTTOM_STATUS_BAR;
 
-        maxheight -= 16;
+        maxheight -= 16 * hudRescaleFactor;
 
     }
     else if ( size < 10 )
@@ -665,7 +667,7 @@ void SetViewSize
     centerx     = viewwidth >> 1;
     centery     = viewheight >> 1;
     centeryfrac = (centery << 16);
-    yzangleconverter = ( 0xaf85 * viewheight ) / iGLOBAL_SCREENHEIGHT;
+    yzangleconverter = ( 0xaf85 * viewheight ) / 200;
 
     // Center the view horizontally
     screenx = ( iGLOBAL_SCREENWIDTH - viewwidth ) >> 1;

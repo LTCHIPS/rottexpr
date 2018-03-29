@@ -5622,7 +5622,9 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     UpdateScore (gamestate.score);
     UpdateLives (locplayerstate->lives);
     UpdateTriads (player, 0);
+    
     PreCache ();
+    DisableScreenStretch();
     InitializeMessages();
 
     for (i=0; i<100; i++)

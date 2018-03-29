@@ -41,6 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_util.h"
 #include "rt_net.h" // for GamePaused
 #include "myprint.h"
+#include "rt_view.h"
 
 static void StretchMemPicture ();
 // GLOBAL VARIABLES
@@ -715,8 +716,6 @@ void VL_DePlaneVGA (void)
 {
 }
 
-int hudRescaleFactor = 4;
-
 //DO NOT CALL UNTIL AFTER THE INITIAL SCENE IS RENDERERED
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
@@ -728,6 +727,38 @@ void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect
     
     SDL_RenderCopy(renderer, sourceToResize, NULL, &dest);
     SDL_DestroyTexture(sourceToResize);
+}
+
+int hudRescaleFactor = 1;
+
+boolean doRescaling = false;
+
+void RenderSurface(void)
+{
+    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
+    if (newTex == NULL) 
+    {
+        Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
+        exit(1);
+    }
+   
+    SDL_RenderClear(renderer);
+    SDL_RenderCopy(renderer, newTex, NULL, NULL);
+    
+    if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
+    {
+        if(SHOW_TOP_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
+                   (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
+        if(SHOW_BOTTOM_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+    }
+    
+    SDL_RenderPresent(renderer);
+    
+    SDL_DestroyTexture(newTex);
+
 }
 
 
@@ -743,29 +774,8 @@ void VH_UpdateScreen (void)
         DrawCenterAim ();
     }
     
-    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    if (newTex == NULL) 
-    {
-        Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
-        exit(1);
-    }
-   
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, newTex, NULL, NULL);
-    
-    if (!StretchScreen && hudRescaleFactor > 1)
-    {
-        RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
-               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
-        RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
-               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
-    }
-    
-    SDL_RenderPresent(renderer);
-    
-    SDL_DestroyTexture(newTex);
+    RenderSurface();
 }
-
 
 
 /*
@@ -799,27 +809,8 @@ void XFlipPage ( void )
     } else {
         DrawCenterAim ();
     }
+    RenderSurface();
     
-    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    if (newTex == NULL) 
-    {
-        Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
-        exit(1);
-    }
-    
-    SDL_RenderClear(renderer);
-    SDL_RenderCopy(renderer, newTex, NULL, NULL);
-    if (!StretchScreen && hudRescaleFactor > 1 ){
-        RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
-               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
-        RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
-               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
-    }
-    
-    SDL_RenderPresent(renderer);
-    
-    SDL_DestroyTexture(newTex);
-
 
 #endif
 }

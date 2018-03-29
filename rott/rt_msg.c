@@ -466,6 +466,8 @@ void UpdateMessages
 ====================
 */
 
+extern int hudRescaleFactor;
+
 void DisplayMessage   (int num,int position)
 {
     PrintX = 1;
@@ -478,7 +480,7 @@ void DisplayMessage   (int num,int position)
 
     if ( SHOW_TOP_STATUS_BAR() )
     {
-        PrintY += 16;
+        PrintY += 16 * hudRescaleFactor;
     }
     if ( !MessagesEnabled )
     {

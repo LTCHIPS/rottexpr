@@ -1144,6 +1144,7 @@ int NumberOfTeams
 
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableZomROTT;
+extern boolean doRescaling;
 
 void GameLoop (void)
 {
@@ -1465,6 +1466,7 @@ void GameLoop (void)
                     }
                     else
                     {
+                        
                         fizzlein = true;
                         SetupGameLevel ();
                         UpdateTriads(player,0);
@@ -1472,6 +1474,7 @@ void GameLoop (void)
                     }
                 }
             }
+            doRescaling = true;
             break;
 
         case ex_warped:
@@ -1995,13 +1998,14 @@ void UpdateGameObjects ( void )
 
 }
 
-
+extern boolean doRescaling;
 void PauseLoop ( void )
 {
     StopWind();
 
     UpdateClientControls ();
-
+    
+    doRescaling = false;
     while (oldpolltime<oldtime)
     {
         CheckUnPause();
@@ -2018,6 +2022,7 @@ void PauseLoop ( void )
                 DrawTiledRegion( 0, 16, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 32, 0, 16, shape );
                 DisableScreenStretch();//dont strech when we go BACK TO GAME
                 DrawPlayScreen(true);//repaint ammo and life stat
+                doRescaling = true;
                 VW_UpdateScreen ();//update screen
             }
             StartupClientControls();

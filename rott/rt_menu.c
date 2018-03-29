@@ -775,6 +775,7 @@ CP_MenuNames VisualOptionsNames[] =
 {
     "SCREEN RESOLUTION",
     "ADJUST FOCAL WIDTH",
+    "HUD SCALING",
     "DISPLAY OPTIONS"
 };
 
@@ -836,7 +837,7 @@ CP_itemtype DisplayOptionsItems[] = {
     {1, "", 'B', NULL}
 };
 
-CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 3, 0, 43, VisualOptionsNames, mn_largefont };
+CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 4, 0, 43, VisualOptionsNames, mn_largefont };
 
 CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 19, 0, 16, ScreenResolutions, mn_tinyfont};
 
@@ -849,11 +850,13 @@ CP_iteminfo DisplayOptionsMenu = { 20, MENU_Y, 3, 0, 43, DisplayOptionsNames, mn
 void CP_ScreenResolution(void);
 
 void CP_DisplayOptions(void);
+void DoAdjustHudScale(void);
 
 CP_itemtype VisualsOptionsMenu[] = 
 {
     {1, "", 'S', (menuptr)CP_ScreenResolution},
     {1, "", 'F', (menuptr)DoAdjustFocalWidth},
+    {1, "", 'H', (menuptr)DoAdjustHudScale},
     {1, "", 'D', (menuptr)CP_DisplayOptions}
 };
 
@@ -5478,6 +5481,15 @@ void DoAdjustFocalWidth (void)
 {
     SliderMenu (&FocalWidthOffset, 200, 0, 44, 81, 194, 1, "block2", NULL,
                 "Adjust Focal Width", "Default", "You Crazy" );
+    DrawVisualsMenu ();
+}
+
+
+extern int hudRescaleFactor;
+void DoAdjustHudScale (void)
+{
+    SliderMenu (&hudRescaleFactor, 200, 0, 44, 81, 194, 1, "block2", NULL,
+                "Adjust Hud Scaling", "Small", "Large" );
     DrawVisualsMenu ();
 }
 

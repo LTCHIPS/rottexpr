@@ -1131,6 +1131,8 @@ void DrawPreCache( void )
 =
 ======================
 */
+
+extern boolean doRescaling;
 void PreCache( void )
 {
     int i;
@@ -1149,6 +1151,8 @@ void PreCache( void )
     double Gs;
     Gs = (iGLOBAL_SCREENWIDTH*100/320);
     Gs = Gs / 100;
+    
+    doRescaling = false;
 
 //SetTextMode (  );
 
@@ -1342,6 +1346,7 @@ void PreCache( void )
 #if (PRECACHETEST == 1)
     SoftError("<<<<<<<<<<<<<<<<<<<<<<<Precaching done\n");
 #endif
+    doRescaling = true;
 }
 
 
