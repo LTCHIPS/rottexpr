@@ -3052,6 +3052,8 @@ void DoLoadGameSequence ( void )
     VL_CopyDisplayToHidden ();
 
     CalcTics();
+    
+    DisableHudStretch();
     for (i=0; i<time; i+=tics)
     {
         CalcTics();
@@ -3075,6 +3077,7 @@ void DoLoadGameSequence ( void )
     DrawTiledRegion( 0, 16, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 32, 0, 16, shape );//bna++
     DrawPlayScreen(false);
     DisableScreenStretch();
+    EnableHudStretch();
     SHAKETICS = 0xFFFF;
     //bna section end
 }

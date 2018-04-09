@@ -5487,8 +5487,8 @@ void DoAdjustFocalWidth (void)
 
 extern int hudRescaleFactor;
 void DoAdjustHudScale (void)
-{
-    SliderMenu (&hudRescaleFactor, 200, 0, 44, 81, 194, 1, "block2", NULL,
+{   
+    SliderMenu (&hudRescaleFactor, 10, 0, 44, 81, 194, 1, "block2", NULL,
                 "Adjust Hud Scaling", "Small", "Large" );
     DrawVisualsMenu ();
 }

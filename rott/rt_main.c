@@ -1310,6 +1310,7 @@ void GameLoop (void)
         case ex_resetgame:
 
             // SetTextMode (  ); //12345678
+            
             EnableScreenStretch();//bna++ shut on streech mode
             InitCharacter();
 
@@ -1401,7 +1402,7 @@ void GameLoop (void)
 
         case ex_stillplaying:
             InitializeMessages();
-
+            EnableHudStretch();
             SHAKETICS = 0xFFFF;
             if (modemgame==true)
             {
@@ -1420,6 +1421,7 @@ void GameLoop (void)
 //		   SetTextMode (  ); //12345678
             Died ();
             StopWind();
+            DisableHudStretch();
             DisableScreenStretch();//bna++ shut off streech mode
             while (damagecount>0)
                 DoBorderShifts();
@@ -1466,7 +1468,6 @@ void GameLoop (void)
                     }
                     else
                     {
-                        
                         fizzlein = true;
                         SetupGameLevel ();
                         UpdateTriads(player,0);
@@ -1474,7 +1475,6 @@ void GameLoop (void)
                     }
                 }
             }
-            doRescaling = true;
             break;
 
         case ex_warped:
@@ -1657,7 +1657,6 @@ boolean CheckForQuickLoad  (void )
 {
 
     EnableScreenStretch();//bna++
-
     if ( pickquick )
     {
         SetupMenuBuf();
@@ -2005,7 +2004,6 @@ void PauseLoop ( void )
 
     UpdateClientControls ();
     
-    doRescaling = false;
     while (oldpolltime<oldtime)
     {
         CheckUnPause();
@@ -2022,7 +2020,7 @@ void PauseLoop ( void )
                 DrawTiledRegion( 0, 16, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 32, 0, 16, shape );
                 DisableScreenStretch();//dont strech when we go BACK TO GAME
                 DrawPlayScreen(true);//repaint ammo and life stat
-                doRescaling = true;
+                EnableHudStretch();
                 VW_UpdateScreen ();//update screen
             }
             StartupClientControls();

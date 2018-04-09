@@ -164,6 +164,8 @@ static int playeruniformcolor;
 #define BONUSBONUS   100000
 
 
+extern Queue * sdl_draw_obj_queue;
+
 extern void VL_MemToScreenClipped (byte *source, int width, int height, int x, int y);
 void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, boolean up, boolean bufferofsonly);
 extern void    MoveScreenUpLeft();
@@ -409,6 +411,7 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
     }
 }
 int topBarCenterOffsetX;
+extern int hudRescaleFactor;
 
 //******************************************************************************
 //
@@ -431,7 +434,7 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
-            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 0,16, shape );
         }
         shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
         
@@ -456,14 +459,18 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
                 
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
             
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-                  
-            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
-        }
             
-        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+            //enqueue(sdl_draw_obj_queue, shape);
+            
+            GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
+        }
+        
+        
+        
+        //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
         //}
 
@@ -3461,6 +3468,7 @@ void LevelCompleted
     EndBonusSkip       = false;
     EndBonusStartY     = 90;
 
+    
     EnableScreenStretch();
     tmpPic = ( pic_t * )W_CacheLumpName( "mmbk", PU_CACHE, Cvt_pic_t, 1 );
     VWB_DrawPic( 0, 0, tmpPic );
@@ -5229,8 +5237,7 @@ int LoadBuffer (byte ** dest, byte ** src)
 //
 //******************************************************************************
 
-
-extern unsigned int freeSlot;
+extern boolean doRescaling;
 
 boolean LoadTheGame (int num, gamestorage_t * game)
 {

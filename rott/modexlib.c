@@ -42,6 +42,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h" // for GamePaused
 #include "myprint.h"
 #include "rt_view.h"
+#include "Queue.h"
+#include "lumpy.h"
+//#include <SDL2/SDL_image.h>
+
 
 static void StretchMemPicture ();
 // GLOBAL VARIABLES
@@ -53,6 +57,7 @@ extern int iG_X_center;
 extern int iG_Y_center;
 char 	   *iG_buf_center;
 
+
 SDL_Surface *sdl_surface = NULL;
 
 SDL_Window * window = NULL;
@@ -62,6 +67,12 @@ static SDL_Renderer * renderer = NULL;
 SDL_Surface *unstretch_sdl_surface = NULL;
 
 static SDL_Texture *sdl_texture = NULL;
+
+SDL_Surface *temp = NULL;
+
+Queue *sdl_draw_obj_queue = NULL;
+
+boolean doRescaling = false;
 
 int    linewidth;
 //int    ylookup[MAXSCREENHEIGHT];
@@ -439,12 +450,6 @@ void GraphicsMode ( void )
     {
         Error ("Could not initialize SDL\n");
     }
-
-#if defined(PLATFORM_WIN32) || defined(PLATFORM_MACOSX)
-    // FIXME: remove this.  --ryan.
-    flags = SDL_FULLSCREEN;
-    
-#endif
     
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
@@ -477,11 +482,20 @@ void GraphicsMode ( void )
     SDL_SetSurfaceRLE(sdl_surface, 1);
                                         
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
+    
+    //sdl_draw_obj_queue = malloc(sizeof(Queue));
+    
+    //queueInit(sdl_draw_obj_queue, sizeof(SDLDrawObj));
+    
     //ToggleFullscreen();
     if (window == NULL)
     {
         Error ("Could not set video mode\n");
     }
+    //temp = IMG_Load("C:\\Users\\LTCHIPS\\Desktop\\ROTT DEV BUILD\\rott\\HEALTH1C.png");
+    
+    
+    
 }
 
 /*
@@ -731,11 +745,77 @@ void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect
 
 int hudRescaleFactor = 1;
 
-boolean doRescaling = false;
+/*
+void DrawObjsInSDLQueue(SDL_Texture * tex)
+{
+    SDL_SetRenderTarget(renderer, tex);
+    //SDL_LockTexture(tex,NULL, sdl_surface->pixels, iGLOBAL_SCREENBWIDE);
+    
+    while(sdl_draw_obj_queue->sizeOfQueue != 0)
+    {   
+        SDLDrawObj * thing = sdl_draw_obj_queue->head->data;
+        
+        
+        SDL_Surface * tempSurf = SDL_CreateRGBSurfaceWithFormatFrom( thing->data, (int) thing->shape->width,
+                                (int) thing->shape->height, 8, (int)thing->shape->width, sdl_surface->format->format);
+        
+        //SDL_LockSurface(tempSurf);
+        
+        
+        //tempSurf->pixels = (byte *) &thing->data;
+        
+        //SDL_UnlockSurface(tempSurf);
+        
+        if(tempSurf == NULL)
+        {
+            Error("Failed to make temporary Surface when rendering things in SDL");
+            exit(1);
+        }
+        
+        SDL_Texture * tempTex = SDL_CreateTextureFromSurface(renderer, tempSurf);
+        
+        if(tempTex == NULL)
+        {
+            Error("Failed to make temporary Texture when rendering things in SDL");
+            exit(1);
+        }
+        
+        SDL_Rect newCoords = (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor};
+        
+        SDL_RenderCopy(renderer, tempTex, NULL, &newCoords);
+        
+        SDL_FreeSurface(tempSurf);
+        
+        SDL_DestroyTexture(tempTex);
+        
+        dequeue(sdl_draw_obj_queue, thing);
+        
+    
+    }
+    //SDL_SetRenderTarget(renderer, NULL);
+    
+    //SDL_RenderCopy(renderer, tex, NULL, NULL);
+    
+    
+    //SDL_UnlockTexture(tex);
+    
+    SDL_SetRenderTarget(renderer, NULL);
+    
+    //SDL_RenderPresent(renderer);
+    
+
+}
+*/
+
+
+
 
 void RenderSurface(void)
 {
     SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
+    
+    //temp = SDL_ConvertSurface(temp, sdl_surface->format, (int)NULL);
+    
     if (newTex == NULL) 
     {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
@@ -743,6 +823,7 @@ void RenderSurface(void)
     }
    
     SDL_RenderClear(renderer);
+    
     SDL_RenderCopy(renderer, newTex, NULL, NULL);
     
     if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
@@ -753,15 +834,16 @@ void RenderSurface(void)
         if(SHOW_BOTTOM_STATUS_BAR())
             RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
                (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+                   
     }
+    
+    //SDL_RenderCopy(renderer, newTex, NULL, NULL);
     
     SDL_RenderPresent(renderer);
     
     SDL_DestroyTexture(newTex);
 
 }
-
-
 
 /* C version of rt_vh_a.asm */
 
@@ -775,6 +857,7 @@ void VH_UpdateScreen (void)
     }
     
     RenderSurface();
+    
 }
 
 
@@ -817,7 +900,6 @@ void XFlipPage ( void )
 
 #endif
 
-
 void EnableScreenStretch(void)
 {
     int i,offset;
@@ -856,6 +938,15 @@ void DisableScreenStretch(void)
     
 }
 
+void EnableHudStretch(void)
+{
+    doRescaling = 1;
+}
+
+void DisableHudStretch(void)
+{
+    doRescaling = 0;
+}
 
 // bna section -------------------------------------------
 static void StretchMemPicture ()

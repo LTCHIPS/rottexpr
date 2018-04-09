@@ -747,7 +747,7 @@ void SetupScreen ( boolean flip )
     {
         shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
         //DrawTiledRegion( 0, 16, 320, 200 - 32, 0, 16, shape );
-        DrawTiledRegion( 0, 16, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 32, 0, 16, shape );//bna++
+        DrawTiledRegion( 0, 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 0, 16, shape );//bna++
     }
 
     if ( viewsize == 0 )
