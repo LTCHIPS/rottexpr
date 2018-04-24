@@ -28,7 +28,7 @@ CPPFLAGS += $(EXTRACPPFLAGS)
 LDFLAGS += $(EXTRALDFLAGS)
 
 LDLIBS += $(shell sdl2-config --libs)
-LDLIBS += -lSDL_mixer
+LDLIBS += -lSDL2_mixer
 LDLIBS += $(EXTRALDLIBS)
 
 OBJS :=
