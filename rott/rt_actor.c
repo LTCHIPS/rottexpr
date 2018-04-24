@@ -1594,6 +1594,10 @@ void StandardEnemyInit(objtype *ob,int dir)
 void OutfitBlitzguardWith(objtype *ob)
 {
     int number = GameRandomNumber("outfitting blitzguard",0);
+    
+    srand((unsigned) number);
+    
+    number = rand() % 400;
 
     if (number < 100)
     {
