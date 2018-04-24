@@ -2,11 +2,14 @@ Based off of the icculus Rise of the Triad source port (can be found here: https
 
 This source port of Rise of the Triad features the following:
 
+Now runs off of SDL2!
 Support for resolutions from 320x200 all the way to 3840x2160
 Adaptive HUD positioning (no more status bar being off to the side)
+HUD scaling (HUD scaling for bottomless HUD coming later)
+Support for bordered and borderless windowed modes
 
 New gameplay options including the following
-	Blitzguards being outfitted with anything from the missile arsenal!
+	Blitzguards being outfitted with any weapon from the missile/magic weapon arsenal!
 	You can now pick up ammo from dropped missile weapons!
 	A special respawning enemy game mode called ZomROTT, where you have to gib your enemies to keep them from coming back!
 	Toggleable Auto Aim
@@ -15,12 +18,11 @@ New gameplay options including the following
 
 And all of the improvements made in the icculus source port...
 
-
 To run the game you'll need the following things:
 
-SDL.dll (https://www.libsdl.org/download-1.2.php)
+SDL.dll (https://www.libsdl.org/download-2.0.php)
 
-SDL_mixer.dll (https://www.libsdl.org/projects/SDL_mixer/release-1.2.html)
+SDL_mixer.dll (https://www.libsdl.org/projects/SDL_mixer/)
 
 And the files:
 
@@ -52,8 +54,8 @@ as well as the SDL_mixer developement libaries (https://www.libsdl.org/projects/
 
 For linux users, just install the following two packages using "apt-get"
 
-libsdl1.2-dev
-libsdl-mixer1.2-dev
+libsdl2-dev
+libsdl2-mixer-dev
 
 Before running make on the project, double check the first few lines of the Makefile and make sure you build the right version.
 
