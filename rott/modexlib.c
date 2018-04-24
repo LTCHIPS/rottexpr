@@ -70,7 +70,7 @@ static SDL_Texture *sdl_texture = NULL;
 
 SDL_Surface *temp = NULL;
 
-Queue *sdl_draw_obj_queue = NULL;
+//Queue *sdl_draw_obj_queue = NULL;
 
 boolean doRescaling = false;
 
@@ -492,9 +492,6 @@ void GraphicsMode ( void )
     {
         Error ("Could not set video mode\n");
     }
-    //temp = IMG_Load("C:\\Users\\LTCHIPS\\Desktop\\ROTT DEV BUILD\\rott\\HEALTH1C.png");
-    
-    
     
 }
 
@@ -730,7 +727,6 @@ void VL_DePlaneVGA (void)
 {
 }
 
-//DO NOT CALL UNTIL AFTER THE INITIAL SCENE IS RENDERERED
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
     SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
@@ -814,8 +810,6 @@ void RenderSurface(void)
 {
     SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
-    //temp = SDL_ConvertSurface(temp, sdl_surface->format, (int)NULL);
-    
     if (newTex == NULL) 
     {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
@@ -836,8 +830,6 @@ void RenderSurface(void)
                (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
                    
     }
-    
-    //SDL_RenderCopy(renderer, newTex, NULL, NULL);
     
     SDL_RenderPresent(renderer);
     
