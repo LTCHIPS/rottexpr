@@ -458,8 +458,14 @@ void DrawPlayScreen (boolean bufferofsonly)
         if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-                
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
+            
+            
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3, 10,10, shape );
+            
+            //apparently the line below was causing segfaults on linux...
+            
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
             
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
             
