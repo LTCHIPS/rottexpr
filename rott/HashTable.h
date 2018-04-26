@@ -1,7 +1,7 @@
 
 /* 
  * File:   HashTable.h
- * Author: LTCHIPS
+ * Author: Steven LeVesque
  *
  * Created on March 13, 2018, 5:10 PM
  */
@@ -9,18 +9,18 @@
 #ifndef HASHTABLE_H
 #define HASHTABLE_H
 
+typedef struct listNode 
+{
+    int key;
+    int data;
+} listNode;
+
+
 typedef struct HashTable
 {
     int totalSize;
-    int * keys;
-    int * table;
+    listNode ** table;
 } HashTable;
-
-typedef struct Key 
-{
-    int IndexInTable;
-    int IndexInLinkedList;
-} Key;
 
 void InitHashTable(HashTable * hashTable, int initSize);
 

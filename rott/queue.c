@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Queue.h"
+#include "queue.h"
 
 //Fetched from https://codereview.stackexchange.com/questions/141238/implementing-a-generic-queue-in-c
 
