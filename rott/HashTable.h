@@ -11,6 +11,7 @@
 
 typedef struct listNode 
 {
+    int isAvaliable;
     int key;
     int data;
 } listNode;

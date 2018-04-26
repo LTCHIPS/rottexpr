@@ -13,10 +13,30 @@ void InitHashTable(HashTable * hashTable, int initSize)
     hashTable->totalSize = initSize;
     
     hashTable->table = calloc(sizeof(listNode), initSize);
+    
+    listNode * emptyNode = malloc(sizeof(listNode));
+    
+    emptyNode->isAvaliable = 1;
+    
+    emptyNode->key = -1;
+    emptyNode->data = -1;
+    
+    int x;
+    
+    for(x = 0; x < initSize; x++)
+    {
+        listNode * node = malloc(sizeof(listNode));
+        
+        memcpy(node, emptyNode, sizeof(&emptyNode));
+        
+        hashTable->table[x] = node;
+
+    }
+    
     //hashTable->table = malloc(sizeof(LinkedList) * initSize);
     
-    //memset(hashTable->table,0, sizeof(LinkedList) * initSize);
-    memset(hashTable->table, NULL, sizeof(listNode)*initSize);
+    //memset(hashTable->table,emptyNode, sizeof(listNode) * initSize);
+    //memcpy(hashTable->table, emptyNode, sizeof(listNode)*initSize);
 }
 
 int HashFunc(HashTable * hashTable, int key)
@@ -40,7 +60,9 @@ void Delete(HashTable * hashTable, int key)
     //LinkedList * list = hashTable->table[index];
     
     //DeleteWithKey(list, key);
-    free(&hashTable->table[index]);
+    //free(&hashTable->table[index]);
+    hashTable->table[index]->isAvaliable = 0;
+    
 }
 
 void ClearHashTable (HashTable * hashTable)
@@ -63,7 +85,7 @@ void Insert(HashTable * hashTable, int key, int item)
     int index = HashFunc(hashTable,key);
     
     
-    while(hashTable->table[index] != NULL) 
+    while(hashTable->table[index]->isAvaliable == 0) 
     {
       //go to next cell
         ++index;
@@ -72,13 +94,12 @@ void Insert(HashTable * hashTable, int key, int item)
         index %= hashTable->totalSize;
     }
     
-    listNode * newNode = malloc(sizeof(listNode));
+    //listNode * newNode = malloc(sizeof(listNode));
     
-    newNode->data = item;
-    newNode->key = key;
-	
-    hashTable->table[index] = newNode;
-
+    hashTable->table[index]->data = item;
+    hashTable->table[index]->key = key;
+    hashTable->table[index]->isAvaliable = 0;
+    
 }
 
 int Lookup(HashTable * hashTable, int key)
@@ -89,12 +110,12 @@ int Lookup(HashTable * hashTable, int key)
     
     
     //If it starts off at a NULL spot, it never existed...
-    if (hashTable->table[index] == NULL)
+    if (hashTable->table[index] == 0)
     {
         return 0;
     }
     
-    while(hashTable->table[index]->key != key) 
+    while(hashTable->table[index]->key != key)
     {
       //go to next cell
         ++index;
