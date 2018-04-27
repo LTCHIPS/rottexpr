@@ -44,6 +44,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "queue.h"
 #include "lumpy.h"
+#include "SDL2/SDL2_rotozoom.h"
 //#include <SDL2/SDL_image.h>
 
 
@@ -59,6 +60,8 @@ char 	   *iG_buf_center;
 
 
 SDL_Surface *sdl_surface = NULL;
+
+static SDL_Surface * sdl_zoomed_surface = NULL;
 
 SDL_Window * window = NULL;
 
@@ -453,11 +456,6 @@ void GraphicsMode ( void )
     
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
-    //SDL_WM_SetCaption ("Rise of the Triad", "ROTT");
-    //SDL_ShowCursor (0);
-//    sdl_surface = SDL_SetVideoMode (320, 200, 8, flags);
-    
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     if (sdl_fullscreen)
         flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -467,31 +465,25 @@ void GraphicsMode ( void )
                                iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT,
                                flags);
     
-    //SDL_CreateWindowAndRenderer(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 0, &window, &renderer);
+    if (window == NULL)
+    {
+        Error ("Could not set video mode\n");
+        exit(1);
+    }
     
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
     
     sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888,
                                     SDL_TEXTUREACCESS_STREAMING, iGLOBAL_SCREENWIDTH,
                                     iGLOBAL_SCREENHEIGHT);
     
-    
-    //sdl_surface = SDL_SetVideoMode (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 8, flags);
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
+    
+    
          
     SDL_SetSurfaceRLE(sdl_surface, 1);
                                         
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-    
-    //sdl_draw_obj_queue = malloc(sizeof(Queue));
-    
-    //queueInit(sdl_draw_obj_queue, sizeof(SDLDrawObj));
-    
-    //ToggleFullscreen();
-    if (window == NULL)
-    {
-        Error ("Could not set video mode\n");
-    }
     
 }
 
@@ -927,6 +919,7 @@ void DisableScreenStretch(void)
     page3start = sdl_surface->pixels;
     StretchScreen = 0;
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
+    //SDL_RenderSetLogicalSize(renderer, 320, 200);
     
 }
 
@@ -1039,6 +1032,81 @@ void sdl_handle_window_events(void)
         }
     
     }
+
+}
+
+
+
+void FlipPageRotoZoom (int angle, int zoom )
+{   
+    //SDL_RenderSetIntegerScale(renderer, SDL_FALSE);
+    
+    if (StretchScreen) { //bna++
+        StretchMemPicture ();
+    } else {
+        DrawCenterAim ();
+    }
+    
+    int zoomedSurfWidth = 0;
+    
+    int zoomedSurfHeight = 0; 
+    
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+    
+    //SDL_Surface * temp = SDL_ConvertSurfaceFormat(sdl_surface, SDL_PIXELFORMAT_ABGR32,0);
+    
+    rotozoomSurfaceSize(sdl_surface->w, sdl_surface->h, 0, 2, &zoomedSurfWidth, &zoomedSurfHeight);
+    
+    sdl_zoomed_surface = SDL_CreateRGBSurface(0,zoomedSurfWidth,zoomedSurfHeight,8,0,0,0,0);
+    
+    if (sdl_zoomed_surface == NULL)
+    {
+        Error("Out of memory for rotated surface");
+        exit(1);
+    
+    }
+    
+    sdl_zoomed_surface = rotozoomSurface(sdl_surface, 0, 2, 0);
+    
+    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_zoomed_surface);
+    
+    if (newTex == NULL) 
+    {
+        Error("CreateTextureFromSurface failed: %s \n", SDL_GetError());
+        exit(1);
+    }
+   
+    
+    SDL_RenderClear(renderer);
+    
+    SDL_RenderCopyEx(renderer, newTex, NULL, NULL, angle, NULL, SDL_FLIP_NONE);
+    
+/*
+    if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
+    {
+        if(SHOW_TOP_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
+                   (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
+        if(SHOW_BOTTOM_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+                   
+    }
+*/
+    
+    SDL_RenderPresent(renderer);
+    
+    SDL_DestroyTexture(newTex);
+    
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    
+    //RenderSurface();
+
+}
+
+void FreeSDLSurfaceZoom()
+{
+    SDL_FreeSurface(sdl_zoomed_surface);
 
 }
 

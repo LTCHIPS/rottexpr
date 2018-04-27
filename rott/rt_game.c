@@ -460,8 +460,8 @@ void DrawPlayScreen (boolean bufferofsonly)
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
             
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3, 10,10, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
             
             //apparently the line below was causing segfaults on linux...
             
@@ -473,8 +473,6 @@ void DrawPlayScreen (boolean bufferofsonly)
             
             GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
-        
-        
         
         //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 

@@ -3258,6 +3258,8 @@ void ShutdownRotateBuffer ( void )
 //
 //******************************************************************************
 
+void FlipPageRotoZoom(int angle, int zoom);
+
 void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
 {
     int anglestep;
@@ -3281,28 +3283,39 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     DisableScreenStretch();//bna++
 
 
-    anglestep=((endangle-startangle)<<16)/time;
-    scalestep=((endscale-startscale)<<6)/time;
+    //anglestep=((endangle-startangle)<<16)/time;
+    //scalestep=((endscale-startscale)<<6)/time;
+    
+    anglestep = (endangle-startangle)/time;
+    scalestep = (endscale-startscale)/time;
 
-    angle=(startangle<<16);
+    //angle=(startangle<<16);
+    
+    angle = startangle;
+    
+    scale = startscale;
 
-    scale=(startscale<<6);
+    //scale=(startscale<<6);
 
     CalcTics();
     CalcTics();
     for (i=0; i<time; i+=tics)
     {   //zxcv
-        DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
-        FlipPage();
+        //DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
+        FlipPageRotoZoom(angle,scale );
+        
+        //FlipPage();
         scale+=(scalestep*tics);
         angle+=(anglestep*tics);
         CalcTics();
     }
+    
+    FreeSDLSurfaceZoom();
 
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
-    FlipPage();
+    //FlipPage();
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
-    FlipPage();
+    //FlipPage();
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
     CalcTics();
     CalcTics();

@@ -14,7 +14,7 @@ ROTT ?= rott
 
 # Regular build flags and rules
 
-CC ?= gcc
+CC ?= gccs
 
 CFLAGS ?= -g -O2
 CFLAGS += -Wall -Wno-unused
@@ -29,6 +29,7 @@ LDFLAGS += $(EXTRALDFLAGS)
 
 LDLIBS += $(shell sdl2-config --libs)
 LDLIBS += -lSDL2_mixer
+LDLIBS += -lSDL2_gfx
 LDLIBS += $(EXTRALDLIBS)
 
 OBJS :=
