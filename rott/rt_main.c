@@ -24,19 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stddef.h>
 #include <fcntl.h>
 #include <string.h>
-
-#ifdef DOS
-#include <malloc.h>
-#include <dos.h>
-#include <io.h>
-#include <conio.h>
-#include <graph.h>
-#include <process.h>
-#include <direct.h>
-#include <bios.h>
-#else
 #include <signal.h>
-#endif
 
 #if USE_SDL
 /* Need to redefine main to SDL_main on some platforms... */
@@ -116,9 +104,6 @@ boolean dopefish;
 
 boolean newlevel = false;
 boolean infopause;
-#ifdef DOS
-boolean SOUNDSETUP=false;
-#endif
 boolean quiet = false;
 
 #if (DEVELOPMENT == 1)
@@ -157,10 +142,8 @@ void Init_Tables (void);
 void CheckRemoteRidicule ( int scancode );
 void SetRottScreenRes (int Width, int Height);
 
-#ifndef DOS
 extern void crash_print (int);
 extern int setup_homedir (void);
-#endif
 
 //extern int G_argc;
 //extern char G_argv[30][80];
@@ -182,10 +165,9 @@ int main (int argc, char *argv[])
 {
     char *macwd;
     extern char *BATTMAPS;
-#ifndef DOS
+    
     _argc = argc;
     _argv = argv;
-#endif
 
 #if defined(PLATFORM_MACOSX)
     {
@@ -207,11 +189,9 @@ int main (int argc, char *argv[])
     }
 #endif
 
-#ifndef DOS
     signal (11, crash_print);
 
     if (setup_homedir() == -1) return 1;
-#endif
 
     // Set which release version we're on
     gamestate.Version = ROTTVERSION;
@@ -333,32 +313,6 @@ int main (int argc, char *argv[])
                 printf( "Sound FX disabled.\n" );
         }
 
-#ifdef DOS
-        if ( status1 || status2 || status3 )
-        {
-            printf( "\n\nROTT was unable to initialize your " );
-            if ( status1 )
-            {
-                printf( "music " );
-                MusicMode = 0;
-            }
-            if ( status2 || status3 )
-            {
-                if ( status1 )
-                {
-                    printf( "or " );
-                }
-                printf( "sound fx " );
-
-                FXMode = 0;
-            }
-
-            printf( "hardware.\n"
-                    "Now entering sound setup.\n" );
-            SOUNDSETUP = true;
-        }
-#endif
-
         Init_Tables ();
         InitializeRNG ();
         InitializeMessages();
@@ -401,14 +355,6 @@ int main (int argc, char *argv[])
 //   VL_SetPalette(origpal);
 //   SetBorderColor(155);
     SetViewSize(8);
-
-#ifdef DOS
-    if ( SOUNDSETUP )
-    {
-        SwitchPalette( origpal, 35 );
-        CP_SoundSetup();
-    }
-#endif
 
     playstate = ex_titles;
 
@@ -478,10 +424,6 @@ void DrawRottTitle ( void )
     {
         SetTextMode();
         TurnOffTextCursor ();
-#ifdef DOS
-        if (CheckParm ("SOUNDSETUP") == 0)
-        {
-#endif
 #ifdef ANSIESC
             printf("\n\n\n");
 #endif
@@ -531,24 +473,6 @@ void DrawRottTitle ( void )
 #endif
 
             UL_ColorBox (0, 0, 80, 2, 0x1e);
-#ifdef DOS
-        }
-        else
-        {
-            printf("\n\n");
-            strcpy (title,"Rise of the Triad Sound Setup  Version ");
-            strcat (title,itoa(ROTTMAJORVERSION,&buf[0],10));
-            strcat (title,".");
-            strcat (title,itoa(ROTTMINORVERSION,&buf[0],10));
-
-            px=(80-strlen(title))>>1;
-            py=0;
-
-            UL_printf(title);
-
-            UL_ColorBox (0, 0, 80, 1, 0x1e);
-        }
-#endif
     }
     else
     {
@@ -568,9 +492,6 @@ void CheckCommandLineParameters( void )
     int i,n;
 
     infopause=false;
-#ifdef DOS
-    SOUNDSETUP = false;
-#endif
     tedlevel=false;
     NoWait=false;
     NoSound=false;
@@ -632,9 +553,6 @@ void CheckCommandLineParameters( void )
         printf ("   MONO       - Enable mono-monitor support.\n");
         printf ("   SCREENSHOTS- Clean screen capture for shots.\n");
         printf ("   PAUSE      - Pauses startup screen information.\n");
-#ifdef DOS
-        printf ("   SOUNDSETUP - Setup sound for ROTT\n");
-#endif
         printf ("   ENABLEVR   - Enable VR helmet input devices\n");
         printf ("   NOECHO     - Turn off sound reverb\n");
         printf ("   DEMOEXIT   - Exit program when demo is terminated\n");
@@ -692,9 +610,6 @@ void CheckCommandLineParameters( void )
         printf ("         Tab              - Toggle KillCount display\n");
         printf (" \n");
         printf ("SCREENSHOOT\n");
-#ifdef DOS /* makes no sense under Linux as there are no lbm viewers there */
-        printf ("         Alt+V            - Screenshoot in LBM format\n");
-#endif
         printf ("         Alt+C            - Screenshoot in PCX format\n");
         exit (0);
     }
@@ -800,9 +715,6 @@ void CheckCommandLineParameters( void )
             infopause=true;
             break;
         case 13:
-#ifdef DOS
-            SOUNDSETUP = true;
-#endif
             break;
         case 14:
             startlevel = (ParseNum(_argv[i + 1])-1);
@@ -1685,9 +1597,6 @@ boolean CheckForQuickLoad  (void )
 void ShutDown ( void )
 {
     if ( ( standalone == false )
-#ifdef DOS
-            || ( SOUNDSETUP )
-#endif
        )
     {
         WriteConfig ();
@@ -1703,9 +1612,6 @@ void ShutDown ( void )
 
     ShutdownClientControls();
     I_ShutdownKeyboard();
-#ifdef DOS /* the UL_ErrorStartup() call is commented out... */
-    UL_ErrorShutdown ();
-#endif
     ShutdownGameCommands();
     MU_Shutdown();
     I_ShutdownTimer();
@@ -1781,20 +1687,12 @@ void QuitGame ( void )
     printf("LIGHTRATE =%ld\n",GetLightRateTile());
     printf("\nCENTERY=%ld\n",centery);
 #else
-#ifdef DOS
-    if ( !SOUNDSETUP )
-    {
-#endif
 #if (SHAREWARE==0)
         txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("regend"), PU_CACHE, CvtNull, 1);
 #else
         txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("shareend"), PU_CACHE, CvtNull, 1);
 #endif
-#if DOS
-        for (k = 0; k < 23; k++)
-            printf ("\n");
-        memcpy ((byte *)0xB8000, txtscn, 4000);
-#elif defined (ANSIESC)
+#if defined (ANSIESC)
         DisplayTextSplash (txtscn, 25);
 #endif
 
@@ -1811,18 +1709,6 @@ void QuitGame ( void )
 
         UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
 #endif
-#ifdef DOS
-    }
-#endif
-#endif
-
-#ifdef DOS
-    if ( SOUNDSETUP )
-    {
-        printf( "\nSound setup complete.\n"
-                "Type ROTT to run the game.\n" );
-    }
-    ShutDown();
 #endif
 
     ClearScanCodes();
@@ -2360,34 +2246,7 @@ void CheckRemoteRidicule ( int scancode )
 
 void DoBossKey ( void )
 {
-#ifdef DOS
-    union REGS regs;
-    ShutdownClientControls();
-
-    SetTextMode();
-
-    // move cursor to the row 0 column 4
-    regs.w.ax = 0x0200;
-    regs.w.bx = 0;
-    regs.w.dx = 0x0004;
-    int386(0x10,&regs,&regs);
-    px=0;
-    py=0;
-    UL_printf("C:\\>\n");
-
-    LastScan = 0;
-    IN_WaitForKey ();
-    VL_SetVGAPlaneMode();
-    VL_SetPalette(origpal);
-    SetBorderColor(0);
-    TurnShakeOff();
-    SetupScreen(true);
-    ThreeDRefresh();
-
-    StartupClientControls();
-#else
     STUB_FUNCTION;
-#endif
 }
 
 
@@ -2732,12 +2591,6 @@ void PollKeyboard
         {
             SaveScreen( false );
         }
-#ifdef DOS /* makes no sense under Linux as there are no lbm viewers there */
-        else if ( Keyboard[ sc_Alt] && Keyboard[ sc_V ] )
-        {
-            SaveScreen( true );
-        }
-#endif
 #endif
     }
 #ifdef USE_SDL
@@ -3151,41 +3004,6 @@ void WriteLBMfile (char *filename, byte *data, int width, int height)
 
 void GetFileName (boolean saveLBM)
 {
-#ifdef DOS
-    char num[4];
-    int cnt = 0;
-    struct find_t fblock;
-
-    if (saveLBM)
-        memcpy (savename, "ROTT0000.LBM\0", 13);
-    else
-        memcpy (savename, "ROTT0000.PCX\0", 13);
-
-    if (_dos_findfirst (savename, 0, &fblock) != 0)
-        return;
-
-    do
-    {
-        cnt++;
-        memset (&num[0], 0, 4);
-        itoa (cnt, num, 10);
-
-        if (cnt > 99)
-        {
-            savename[5] = num[0];
-            savename[6] = num[1];
-            savename[7] = num[2];
-        }
-        else if (cnt > 9)
-        {
-            savename[6] = num[0];
-            savename[7] = num[1];
-        }
-        else
-            savename[7] = num[0];
-    }
-    while (_dos_findfirst (savename, 0, &fblock) == 0);
-#else
     int i;
 
     for (i = 0; i < 9999; i++) {
@@ -3203,7 +3021,6 @@ void GetFileName (boolean saveLBM)
             return;
         }
     }
-#endif
 }
 
 //****************************************************************************

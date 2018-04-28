@@ -20,13 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_def.h"
 
-#ifdef DOS
-#include <malloc.h>
-#include <dos.h>
-#include <conio.h>
-#include <io.h>
-#include <direct.h>
-#elif USE_SDL
+#if USE_SDL
 #include "SDL2/SDL.h"
 #endif
 
@@ -339,35 +333,10 @@ void Error (char *error, ...)
 
 
     SetTextMode ();
-#ifdef DOS
-    memcpy ((byte *)0xB8000, &ROTT_ERR, 160*7);
-#elif defined (ANSIESC)
+#if defined (ANSIESC)
     DisplayTextSplash (&ROTT_ERR, 7);
 #endif
     memset (msgbuf, 0, 300);
-
-#ifdef DOS
-    px = ERRORVERSIONCOL-1;
-    py = ERRORVERSIONROW;
-#if (SHAREWARE == 1)
-    UL_printf ("S");
-#else
-    UL_printf ("R");
-#endif
-
-    px = ERRORVERSIONCOL;
-    py = ERRORVERSIONROW;
-#if (BETA == 1)
-    UL_printf ("�");
-#else
-    UL_printf (itoa(ROTTMAJORVERSION,&buf[0],10));
-#endif
-
-    // Skip the dot
-    px++;
-
-    UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
-#endif
 
     va_start (argptr, error);
     vsprintf (&msgbuf[0], error, argptr);
@@ -422,28 +391,6 @@ void Error (char *error, ...)
 
     ShutDown();	// DDOI - moved this so that it doesn't try to access player
     // which is freed by this function.
-
-#ifdef DOS
-    GetPathFromEnvironment( filename, ApogeePath, ERRORFILE );
-    handle=SafeOpenAppend ( filename );
-    for (y=0; y<16; y++)
-    {
-        for (x=0; x<160; x+=2)
-            SafeWrite(handle,(byte *)0xB8000+(y*160)+x,1);
-        i=10;
-        SafeWrite(handle,&i,1);
-        i=13;
-        SafeWrite(handle,&i,1);
-    }
-
-    close(handle);
-
-    if ( SOUNDSETUP )
-    {
-        getch();
-    }
-
-#endif
 
 #if USE_SDL
     SDL_Quit();
@@ -1018,14 +965,8 @@ void _dos_getdate(struct dosdate_t *date)
 
 void GetPathFromEnvironment( char *fullname, const char *envname, const char *filename )
 {
-
-#ifdef DOS
-    char *path;
-    path = getenv( envname );
-#else
     const char *path;
     path = envname;
-#endif
 
     if ( path != NULL )
     {
@@ -1243,13 +1184,6 @@ void SwapIntelShortArray(short *s, int num)
 
 void GetaPalette (byte *palette)
 {
-#ifdef DOS
-    int	i;
-
-    OUTP (PEL_READ_ADR,0);
-    for (i=0 ; i<768 ; i++)
-        palette[i] = inp (PEL_DATA)<<2;
-#else
     int i;
     SDL_Palette *pal = sdl_surface->format->palette;
 
@@ -1260,7 +1194,6 @@ void GetaPalette (byte *palette)
 
         palette += 3;
     }
-#endif
 }
 
 /*
@@ -1275,13 +1208,6 @@ void GetaPalette (byte *palette)
 
 void SetaPalette (byte *pal)
 {
-#ifdef DOS
-    int	i;
-
-    OUTP (PEL_WRITE_ADR,0);
-    for (i=0 ; i<768 ; i++)
-        OUTP (PEL_DATA, pal[i]>>2);
-#else
     SDL_Color cmap[256];
     int i;
 
@@ -1294,18 +1220,10 @@ void SetaPalette (byte *pal)
 
     SDL_SetPaletteColors(sdl_surface->format->palette, cmap, 0, 256);
     //SDL_SetColors (SDL_GetWindowSurface(window), cmap, 0, 256);
-#endif
 }
 
 void GetPalette(char * palette)
 {
-#ifdef DOS
-    int i;
-
-    OUTP(0x03c7,0);
-    for (i=0; i<256*3; i++)
-        *(palette+(unsigned char)i)=inp(0x3c9)<<2;
-#else
     int i;
     SDL_Palette *pal = sdl_surface->format->palette;
 
@@ -1316,7 +1234,6 @@ void GetPalette(char * palette)
 
         palette += 3;
     }
-#endif
 }
 
 void SetPalette ( char * pal )
@@ -1387,17 +1304,6 @@ int US_CheckParm (char *parm, char **strings)
 
 void VL_FillPalette (int red, int green, int blue)
 {
-#ifdef DOS
-    int   i;
-
-    OUTP (PEL_WRITE_ADR,0);
-    for (i=0; i<256; i++)
-    {
-        OUTP (PEL_DATA,red);
-        OUTP (PEL_DATA,green);
-        OUTP (PEL_DATA,blue);
-    }
-#else
     SDL_Color cmap[256];
     int i;
 
@@ -1411,7 +1317,6 @@ void VL_FillPalette (int red, int green, int blue)
     //SDL_SetColors (SDL_GetVideoSurface (), cmap, 0, 256);
     SDL_SetPaletteColors(sdl_surface->format->palette, cmap, 0, 256);
     
-#endif
 }
 
 //===========================================================================
@@ -1426,14 +1331,7 @@ void VL_FillPalette (int red, int green, int blue)
 
 void VL_SetColor  (int color, int red, int green, int blue)
 {
-#ifdef DOS
-    OUTP (PEL_WRITE_ADR,color);
-    OUTP (PEL_DATA,red);
-    OUTP (PEL_DATA,green);
-    OUTP (PEL_DATA,blue);
-#else
     STUB_FUNCTION;
-#endif
 }
 
 //===========================================================================
@@ -1448,14 +1346,7 @@ void VL_SetColor  (int color, int red, int green, int blue)
 
 void VL_GetColor  (int color, int *red, int *green, int *blue)
 {
-#ifdef DOS
-    OUTP (PEL_READ_ADR,color);
-    *red   = inp (PEL_DATA);
-    *green = inp (PEL_DATA);
-    *blue  = inp (PEL_DATA);
-#else
     STUB_FUNCTION;
-#endif
 }
 
 //===========================================================================
@@ -1490,16 +1381,6 @@ void VL_NormalizePalette (byte *palette)
 
 void VL_SetPalette (byte *palette)
 {
-#ifdef DOS
-    int   i;
-
-    OUTP (PEL_WRITE_ADR, 0);
-
-    for (i = 0; i < 768; i++)
-    {
-        OUTP (PEL_DATA, gammatable[(gammaindex<<6)+(*palette++)]);
-    }
-#else
     SDL_Color cmap[256];
     int i;
 
@@ -1512,8 +1393,7 @@ void VL_SetPalette (byte *palette)
 
     //SDL_SetColors (SDL_GetWindowSurface(window), cmap, 0, 256);
     SDL_SetPaletteColors(sdl_surface->format->palette, cmap, 0, 256);
-    
-#endif
+
 }
 
 
@@ -1532,14 +1412,6 @@ void VL_SetPalette (byte *palette)
 
 void VL_GetPalette (byte *palette)
 {
-#ifdef DOS
-    int   i;
-
-    OUTP (PEL_READ_ADR, 0);
-
-    for (i = 0; i < 768; i++)
-        *palette++ = inp (PEL_DATA);
-#else
     int i;
     SDL_Palette *pal = sdl_surface->format->palette;
     //SDL_Palette *pal = SDL_GetVideoSurface()->format->palette;
@@ -1551,7 +1423,6 @@ void VL_GetPalette (byte *palette)
 
         palette += 3;
     }
-#endif
 }
 
 
@@ -1565,42 +1436,7 @@ void VL_GetPalette (byte *palette)
 
 void UL_DisplayMemoryError ( int memneeded )
 {
-#ifdef DOS
-    char buf[4000];
-    int i;
-
-    ShutDown ();
-    TextMode ();
-
-    for (i = 0; i < 19; i++)
-        printf ("\n");
-
-    memcpy (buf, &ROTT_ERR, 4000);
-    memcpy ((byte *)0xB8000, &buf[160*7], 4000-(160*7));
-
-    px = ERRORVERSIONCOL;
-    py = ERRORVERSIONROW;
-#if (BETA == 1)
-    UL_printf ("�");
-#else
-    UL_printf (itoa(ROTTMAJORVERSION,&buf[0],10));
-#endif
-    px++;
-
-    UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
-
-    px = LOWMEMORYCOL;
-    py = LOWMEMORYROW;
-    UL_printf ("You need ");
-    UL_printf (itoa(memneeded,&buf[0],10));
-    UL_printf (" bytes more memory");
-    if ( SOUNDSETUP )
-    {
-        getch();
-    }
-#else
     STUB_FUNCTION;
-#endif
     exit (0);
 }
 
@@ -1615,29 +1451,10 @@ void UL_DisplayMemoryError ( int memneeded )
 
 void UL_printf (byte *str)
 {
-#ifdef DOS
-    byte *s;
-    byte *screen;
-
-    s = str;
-    screen = (byte *)(0xB8000 + (py*160) + (px<<1));
-
-    while (*s)
-    {
-        *screen = *s;
-        s++;
-        screen += 2;
-        px++;
-
-        if ((*s < 32) && (*s > 0))
-            s++;
-    }
-#else
 #ifdef ANSIESC
     printf ("\x1b[%d;%dH%s",py,px,str);
 #else
     printf ("%s ",str);	// Hackish but works - DDOI
-#endif
 #endif
 }
 
@@ -1651,21 +1468,7 @@ void UL_printf (byte *str)
 
 void UL_ColorBox (int x, int y, int w, int h, int color)
 {
-#ifdef DOS
-    byte *screen;
-    int i,j;
-
-
-    for (j=0; j<h; j++)
-    {
-        screen = (byte *)(0xB8000 + ((y+j)*160) + (x<<1) + 1);
-        for (i=0; i<w; i++)
-        {
-            *screen = (byte)color;
-            screen+=2;
-        }
-    }
-#elif defined (ANSIESC)
+#if defined (ANSIESC)
     int i,j;
 
 
@@ -1823,42 +1626,6 @@ char * UL_GetPath (char * path, char *dir)
 
 boolean UL_ChangeDirectory (char *path)
 {
-#ifdef DOS
-    char *p;
-    char dir[9];
-    char *d;
-
-    d = &dir[0];
-    p = path;
-    memset (dir, 0, 9);
-
-    // Check for a drive at the beginning of the path
-    if (*(p+1) == ':')
-    {
-        *d++ = *p++;      // drive letter
-        *d++ = *p++;      // colon
-
-        if (UL_ChangeDrive (dir) == false)
-            return (false);
-    }
-
-    if (*p == SLASHES)
-    {
-        chdir ("\\");
-        p++;
-    }
-
-    d = &dir[0];
-    while (*p)
-    {
-        p = UL_GetPath (p, d);
-
-        if (chdir (d) == -1)
-            return (false);
-    }
-
-    return (true);
-#else
     if (!path || !*path) {
         return true;
     }
@@ -1868,7 +1635,6 @@ boolean UL_ChangeDirectory (char *path)
     }
 
     return true;
-#endif
 }
 
 
@@ -1891,25 +1657,9 @@ boolean UL_ChangeDirectory (char *path)
 
 boolean UL_ChangeDrive (char *drive)
 {
-#ifdef DOS
-    unsigned d, total, tempd;
-
-    d = toupper (*drive);
-
-    d = d - 'A' + 1;
-
-    _dos_setdrive (d, &total);
-    _dos_getdrive (&tempd);
-
-    if (d != tempd)
-        return (false);
-
-    return (true);
-#else
     STUB_FUNCTION;
 
     return false;
-#endif
 }
 
 

@@ -23,14 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <ctype.h>
 #include <stdarg.h>
-
-#ifdef DOS
-#include <conio.h>
-#include <dos.h>
-#include <process.h>
-#include <bios.h>
-#endif
-
 #include "rt_def.h"
 #include "_rt_com.h"
 #include "rt_com.h"
@@ -58,9 +50,6 @@ byte ROTTpacket[MAXCOMBUFFERSIZE];
 int controlsynctime;
 
 // LOCAL VARIABLES
-#ifdef DOS
-static union  REGS   comregs;
-#endif
 
 static int    ComStarted=false;
 static int    transittimes[MAXPLAYERS];
@@ -100,13 +89,7 @@ void InitROTTNET (void)
         return;
     ComStarted=true;
 
-#ifdef DOS
-    netarg=CheckParm ("net");
-    netarg++;
-
-    netaddress=atol(_argv[netarg]);
-    rottcom=(rottcom_t *)netaddress;
-#elif defined(PLATFORM_UNIX)
+#if defined(PLATFORM_UNIX)
     /*
     server-specific options:
     -net: enables netplay
@@ -200,9 +183,6 @@ void InitROTTNET (void)
 
     if (!quiet)
     {
-#ifdef DOS
-        printf("ROTTNET: Communicating on vector %ld\n",(long int)rottcom->intnum);
-#endif
         printf("ROTTNET: consoleplayer=%ld\n",(long int)rottcom->consoleplayer);
     }
 }
@@ -227,9 +207,8 @@ boolean ReadPacket (void)
 
     // Check to see if a packet is ready
 
-#ifdef DOS
-    int386(rottcom->intnum,&comregs,&comregs);
-#elif PLATFORM_UNIX
+
+#ifdef PLATFORM_UNIX
     ReadUDPPacket();
 #endif
 
@@ -323,9 +302,7 @@ void WritePacket (void * buffer, int len, int destination)
 
 //   SoftError( "WritePacket: time=%ld size=%ld src=%ld type=%d\n",GetTicCount(),rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
     // Send It !
-#ifdef DOS
-    int386(rottcom->intnum,&comregs,&comregs);
-#elif PLATFORM_UNIX
+#ifdef PLATFORM_UNIX
     WriteUDPPacket();
 #endif
 

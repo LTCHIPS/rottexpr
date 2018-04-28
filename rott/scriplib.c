@@ -18,12 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 // scriplib.c
-
-#ifdef DOS
-#include <io.h>
-#include <dos.h>
-#endif
-
 #include <fcntl.h>
 #include <string.h>
 

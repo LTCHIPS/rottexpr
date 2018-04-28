@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "HashTable.h"
-//#include "LinkedList.h"
+
 
 #if !defined(ARRAY_SIZE)
     #define ARRAY_SIZE(x) (sizeof((x)) / sizeof((x)[0]))
@@ -33,10 +33,6 @@ void InitHashTable(HashTable * hashTable, int initSize)
 
     }
     
-    //hashTable->table = malloc(sizeof(LinkedList) * initSize);
-    
-    //memset(hashTable->table,emptyNode, sizeof(listNode) * initSize);
-    //memcpy(hashTable->table, emptyNode, sizeof(listNode)*initSize);
 }
 
 int HashFunc(HashTable * hashTable, int key)
@@ -61,7 +57,7 @@ void Delete(HashTable * hashTable, int key)
     
     //DeleteWithKey(list, key);
     //free(&hashTable->table[index]);
-    hashTable->table[index]->isAvaliable = 0;
+    hashTable->table[index]->isAvaliable = 1;
     
 }
 
@@ -108,14 +104,7 @@ int Lookup(HashTable * hashTable, int key)
     
     int origIndex = index;
     
-    
-    //If it starts off at a NULL spot, it never existed...
-    if (hashTable->table[index] == 0)
-    {
-        return 0;
-    }
-    
-    while(hashTable->table[index]->key != key)
+    while(hashTable->table[index]->key != key && hashTable->table[index]->isAvaliable == 0)
     {
       //go to next cell
         ++index;

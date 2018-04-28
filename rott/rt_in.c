@@ -24,12 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <SDL2/SDL_keycode.h>
 #include <SDL2/SDL_mouse.h>
 
-#if PLATFORM_DOS
-#include <conio.h>
-#include <dos.h>
-#include <i86.h>
-#endif
-
 #if USE_SDL
 #include "SDL2/SDL.h"
 #endif
@@ -536,10 +530,6 @@ void IN_GetJoyAbs (word joy, word *xp, word *yp)
     Joy_xb = 1 << Joy_xs;      // Use shift value to get x bit mask
     Joy_ys = joy? 3 : 1;       // Do the same for y axis
     Joy_yb = 1 << Joy_ys;
-
-#ifdef DOS
-    JoyStick_Vals ();
-#else
     if (joy < sdl_total_sticks)
     {
         Joy_x = SDL_JoystickGetAxis (sdl_joysticks[joy], 0);
@@ -548,7 +538,6 @@ void IN_GetJoyAbs (word joy, word *xp, word *yp)
         Joy_x = 0;
         Joy_y = 0;
     }
-#endif
 
     *xp = Joy_x;
     *yp = Joy_y;
@@ -798,9 +787,7 @@ boolean INL_StartJoy (word joy)
 void INL_ShutJoy (word joy)
 {
     JoysPresent[joy] = false;
-#ifndef DOS
     if (joy < sdl_total_sticks) SDL_JoystickClose (sdl_joysticks[joy]);
-#endif
 }
 
 
@@ -1541,7 +1528,6 @@ void QueueLetterInput (void)
     int scancode;
     boolean send = false;
 
-#ifndef PLATFORM_DOS
     /* HACK HACK HACK */
     /*
       OK, we want the new keys NOW, and not when the update gets them.
@@ -1554,7 +1540,6 @@ void QueueLetterInput (void)
     tail = Keytail;
     queuegotit=1;
     /* HACK HACK HACK */
-#endif
 
     while (head != tail)
     {

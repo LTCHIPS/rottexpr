@@ -23,13 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-
-#if PLATFORM_DOS
-#include <malloc.h>
-#include <conio.h>
-#include <io.h>
-#endif
-
 #include "rt_def.h"
 #include "rt_util.h"
 #include "_w_wad.h"

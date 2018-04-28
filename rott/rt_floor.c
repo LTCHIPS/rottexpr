@@ -19,10 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // RT_FLOOR.C
 
-#ifdef DOS
-#include <conio.h>
-#endif
-
 #include "rt_def.h"
 #include "watcom.h"
 #include "rt_floor.h"
@@ -116,61 +112,15 @@ void DrawSky( void )
         ofs=-(1799-(centerskypost+viewheight*200/iGLOBAL_SCREENHEIGHT));
     }
 //ofs=centerskypost;
-#ifdef DOS
-    if (doublestep>0)
     {
-#ifdef DOS
-        for (plane=0; plane<4; plane+=2)
-#endif
         {
-#ifdef DOS
-            VGAMAPMASK((1<<plane)+(1<<(plane+1)));
-            for (dest=plane; dest<viewwidth; dest+=4)
-#else
-            for (dest=0; dest<viewwidth; dest+=2)
-#endif
-            {
-                height=posts[dest].ceilingclip;
-                height2=posts[dest+1].ceilingclip;
-                if (height<height2)
-                    height=height2;
-                if (height<=0)
-                    continue;
-                ang=(angle+pixelangle[dest])&(FINEANGLES-1);
-                src=skysegs[ang]-ofs;
-#ifdef DOS
-                DrawSkyPost((byte *)bufferofs + (dest>>2),src,height);
-#else
-                /* TODO: this isn't right since it's not really optimized */
-                DrawSkyPost((byte *)bufferofs + dest,src,height);
-                DrawSkyPost((byte *)bufferofs + dest + 1,src,height);
-#endif
-            }
-        }
-    }
-    else
-#endif
-    {
-#ifdef DOS
-        for (plane=0; plane<4; plane++)
-#endif
-        {
-#ifdef DOS
-            VGAWRITEMAP(plane);
-            for (dest=plane; dest<viewwidth; dest+=4)
-#else
             for (dest=0; dest<viewwidth; dest++)
-#endif
             {
                 if ((height=posts[dest].ceilingclip)<=0)
                     continue;
                 ang=(angle+pixelangle[dest])&(FINEANGLES-1);
                 src=skysegs[ang]-ofs;
-#ifdef DOS
-                DrawSkyPost((byte *)bufferofs + (dest>>2),src,height);
-#else
                 DrawSkyPost((byte *)bufferofs + dest,src,height);
-#endif
             }
         }
     }
@@ -212,24 +162,12 @@ void DrawFullSky( void )
 
     bufferofs+=screenofs;
 
-#ifdef DOS
-    for (plane=0; plane<4; plane++)
-#endif
     {
-#ifdef DOS
-        VGAWRITEMAP(plane);
-        for (dest=plane; dest<viewwidth; dest+=4)
-#else
         for (dest=0; dest<viewwidth; dest++)
-#endif
         {
             ang=(angle+pixelangle[dest])&(FINEANGLES-1);
             src=skysegs[ang]-ofs;
-#ifdef DOS
-            DrawSkyPost((byte *)bufferofs + (dest>>2),src,viewheight);
-#else
             DrawSkyPost((byte *)bufferofs + dest,src,viewheight);
-#endif
         }
     }
 
@@ -588,86 +526,19 @@ void DrawHLine (int xleft, int xright, int yp)
     dest=(byte *)bufferofs+ylookup[yp];
 
     /* TODO: horizontal isn't as easy as vertical in packed */
-#ifdef DOS
-    if (doublestep>0)
+
     {
-        if (xleft&1)
-            xleft--;
-
-#ifdef DOS
-        for (plane=xleft; plane<xleft+4; plane+=2)
-#endif
         {
-
-#ifdef DOS
-            mr_dest=dest+(plane>>2);
-#else
             mr_dest=dest+xleft;
-#endif
 
             mr_xfrac = startxfrac;
             mr_yfrac = startyfrac;
 
-#ifdef DOS
-            startxfrac+=mr_xstep>>1;
-            startyfrac+=mr_ystep>>1;
-
-            mr_count=((xright-plane)>>2)+1;
-#else
-            mr_count = xright - xleft;
-#endif
-
-            if (mr_count)
-            {
-#ifdef DOS
-                int p;
-                ofs=((plane&3)<<3)+(plane&3)+1;
-//          VGAMAPMASK(*((byte *)mapmasks1+ofs));
-                p=plane&3;
-                VGAMAPMASK((1<<p) + (1<<(p+1)));
-#endif
-                DrawRow(mr_count,mr_dest,buf);
-
-#if 0
-                ofs=(byte)*((byte *)mapmasks2+ofs);
-                if (ofs!=0)
-                {
-                    VGAMAPMASK(ofs);
-                    DrawRow(mr_count,mr_dest+1,buf);
-                }
-#endif
-            }
-        }
-    }
-    else
-#endif
-    {
-#ifdef DOS
-        for (plane=xleft; plane<xleft+4; plane++)
-#endif
-        {
-#ifdef DOS
-            mr_dest=dest+(plane>>2);
-            VGAWRITEMAP(plane&3);
-#else
-            mr_dest=dest+xleft;
-#endif
-
-            mr_xfrac = startxfrac;
-            mr_yfrac = startyfrac;
-
-#ifdef DOS
-            startxfrac+=mr_xstep>>2;
-            startyfrac+=mr_ystep>>2;
-
-            mr_count=((xright-plane)>>2)+1;
-#else
             // back off the pixel increment (orig. is 4x)
             mr_xstep >>= 2;
             mr_ystep >>= 2;
 
             mr_count = xright-xleft+1;
-#endif
 
             if (mr_count)
                 DrawRow(mr_count,mr_dest,buf);
@@ -729,7 +600,6 @@ void DrawPlanes( void )
     }
 }
 
-#ifndef DOS
 void DrawRow(int count, byte * dest, byte * src)
 {
     unsigned frac, fracstep;
@@ -746,4 +616,3 @@ void DrawRow(int count, byte * dest, byte * src)
         frac += fracstep;
     }
 }
-#endif
