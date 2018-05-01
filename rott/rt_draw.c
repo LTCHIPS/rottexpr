@@ -3293,16 +3293,18 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     
     angle = startangle;
     
-    scale = startscale;
+    scale = startscale>>16;
 
     //scale=(startscale<<6);
 
     CalcTics();
     CalcTics();
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+    
     for (i=0; i<time; i+=tics)
     {   //zxcv
         //DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
-        FlipPageRotoZoom(angle,scale );
+        FlipPageRotoZoom((angle), scale);
         
         //FlipPage();
         scale+=(scalestep*tics);
@@ -3312,6 +3314,8 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     
     FreeSDLSurfaceZoom();
 
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
     //FlipPage();
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
@@ -3398,10 +3402,15 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         xst = (((-cx)*s)+((328)<<16))-(cy*c);
         xct = (((-cx)*c)+((397)<<16)+(1<<18)-(1<<16))+(cy*s);
     }//328 397
-    else if ((iGLOBAL_SCREENWIDTH >= 1024 )&&(masked == false)) {
+    else if ((iGLOBAL_SCREENWIDTH == 1024 )&&(masked == false)) {
 	xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
 	xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
    }//388 397
+    else if ((iGLOBAL_SCREENWIDTH >= 1152) && (masked == false))
+    {
+        xst = (((-cx)*s)+((432)<<16))-(cy*c);
+	xct = (((-cx)*c)+((576)<<16)+(1<<18)-(1<<16))+(cy*s);
+    }
 
     mr_xstep=s;
     mr_ystep=c;
@@ -3632,8 +3641,9 @@ void RotationFun ( void )
     while (!Keyboard[sc_Escape])
     {
         IN_UpdateKeyboard ();
-        DrawRotatedScreen(160,100,(byte *)bufferofs,angle,scale,0);
-        FlipPage();
+        //DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);
+        FlipPageRotoZoom(angle, scale);
+        //FlipPage();
         CalcTics();
         INL_GetMouseDelta(&x, &y);
         buttons=IN_GetMouseButtons ();
@@ -6098,7 +6108,7 @@ void DrawRotRow(int count, byte * dest, byte * src)
 */
 	while (count--) {
             eax = edx >> 16;
-            if (eax < (256*(iGLOBAL_SCREENWIDTH/320)) && (ecx >> 16) < (512*((iGLOBAL_SCREENWIDTH/320 + iGLOBAL_SCREENHEIGHT/200)<<1))) {
+            if (eax < (256*4) && (ecx >> 16) < (512*4)) {
                 eax = (eax << 10) | ((ecx << 6) >> (32-10));
             } else {
 		eax = 0;

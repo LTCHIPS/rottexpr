@@ -1047,28 +1047,34 @@ void FlipPageRotoZoom (int angle, int zoom )
         DrawCenterAim ();
     }
     
-    int zoomedSurfWidth = 0;
+    //int zoomedSurfWidth = 0;
     
-    int zoomedSurfHeight = 0; 
+    //int zoomedSurfHeight = 0; 
     
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+    //SDL_SetRelativeMouseMode(SDL_FALSE);
     
-    //SDL_Surface * temp = SDL_ConvertSurfaceFormat(sdl_surface, SDL_PIXELFORMAT_ABGR32,0);
+    //rotozoomSurfaceSize(sdl_surface->w, sdl_surface->h, angle,zoom/100, &zoomedSurfWidth, &zoomedSurfHeight);
     
-    rotozoomSurfaceSize(sdl_surface->w, sdl_surface->h, 0, 2, &zoomedSurfWidth, &zoomedSurfHeight);
+    //sdl_zoomed_surface = SDL_CreateRGBSurface(0,zoomedSurfWidth,zoomedSurfHeight,8,0,0,0,0);
     
-    sdl_zoomed_surface = SDL_CreateRGBSurface(0,zoomedSurfWidth,zoomedSurfHeight,8,0,0,0,0);
+    //SDL_SetSurfaceRLE(sdl_zoomed_surface, 1);
     
-    if (sdl_zoomed_surface == NULL)
-    {
-        Error("Out of memory for rotated surface");
-        exit(1);
+    //SDL_SetPaletteColors(sdl_zoomed_surface->format->palette, sdl_surface->format->palette->colors, 0, 256);
     
-    }
+    //SDL_SetPixelFormatPalette(sdl_zoomed_surface->format, sdl_surface->format->palette);
     
-    sdl_zoomed_surface = rotozoomSurface(sdl_surface, 0, 2, 0);
+    //memcpy(sdl_zoomed_surface->pixels, sdl_surface->pixels, sizeof(byte)*iGLOBAL_SCREENHEIGHT*iGLOBAL_SCREENWIDTH);
     
-    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_zoomed_surface);
+    //if (sdl_zoomed_surface == NULL)
+    //{
+        //Error("Out of memory for rotated surface \n");
+        //exit(1);
+    
+    //}
+    
+    //sdl_zoomed_surface = rotozoomSurface(sdl_surface, (double)angle, (double)(zoom/100), 0);
+    
+    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
     if (newTex == NULL) 
     {
@@ -1079,34 +1085,43 @@ void FlipPageRotoZoom (int angle, int zoom )
     
     SDL_RenderClear(renderer);
     
-    SDL_RenderCopyEx(renderer, newTex, NULL, NULL, angle, NULL, SDL_FLIP_NONE);
+    SDL_RenderSetScale(renderer, (float)zoom/100, (float)zoom/100);
     
-/*
-    if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
-    {
-        if(SHOW_TOP_STATUS_BAR())
-            RescaleAreaOfTexture(renderer, newTex, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
-                   (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
-        if(SHOW_BOTTOM_STATUS_BAR())
-            RescaleAreaOfTexture(renderer, newTex,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
-               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
-                   
-    }
-*/
+    //SDL_RenderSetLogicalSize(renderer, zoomedSurfWidth, zoomedSurfHeight);
+    
+    //SDL_RenderCopy(renderer, newTex, NULL, NULL);
+    
+    SDL_RenderCopyEx(renderer, newTex, NULL, NULL, angle, NULL, SDL_FLIP_NONE);
     
     SDL_RenderPresent(renderer);
     
     SDL_DestroyTexture(newTex);
     
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
     
-    //RenderSurface();
+    
+    //SDL_FreeSurface(sdl_zoomed_surface);
+    
 
 }
 
 void FreeSDLSurfaceZoom()
 {
+    
+    SDL_RenderSetScale(renderer, 1, 1);
+/*
+    SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
+    
     SDL_FreeSurface(sdl_zoomed_surface);
-
+*/
+    
+    //SDL_Rect orig;
+    //orig.w = iGLOBAL_SCREENWIDTH;
+    //orig.h = iGLOBAL_SCREENHEIGHT;
+    //orig.x = 0;
+    //orig.y = 0;
+            
+    
+    //SDL_RenderSetViewport(renderer, &orig);
 }
 
