@@ -2729,7 +2729,7 @@ void DrawPlayerLocation ( void )
 ========================
 */
 
-
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time);
 int playerview=0;
 void      ThreeDRefresh (void)
 {
@@ -2837,7 +2837,9 @@ void      ThreeDRefresh (void)
             ShutdownClientControls();
         bufferofs-=screenofs;
         DrawPlayScreen (true);
-        RotateBuffer(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
+        //void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time);
+        RotateScreen(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
+        //RotateBuffer(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
         bufferofs+=screenofs;
         fizzlein = false;
         StartupClientControls();
@@ -3258,8 +3260,6 @@ void ShutdownRotateBuffer ( void )
 //
 //******************************************************************************
 
-void FlipPageRotoZoom(int angle, int zoom);
-
 void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
 {
     int anglestep;
@@ -3297,7 +3297,7 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     
     //scale = startscale;
 
-    scale=(startscale>>6);
+    scale=(startscale<<6);
 
     CalcTics();
     CalcTics();
@@ -3305,8 +3305,8 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     
     for (i=0; i<time; i+=tics)
     {   //zxcv
-        //DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
-        FlipPageRotoZoom(angle, scale);
+        DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
+        //FlipPageRotoZoom(angle, scale);
         
         //FlipPage();
         scale+=(scalestep*tics);
@@ -3347,8 +3347,6 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 
 extern boolean skipRotate;
 
-void DoScreenRotateZoom(int startAngle, int endAngle, float startScale, float endScale, int time);
-
 void RotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
 {   
     int savetics;
@@ -3357,19 +3355,31 @@ void RotateBuffer (int startangle, int endangle, int startscale, int endscale, i
 
     savetics=GetFastTics();
     
-    printf("%d \n", startscale);
-    printf("%d \n", endscale);
 
-    //StartupRotateBuffer (0);
-    
-    DoScreenRotateZoom(startangle, endangle, startscale, endscale, time);
 
-    //ScaleAndRotateBuffer (startangle, endangle, startscale, endscale, time);
+    StartupRotateBuffer (0);
 
-    //ShutdownRotateBuffer ();
+    ScaleAndRotateBuffer (startangle, endangle, startscale, endscale, time);
+
+    ShutdownRotateBuffer ();
 
     // restore fast counter
     SetFastTics(savetics);
+}
+
+void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time);
+
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time)
+{
+    
+    printf("%f \n", startScale);
+    printf("%f \n", endScale);
+    
+
+    DoScreenRotateZoom(startAngle, endAngle, startScale, endScale, time);
+
+
+
 }
 
 

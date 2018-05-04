@@ -1039,47 +1039,92 @@ extern int tics;
 
 void CalcTics (void);
 
-void DoScreenRotateZoom(int startAngle, int endAngle, float startScale, float endScale, int time)
+void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time)
 {
     STUB_FUNCTION;
     
     printf("startAngle: %d \n", startAngle);
     printf("endAngle: %d \n", endAngle);
-    printf("startScale: %.6f \n", startScale);
-    printf("endScale: %.6f \n", endScale);
+    printf("startScale: %d \n", startScale);
+    printf("endScale: %d \n", endScale);
     printf("time: %d \n", time);
     
     
-    int anglestep = (endAngle-startAngle)/time;
-    float scalestep = (float) ((endScale-startScale)/time);
+    time = 26;
+    
+    startAngle = 0;
+    
+    int angle = (startAngle>>16)&(2048-1);
+    
+    endAngle = (2048);
+    
+    startScale = 2048;
+    
+    int angleStep = (endAngle - startAngle)<<16/time;
+    
+    endScale = 2048*8;
 
     //angle=(startangle<<16);
     
     //angle = startangle<<16;
     
-    int angle = startAngle;
+    //int angle = startAngle<<16;
     
     //scale = startscale>>16;
     
     //scale = startscale;
 
-    float scale = startScale;
+    int scale = startScale;
     
+    //float scale = (float)startScale;
+    
+    //float scalestep = 0.01;
+    
+    //int anglestep = (endAngle-startAngle)/(time);
+    //float scalestep = (float) ((endScale-startScale)/(time));
+    
+    
+    //anglestep = (endangle-startangle)<<16/time;
+    //scalestep = (endscale-startscale)<<6/time;
+    
+    int anglestep = (endAngle - startAngle)/time;
+    
+    int numerator = (endScale - startScale);
+    
+    float scalestep =((float)(abs(numerator))/time);
+    
+    printf("anglestep: %d \n", anglestep);
+    printf("scalestep: %f \n", scalestep);
+    
+    
+    CalcTics();
     CalcTics();
     
     int i;
     
     for (i=0; i<time; i+=tics)
     {
+        printf("tics: %d\n", tics);
+        
         SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
         SDL_RenderClear(renderer);
         
         SDL_Rect output;
         
-        output.w = iGLOBAL_SCREENWIDTH * scale;
+        //int scaleShft = (scale)>>6;
         
-        output.h = iGLOBAL_SCREENHEIGHT * scale;
+        float width = iGLOBAL_SCREENWIDTH * ((float)(scale)/(endScale));
+        
+        float height = iGLOBAL_SCREENHEIGHT * ((float)(scale)/(endScale));
+        
+        output.w = width;
+        
+        output.h = height;
+        
+        printf("width: %d \n", output.w);
+        printf("height: %d \n", output.h);
+               
         
         output.x = (iGLOBAL_SCREENWIDTH - output.w)/2;
         
@@ -1089,11 +1134,14 @@ void DoScreenRotateZoom(int startAngle, int endAngle, float startScale, float en
         
         SDL_RenderPresent(renderer);
         
-        scale+=(scalestep*tics);
+        scale+=(scalestep * tics);
         angle+=(anglestep*tics);
-        CalcTics();
+        
         
         SDL_DestroyTexture(newTex);
+        
+        CalcTics();
+        
     
     }
 
