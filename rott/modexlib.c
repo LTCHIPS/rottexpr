@@ -1050,25 +1050,35 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
     printf("time: %d \n", time);
     
     
+/*
     time = 26;
     
     startAngle = 0;
     
-    int angle = (startAngle>>16)&(2048-1);
+     angle = (startAngle>>16)&(2048-1);
     
     endAngle = (2048);
     
-    startScale = 2048;
+    //startScale = 2048;
+*/
     
-    int angleStep = (endAngle - startAngle)<<16/time;
+    int tempStrtScale = startScale;
     
-    endScale = 2048*8;
+    int tempEndScale = endScale;
+    
+    startScale = tempEndScale;
+    
+    endScale = tempStrtScale;
+    
+    int angleStep = 1;//(endAngle - startAngle)/time;
+    
+    //endScale = 2048*8;
 
     //angle=(startangle<<16);
     
     //angle = startangle<<16;
     
-    //int angle = startAngle<<16;
+    int angle = startAngle;
     
     //scale = startscale>>16;
     
@@ -1087,11 +1097,11 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
     //anglestep = (endangle-startangle)<<16/time;
     //scalestep = (endscale-startscale)<<6/time;
     
-    int anglestep = (endAngle - startAngle)/time;
+    int anglestep = (endAngle - startAngle)/(time*6); //added *6 because it was rotating too effing fast
     
-    int numerator = (endScale - startScale);
+    int scaleStepNumer = (endScale - startScale);
     
-    float scalestep =((float)(abs(numerator))/time);
+    float scalestep =((float)(abs(scaleStepNumer))/(time));
     
     printf("anglestep: %d \n", anglestep);
     printf("scalestep: %f \n", scalestep);
@@ -1114,9 +1124,11 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
         
         //int scaleShft = (scale)>>6;
         
-        float width = iGLOBAL_SCREENWIDTH * ((float)(scale)/(endScale));
+        float factor = ((float)(scale)/(endScale));
         
-        float height = iGLOBAL_SCREENHEIGHT * ((float)(scale)/(endScale));
+        float width = iGLOBAL_SCREENWIDTH * factor;
+        
+        float height = iGLOBAL_SCREENHEIGHT * factor;
         
         output.w = width;
         
@@ -1144,6 +1156,8 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
         
     
     }
+    
+    RenderSurface(); //render the image straight...yeah yeah i know that's cheating
 
 }
 
