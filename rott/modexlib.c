@@ -471,7 +471,7 @@ void GraphicsMode ( void )
         exit(1);
     }
     
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     
     sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ABGR8888,
                                     SDL_TEXTUREACCESS_STREAMING, iGLOBAL_SCREENWIDTH,
@@ -1035,10 +1035,78 @@ void sdl_handle_window_events(void)
 
 }
 
+extern int tics;
+
+void CalcTics (void);
+
+void DoScreenRotateZoom(int startAngle, int endAngle, float startScale, float endScale, int time)
+{
+    STUB_FUNCTION;
+    
+    printf("startAngle: %d \n", startAngle);
+    printf("endAngle: %d \n", endAngle);
+    printf("startScale: %.6f \n", startScale);
+    printf("endScale: %.6f \n", endScale);
+    printf("time: %d \n", time);
+    
+    
+    int anglestep = (endAngle-startAngle)/time;
+    float scalestep = (float) ((endScale-startScale)/time);
+
+    //angle=(startangle<<16);
+    
+    //angle = startangle<<16;
+    
+    int angle = startAngle;
+    
+    //scale = startscale>>16;
+    
+    //scale = startscale;
+
+    float scale = startScale;
+    
+    CalcTics();
+    
+    int i;
+    
+    for (i=0; i<time; i+=tics)
+    {
+        SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
+    
+        SDL_RenderClear(renderer);
+        
+        SDL_Rect output;
+        
+        output.w = iGLOBAL_SCREENWIDTH * scale;
+        
+        output.h = iGLOBAL_SCREENHEIGHT * scale;
+        
+        output.x = (iGLOBAL_SCREENWIDTH - output.w)/2;
+        
+        output.y = (iGLOBAL_SCREENHEIGHT - output.h)/2;
+        
+        SDL_RenderCopyEx(renderer, newTex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
+        
+        SDL_RenderPresent(renderer);
+        
+        scale+=(scalestep*tics);
+        angle+=(anglestep*tics);
+        CalcTics();
+        
+        SDL_DestroyTexture(newTex);
+    
+    }
+
+}
 
 
-void FlipPageRotoZoom (int angle, int zoom )
+
+
+
+void FlipPageRotoZoom (int angle, int scale )
 {   
+    printf("Angle: %d Scale: %d \n", angle, scale);
+    
     //SDL_RenderSetIntegerScale(renderer, SDL_FALSE);
     
     if (StretchScreen) { //bna++
@@ -1085,13 +1153,75 @@ void FlipPageRotoZoom (int angle, int zoom )
     
     SDL_RenderClear(renderer);
     
-    SDL_RenderSetScale(renderer, (float)zoom/100, (float)zoom/100);
+    //SDL_RenderSetScale(renderer, (float)zoom/10, (float)zoom/10);
     
     //SDL_RenderSetLogicalSize(renderer, zoomedSurfWidth, zoomedSurfHeight);
     
     //SDL_RenderCopy(renderer, newTex, NULL, NULL);
     
-    SDL_RenderCopyEx(renderer, newTex, NULL, NULL, angle, NULL, SDL_FLIP_NONE);
+    SDL_Point rotateAround;
+    
+/*
+    float scalex, scaley;
+    
+    
+    if(zoom > 0)
+    {
+        rotateAround.x = (int) ((iGLOBAL_SCREENWIDTH/2)*(scalex));
+        rotateAround.y = (int) ((iGLOBAL_SCREENHEIGHT/2)*(scaley));
+    }
+    else
+    {
+        rotateAround.x = iGLOBAL_SCREENWIDTH/2;
+        rotateAround.y = iGLOBAL_SCREENHEIGHT/2;
+    }
+*/
+    //SDL_RenderGetScale(renderer, &scalex, &scaley);
+
+    //rotateAround.x = (int) ((iGLOBAL_SCREENWIDTH/2)*(scalex));
+    //rotateAround.y = (int) ((iGLOBAL_SCREENHEIGHT/2)*(scaley));
+    
+    SDL_Rect dest;
+    
+    //SDL_RenderSetLogicalSize(renderer, dest.w, dest.h);
+    
+    if (scale > 0)
+    {
+        dest.w = (int) (iGLOBAL_SCREENWIDTH/scale);
+        dest.h = (int) (iGLOBAL_SCREENHEIGHT/scale);
+    }
+    else
+    {
+        dest.w = iGLOBAL_SCREENWIDTH;
+        dest.h = iGLOBAL_SCREENHEIGHT;
+        //dest.x = iGLOBAL_SCREENWIDTH - dest.w;
+        //dest.y = iGLOBAL_SCREENHEIGHT - dest.h;
+        
+    
+    }
+    
+    SDL_RenderSetLogicalSize(renderer, dest.w, dest.h);
+    
+    dest.x = 0;
+    dest.y = 0;
+/*
+    
+    	center.x = rect.w * 0.5;
+center.y = rect.h - ( rect.w * 0.5 );
+*/
+    
+    
+    
+    //SDL_RenderCopyEx(renderer, newTex, NULL, &dest, angle, &(SDL_Rect) {dest.w/2, dest.h/2} , SDL_FLIP_NONE);
+    
+    if(SDL_RenderCopyEx(renderer, newTex, NULL, &dest, angle, &(SDL_Rect) {dest.w/2, dest.h}, SDL_FLIP_NONE) == -1)
+    {
+        printf("SDL_RenderCopyEx failed: %s \n", SDL_GetError());
+        exit(1);
+    
+    
+    }
+    
     
     SDL_RenderPresent(renderer);
     
@@ -1108,7 +1238,7 @@ void FlipPageRotoZoom (int angle, int zoom )
 void FreeSDLSurfaceZoom()
 {
     
-    SDL_RenderSetScale(renderer, 1, 1);
+    //SDL_RenderSetScale(renderer, 1, 1);
 /*
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
     

@@ -3286,16 +3286,18 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     //anglestep=((endangle-startangle)<<16)/time;
     //scalestep=((endscale-startscale)<<6)/time;
     
-    anglestep = (endangle-startangle)/time;
-    scalestep = (endscale-startscale)/time;
+    anglestep = (endangle-startangle)<<16/time;
+    scalestep = (endscale-startscale)<<6/time;
 
     //angle=(startangle<<16);
     
-    angle = startangle;
+    angle = startangle<<16;
     
-    scale = startscale>>16;
+    //scale = startscale>>16;
+    
+    //scale = startscale;
 
-    //scale=(startscale<<6);
+    scale=(startscale>>6);
 
     CalcTics();
     CalcTics();
@@ -3304,7 +3306,7 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     for (i=0; i<time; i+=tics)
     {   //zxcv
         //DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
-        FlipPageRotoZoom((angle), scale);
+        FlipPageRotoZoom(angle, scale);
         
         //FlipPage();
         scale+=(scalestep*tics);
@@ -3345,6 +3347,8 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 
 extern boolean skipRotate;
 
+void DoScreenRotateZoom(int startAngle, int endAngle, float startScale, float endScale, int time);
+
 void RotateBuffer (int startangle, int endangle, int startscale, int endscale, int time)
 {   
     int savetics;
@@ -3352,12 +3356,17 @@ void RotateBuffer (int startangle, int endangle, int startscale, int endscale, i
     //save off fastcounter
 
     savetics=GetFastTics();
+    
+    printf("%d \n", startscale);
+    printf("%d \n", endscale);
 
-    StartupRotateBuffer (0);
+    //StartupRotateBuffer (0);
+    
+    DoScreenRotateZoom(startangle, endangle, startscale, endscale, time);
 
-    ScaleAndRotateBuffer (startangle, endangle, startscale, endscale, time);
+    //ScaleAndRotateBuffer (startangle, endangle, startscale, endscale, time);
 
-    ShutdownRotateBuffer ();
+    //ShutdownRotateBuffer ();
 
     // restore fast counter
     SetFastTics(savetics);
