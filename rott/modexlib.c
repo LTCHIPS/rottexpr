@@ -1039,72 +1039,34 @@ extern int tics;
 
 void CalcTics (void);
 
-void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time)
-{
-    STUB_FUNCTION;
+void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut)
+{   
+    //STUB_FUNCTION;
     
+/*
     printf("startAngle: %d \n", startAngle);
     printf("endAngle: %d \n", endAngle);
     printf("startScale: %d \n", startScale);
     printf("endScale: %d \n", endScale);
     printf("time: %d \n", time);
-    
-    
-/*
-    time = 26;
-    
-    startAngle = 0;
-    
-     angle = (startAngle>>16)&(2048-1);
-    
-    endAngle = (2048);
-    
-    //startScale = 2048;
 */
-    
-    int tempStrtScale = startScale;
-    
-    int tempEndScale = endScale;
-    
-    startScale = tempEndScale;
-    
-    endScale = tempStrtScale;
-    
-    int angleStep = 1;//(endAngle - startAngle)/time;
-    
-    //endScale = 2048*8;
-
-    //angle=(startangle<<16);
-    
-    //angle = startangle<<16;
     
     int angle = startAngle;
     
-    //scale = startscale>>16;
+    float scalestep =(float)((endScale - startScale)/time);
     
-    //scale = startscale;
-
+    
+    
     int scale = startScale;
-    
-    //float scale = (float)startScale;
-    
-    //float scalestep = 0.01;
-    
-    //int anglestep = (endAngle-startAngle)/(time);
-    //float scalestep = (float) ((endScale-startScale)/(time));
-    
-    
-    //anglestep = (endangle-startangle)<<16/time;
-    //scalestep = (endscale-startscale)<<6/time;
     
     int anglestep = (endAngle - startAngle)/(time*6); //added *6 because it was rotating too effing fast
     
-    int scaleStepNumer = (endScale - startScale);
+    //float scalestep =(float)((endScale - startScale)/time);
     
-    float scalestep =((float)(abs(scaleStepNumer))/(time));
-    
+/*
     printf("anglestep: %d \n", anglestep);
     printf("scalestep: %f \n", scalestep);
+*/
     
     
     CalcTics();
@@ -1114,7 +1076,7 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
     
     for (i=0; i<time; i+=tics)
     {
-        printf("tics: %d\n", tics);
+        //printf("tics: %d\n", tics);
         
         SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
@@ -1124,7 +1086,20 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
         
         //int scaleShft = (scale)>>6;
         
-        float factor = ((float)(scale)/(endScale));
+        float factor;
+        
+        
+        if (zoomInOrOut)
+        {
+            factor = ((float)(scale)/(endScale));
+            
+        }
+        else
+        {
+            factor = 1 - ((float)(scale)/(endScale));
+        }
+        
+        //printf("factor: %f \n", factor);
         
         float width = iGLOBAL_SCREENWIDTH * factor;
         
@@ -1134,10 +1109,11 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
         
         output.h = height;
         
+/*
         printf("width: %d \n", output.w);
         printf("height: %d \n", output.h);
+*/
                
-        
         output.x = (iGLOBAL_SCREENWIDTH - output.w)/2;
         
         output.y = (iGLOBAL_SCREENHEIGHT - output.h)/2;
@@ -1146,174 +1122,16 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
         
         SDL_RenderPresent(renderer);
         
-        scale+=(scalestep * tics);
-        angle+=(anglestep*tics);
-        
-        
         SDL_DestroyTexture(newTex);
         
+        scale+=(scalestep);
+        angle+=(anglestep);
+        
         CalcTics();
-        
     
     }
     
-    RenderSurface(); //render the image straight...yeah yeah i know that's cheating
+    //RenderSurface(); //render the image straight...yeah yeah i know that's cheating
 
-}
-
-
-
-
-
-void FlipPageRotoZoom (int angle, int scale )
-{   
-    printf("Angle: %d Scale: %d \n", angle, scale);
-    
-    //SDL_RenderSetIntegerScale(renderer, SDL_FALSE);
-    
-    if (StretchScreen) { //bna++
-        StretchMemPicture ();
-    } else {
-        DrawCenterAim ();
-    }
-    
-    //int zoomedSurfWidth = 0;
-    
-    //int zoomedSurfHeight = 0; 
-    
-    //SDL_SetRelativeMouseMode(SDL_FALSE);
-    
-    //rotozoomSurfaceSize(sdl_surface->w, sdl_surface->h, angle,zoom/100, &zoomedSurfWidth, &zoomedSurfHeight);
-    
-    //sdl_zoomed_surface = SDL_CreateRGBSurface(0,zoomedSurfWidth,zoomedSurfHeight,8,0,0,0,0);
-    
-    //SDL_SetSurfaceRLE(sdl_zoomed_surface, 1);
-    
-    //SDL_SetPaletteColors(sdl_zoomed_surface->format->palette, sdl_surface->format->palette->colors, 0, 256);
-    
-    //SDL_SetPixelFormatPalette(sdl_zoomed_surface->format, sdl_surface->format->palette);
-    
-    //memcpy(sdl_zoomed_surface->pixels, sdl_surface->pixels, sizeof(byte)*iGLOBAL_SCREENHEIGHT*iGLOBAL_SCREENWIDTH);
-    
-    //if (sdl_zoomed_surface == NULL)
-    //{
-        //Error("Out of memory for rotated surface \n");
-        //exit(1);
-    
-    //}
-    
-    //sdl_zoomed_surface = rotozoomSurface(sdl_surface, (double)angle, (double)(zoom/100), 0);
-    
-    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    
-    if (newTex == NULL) 
-    {
-        Error("CreateTextureFromSurface failed: %s \n", SDL_GetError());
-        exit(1);
-    }
-   
-    
-    SDL_RenderClear(renderer);
-    
-    //SDL_RenderSetScale(renderer, (float)zoom/10, (float)zoom/10);
-    
-    //SDL_RenderSetLogicalSize(renderer, zoomedSurfWidth, zoomedSurfHeight);
-    
-    //SDL_RenderCopy(renderer, newTex, NULL, NULL);
-    
-    SDL_Point rotateAround;
-    
-/*
-    float scalex, scaley;
-    
-    
-    if(zoom > 0)
-    {
-        rotateAround.x = (int) ((iGLOBAL_SCREENWIDTH/2)*(scalex));
-        rotateAround.y = (int) ((iGLOBAL_SCREENHEIGHT/2)*(scaley));
-    }
-    else
-    {
-        rotateAround.x = iGLOBAL_SCREENWIDTH/2;
-        rotateAround.y = iGLOBAL_SCREENHEIGHT/2;
-    }
-*/
-    //SDL_RenderGetScale(renderer, &scalex, &scaley);
-
-    //rotateAround.x = (int) ((iGLOBAL_SCREENWIDTH/2)*(scalex));
-    //rotateAround.y = (int) ((iGLOBAL_SCREENHEIGHT/2)*(scaley));
-    
-    SDL_Rect dest;
-    
-    //SDL_RenderSetLogicalSize(renderer, dest.w, dest.h);
-    
-    if (scale > 0)
-    {
-        dest.w = (int) (iGLOBAL_SCREENWIDTH/scale);
-        dest.h = (int) (iGLOBAL_SCREENHEIGHT/scale);
-    }
-    else
-    {
-        dest.w = iGLOBAL_SCREENWIDTH;
-        dest.h = iGLOBAL_SCREENHEIGHT;
-        //dest.x = iGLOBAL_SCREENWIDTH - dest.w;
-        //dest.y = iGLOBAL_SCREENHEIGHT - dest.h;
-        
-    
-    }
-    
-    SDL_RenderSetLogicalSize(renderer, dest.w, dest.h);
-    
-    dest.x = 0;
-    dest.y = 0;
-/*
-    
-    	center.x = rect.w * 0.5;
-center.y = rect.h - ( rect.w * 0.5 );
-*/
-    
-    
-    
-    //SDL_RenderCopyEx(renderer, newTex, NULL, &dest, angle, &(SDL_Rect) {dest.w/2, dest.h/2} , SDL_FLIP_NONE);
-    
-    if(SDL_RenderCopyEx(renderer, newTex, NULL, &dest, angle, &(SDL_Rect) {dest.w/2, dest.h}, SDL_FLIP_NONE) == -1)
-    {
-        printf("SDL_RenderCopyEx failed: %s \n", SDL_GetError());
-        exit(1);
-    
-    
-    }
-    
-    
-    SDL_RenderPresent(renderer);
-    
-    SDL_DestroyTexture(newTex);
-    
-    //SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-    
-    
-    //SDL_FreeSurface(sdl_zoomed_surface);
-    
-
-}
-
-void FreeSDLSurfaceZoom()
-{
-    
-    //SDL_RenderSetScale(renderer, 1, 1);
-/*
-    SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-    
-    SDL_FreeSurface(sdl_zoomed_surface);
-*/
-    
-    //SDL_Rect orig;
-    //orig.w = iGLOBAL_SCREENWIDTH;
-    //orig.h = iGLOBAL_SCREENHEIGHT;
-    //orig.x = 0;
-    //orig.y = 0;
-            
-    
-    //SDL_RenderSetViewport(renderer, &orig);
 }
 

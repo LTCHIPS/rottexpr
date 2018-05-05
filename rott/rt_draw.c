@@ -2729,7 +2729,7 @@ void DrawPlayerLocation ( void )
 ========================
 */
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time);
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut);
 int playerview=0;
 void      ThreeDRefresh (void)
 {
@@ -2838,7 +2838,7 @@ void      ThreeDRefresh (void)
         bufferofs-=screenofs;
         DrawPlayScreen (true);
         //void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time);
-        RotateScreen(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
+        RotateScreen(0,FINEANGLES,FINEANGLES,FINEANGLES*8,(VBLCOUNTER*3)/4, true);
         //RotateBuffer(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
         bufferofs+=screenofs;
         fizzlein = false;
@@ -3306,15 +3306,14 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     for (i=0; i<time; i+=tics)
     {   //zxcv
         DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,(angle>>16)&(FINEANGLES-1),scale>>6,0);
-        //FlipPageRotoZoom(angle, scale);
         
-        //FlipPage();
+        FlipPage();
         scale+=(scalestep*tics);
         angle+=(anglestep*tics);
         CalcTics();
     }
     
-    FreeSDLSurfaceZoom();
+    //FreeSDLSurfaceZoom();
 
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
@@ -3367,16 +3366,19 @@ void RotateBuffer (int startangle, int endangle, int startscale, int endscale, i
     SetFastTics(savetics);
 }
 
-void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time);
+void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut);
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time)
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut)
 {
+    DisableScreenStretch();
     
-    printf("%f \n", startScale);
-    printf("%f \n", endScale);
+    //printf("%d \n", startScale);
+    //printf("%d \n", endScale);
     
+//RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
 
-    DoScreenRotateZoom(startAngle, endAngle, startScale, endScale, time);
+    //DoScreenRotateZoom(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+3)));
+    DoScreenRotateZoom(startAngle, endAngle, startScale, endScale, time, zoomInOrOut);
 
 
 
@@ -3660,9 +3662,8 @@ void RotationFun ( void )
     while (!Keyboard[sc_Escape])
     {
         IN_UpdateKeyboard ();
-        //DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);
-        FlipPageRotoZoom(angle, scale);
-        //FlipPage();
+        DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);
+        FlipPage();
         CalcTics();
         INL_GetMouseDelta(&x, &y);
         buttons=IN_GetMouseButtons ();
