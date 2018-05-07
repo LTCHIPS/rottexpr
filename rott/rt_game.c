@@ -4445,7 +4445,7 @@ boolean ZoomDeathOkay ( void )
 
 #define DEATHROTATE 6
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut);
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option);
 
 extern boolean dopefish;
 void Died (void)
@@ -4674,12 +4674,14 @@ void Died (void)
 
         rng = RandomNumber ("Died",0);
                 
+        rng = 191;
+        
         //zooms in on screen
         if (pstate->falling==true)
         {
             printf("doing death 0 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
-            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), true);
+            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1);
             SD_Play (SD_PLAYERTCDEATHSND+(pstate->player));
             pstate->falling=false;
         }
@@ -4688,7 +4690,7 @@ void Died (void)
         {
             printf("doing death 1 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES>>6), (FINEANGLES), (VBLCOUNTER*(2+slowrate)));
-            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), false);
+            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2);
         
         }
         //zooms in on screen
@@ -4696,7 +4698,7 @@ void Died (void)
         {
             printf("doing death 2 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
-            RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), true);
+            RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1);
             
         }
         //zooms out with spinning
@@ -4704,7 +4706,7 @@ void Died (void)
         {
             printf("doing death 3 rotate \n");
             //RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)), false);
+            RotateScreen(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)), 2);
         }
         //fade to red
         else
@@ -4734,17 +4736,28 @@ void Died (void)
         SD_Play (SD_GAMEOVERSND);
         rng=RandomNumber("Died",0);
         if (rng<64)
+        {
+            printf("GAME OVER SEQUENCE 1 \n");
             //RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), false);
+            RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2);
+        }
         else if (rng<128)
+        {
+            printf("GAME OVER SEQUENCE 2 \n");
             VL_FadeToColor (VBLCOUNTER*3, 255, 255, 255);
+        }
         else if (rng<192)
+        {
+            printf("GAME OVER SEQUENCE 3 \n");
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), false);
+            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2);
+        }
         else
+        {
+            printf("GAME OVER SEQUENCE 4 \n");
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), false);
-
+            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2);
+        }
         screenfaded=false;
 
         VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);

@@ -1039,21 +1039,76 @@ extern int tics;
 
 void CalcTics (void);
 
-void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut)
+
+
+//void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked)
+
+void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale)
+{   
+    
+/*
+    printf("center x: %d \n", w);
+    printf("center y: %d \n", h);
+    printf("angle: %d \n", angle);
+    printf("scale: %f \n", scale);
+*/
+    
+    SDL_RenderClear(renderer);
+        
+    SDL_Rect output;
+    
+    
+    output.w = w;
+    
+    output.h = h;
+    
+/*
+        printf("width: %d \n", output.w);
+        printf("height: %d \n", output.h);
+*/
+               
+    output.x = (iGLOBAL_SCREENWIDTH - output.w)/2;
+        
+    output.y = (iGLOBAL_SCREENHEIGHT - output.h)/2;
+        
+    SDL_RenderCopyEx(renderer, tex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
+        
+    SDL_RenderPresent(renderer);
+
+
+}
+
+
+void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time)
 {   
     //STUB_FUNCTION;
     
 /*
+    if (startScale > endScale)
+    {
+        printf("STARTSCALE IS SMALLER THAN ENDSCALE!\n");
+        //int tempStart = startScale;
+        //int tempEnd = endScale;
+        //startScale = endScale;
+        endScale = startScale * endScale;
+    }
+*/
+    
+    
     printf("startAngle: %d \n", startAngle);
     printf("endAngle: %d \n", endAngle);
     printf("startScale: %d \n", startScale);
     printf("endScale: %d \n", endScale);
     printf("time: %d \n", time);
-*/
+    
+    
     
     int angle = startAngle;
     
     float scalestep =(float)((endScale - startScale)/time);
+    
+    if (startScale > endScale)
+        scalestep = (float)((startScale - endScale)/time)*6; //added * 6 because it wasn't zooming in as much as OG ROTT did
     
     
     
@@ -1063,10 +1118,8 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
     
     //float scalestep =(float)((endScale - startScale)/time);
     
-/*
     printf("anglestep: %d \n", anglestep);
     printf("scalestep: %f \n", scalestep);
-*/
     
     
     CalcTics();
@@ -1074,32 +1127,30 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
     
     int i;
     
+    SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
+    
     for (i=0; i<time; i+=tics)
     {
         //printf("tics: %d\n", tics);
-        
-        SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
         SDL_RenderClear(renderer);
         
         SDL_Rect output;
         
-        //int scaleShft = (scale)>>6;
+        float factor = 0;
         
-        float factor;
-        
-        
-        if (zoomInOrOut)
+        if (startScale > endScale)
         {
-            factor = ((float)(scale)/(endScale));
-            
+            factor = 1 + ((float)(scale)/(abs(startScale - endScale)));
         }
         else
         {
-            factor = 1 - ((float)(scale)/(endScale));
+            factor = ((float)(scale)/(abs(startScale - endScale)));
+        
         }
         
-        //printf("factor: %f \n", factor);
+        
+        printf("factor: %f \n", factor);
         
         float width = iGLOBAL_SCREENWIDTH * factor;
         
@@ -1122,7 +1173,7 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
         
         SDL_RenderPresent(renderer);
         
-        SDL_DestroyTexture(newTex);
+        
         
         scale+=(scalestep);
         angle+=(anglestep);
@@ -1131,7 +1182,14 @@ void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endSca
     
     }
     
+    SDL_DestroyTexture(newTex);
+    
     //RenderSurface(); //render the image straight...yeah yeah i know that's cheating
 
 }
 
+const SDL_Renderer * GetRenderer(void)
+{
+    return renderer;
+
+}

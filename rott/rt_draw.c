@@ -2729,7 +2729,7 @@ void DrawPlayerLocation ( void )
 ========================
 */
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut);
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option);
 int playerview=0;
 void      ThreeDRefresh (void)
 {
@@ -2838,7 +2838,7 @@ void      ThreeDRefresh (void)
         bufferofs-=screenofs;
         DrawPlayScreen (true);
         //void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time);
-        RotateScreen(0,FINEANGLES,FINEANGLES,FINEANGLES*8,(VBLCOUNTER*3)/4, true);
+        RotateScreen(0,FINEANGLES,FINEANGLES,FINEANGLES*8,(VBLCOUNTER*3)/4, 0);
         //RotateBuffer(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
         bufferofs+=screenofs;
         fizzlein = false;
@@ -3366,21 +3366,93 @@ void RotateBuffer (int startangle, int endangle, int startscale, int endscale, i
     SetFastTics(savetics);
 }
 
-void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut);
+const SDL_Renderer * GetRenderer(void);
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, boolean zoomInOrOut)
+void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time);
+
+void DoScreenRotateScale(int cx, int cy, SDL_Texture * tex, int angle, float scale);
+
+
+//A note about option
+//When option is set to
+//    0: factor is set to equal scale value every time. This is good for starting from a small screen to eventually grow to a larger screen.
+//    1: factor is set to equal 1 + scale value. This is good for zooming into the screen.
+//    2: factor is set to equal 1 - scale value. This is good for zooming out from the screen.
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option)
 {
     DisableScreenStretch();
     
-    //printf("%d \n", startScale);
-    //printf("%d \n", endScale);
+    //STUB_FUNCTION;
     
-//RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
-
-    //DoScreenRotateZoom(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+3)));
-    DoScreenRotateZoom(startAngle, endAngle, startScale, endScale, time, zoomInOrOut);
-
-
+    printf("startAngle: %d \n", startAngle);
+    printf("endAngle: %d \n", endAngle);
+    printf("startScale: %d \n", startScale);
+    printf("endScale: %d \n", endScale);
+    printf("time: %d \n", time);
+    
+    int angle = startAngle;
+    
+    float scalestep = (float)((endScale/endScale) - ((float)startScale/(float)endScale))/((float)time);
+    
+    float scale = ((float)startScale/(float)endScale);
+    
+    if (option == 1)
+    {
+        scale = 1.0;
+    
+    }
+    
+    int anglestep = (endAngle - startAngle)/(time*6); //added *6 because it was rotating too effing fast
+    
+    printf("anglestep: %d \n", anglestep);
+    printf("scalestep: %f \n", scalestep);
+    printf("startingScale: %f \n", scale);
+    
+    CalcTics();
+    CalcTics();
+    
+    int i;
+    
+    int x;
+    
+    int y;
+    
+    SDL_Texture * newTex = SDL_CreateTextureFromSurface((SDL_Renderer *) GetRenderer(), sdl_surface);
+    
+    for (i=0; i<time; i+=tics)
+    {
+        float factor;
+        
+        if (option == 0)
+            factor = scale;
+        if (option == 1)
+            factor = 1 + scale*-1;
+        if (option == 2)
+            factor = 1 - scale;
+        else
+            factor = scale;
+        
+        
+        
+        printf("factor: %f \n", factor);
+        
+        x = (int)((float) iGLOBAL_SCREENWIDTH * factor);
+        
+        y = (int)((float) (iGLOBAL_SCREENHEIGHT * factor));
+        
+        DoScreenRotateScale(x, y, newTex, angle, factor);
+        
+        scale+=(scalestep);
+        if (angle < endAngle)
+            angle+=(anglestep);
+        
+        CalcTics();
+    
+    }
+    
+    //DoScreenRotateScale(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, newTex, 0, 1.0);
+    
+    SDL_DestroyTexture(newTex);
 
 }
 
@@ -3407,6 +3479,9 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
 //	   SetTextMode (  );
     c = FixedMulShift(scale,costable[angle],11);
     s = FixedMulShift(scale,sintable[angle],11);
+    
+    printf("c: %d \n", c);
+    printf("s: %d \n", s);
 
 //   c = c/2; //these values are to rotate degres or?
 //   s = s/2;
@@ -3426,7 +3501,7 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
     else if ((iGLOBAL_SCREENWIDTH == 1024 )&&(masked == false)) {
 	xst = (((-cx)*s)+((410)<<16))-(cy*c);// 1024/768=1.3333
 	xct = (((-cx)*c)+((500)<<16)+(1<<18)-(1<<16))+(cy*s);
-   }//388 397
+    }//388 397
     else if ((iGLOBAL_SCREENWIDTH >= 1152) && (masked == false))
     {
         xst = (((-cx)*s)+((432)<<16))-(cy*c);
