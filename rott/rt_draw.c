@@ -3711,6 +3711,62 @@ void DopefishTitle (void)
 
 #endif
 
+void RotationFunSDL(void)
+{
+    int   angle;
+    float   scale;
+    int   x,y;
+    word  buttons;
+
+    //save off fastcounter
+
+
+    angle=0;
+    //scale=FINEANGLES;
+    scale=1.0;
+
+    //StartupRotateBuffer (0);
+
+    CalcTics();
+    CalcTics();
+    
+    SDL_Texture * currScreen = SDL_CreateTextureFromSurface((SDL_Renderer *) GetRenderer(), sdl_surface);
+    
+    while (!Keyboard[sc_Escape])
+    {
+        IN_UpdateKeyboard ();
+        printf("PRE SCALE \n");
+        
+        DoScreenRotateScale((int) ((float)iGLOBAL_SCREENWIDTH*scale), (int)((float)iGLOBAL_SCREENHEIGHT*scale), 
+                            currScreen, (int) angle, scale);
+        
+        printf("POST SCALE \n");
+        //DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);
+        //FlipPage();
+        CalcTics();
+        INL_GetMouseDelta(&x, &y);
+        buttons=IN_GetMouseButtons ();
+        angle=(angle-x)&(FINEANGLES-1);
+        if (buttons & (1 << 0))
+        {
+            if (scale>0)
+                scale-=0.01;
+        }
+        else if (buttons & (1 << 1))
+        {
+            scale+=0.01;
+        }
+    }
+    SDL_DestroyTexture(currScreen);
+    
+    CalcTics();
+    CalcTics();
+    Keyboard[sc_Escape]=0;
+
+    //ShutdownRotateBuffer ();
+}
+
+
 //******************************************************************************
 //
 // RotationFun
@@ -3737,6 +3793,7 @@ void RotationFun ( void )
     while (!Keyboard[sc_Escape])
     {
         IN_UpdateKeyboard ();
+        
         DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);
         FlipPage();
         CalcTics();

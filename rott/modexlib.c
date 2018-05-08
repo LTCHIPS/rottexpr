@@ -1039,13 +1039,11 @@ extern int tics;
 
 void CalcTics (void);
 
-
-
 //void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked)
 
 void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale)
 {   
-    
+    printf("SCALE \n");
 /*
     printf("center x: %d \n", w);
     printf("center y: %d \n", h);
@@ -1067,15 +1065,20 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale
         printf("height: %d \n", output.h);
 */
                
-    output.x = (iGLOBAL_SCREENWIDTH - output.w)/2;
+    output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
         
-    output.y = (iGLOBAL_SCREENHEIGHT - output.h)/2;
+    output.y = (iGLOBAL_SCREENHEIGHT - output.h)>>1;
         
     SDL_RenderCopyEx(renderer, tex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
         
     SDL_RenderPresent(renderer);
 
 
+}
+
+SDL_Texture * GetMainSurfaceAsTexture(void)
+{
+    return SDL_CreateTextureFromSurface(renderer, sdl_surface);
 }
 
 
