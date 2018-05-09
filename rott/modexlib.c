@@ -800,7 +800,7 @@ void DrawObjsInSDLQueue(SDL_Texture * tex)
 
 void RenderSurface(void)
 {
-    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
+    SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
     if (newTex == NULL) 
     {
@@ -1035,15 +1035,15 @@ void sdl_handle_window_events(void)
 
 }
 
-extern int tics;
+//extern int tics;
 
-void CalcTics (void);
+//void CalcTics (void);
 
 //void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked)
 
 void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale)
 {   
-    printf("SCALE \n");
+    //printf("SCALE \n");
 /*
     printf("center x: %d \n", w);
     printf("center y: %d \n", h);
@@ -1079,116 +1079,6 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale
 SDL_Texture * GetMainSurfaceAsTexture(void)
 {
     return SDL_CreateTextureFromSurface(renderer, sdl_surface);
-}
-
-
-void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time)
-{   
-    //STUB_FUNCTION;
-    
-/*
-    if (startScale > endScale)
-    {
-        printf("STARTSCALE IS SMALLER THAN ENDSCALE!\n");
-        //int tempStart = startScale;
-        //int tempEnd = endScale;
-        //startScale = endScale;
-        endScale = startScale * endScale;
-    }
-*/
-    
-    
-    printf("startAngle: %d \n", startAngle);
-    printf("endAngle: %d \n", endAngle);
-    printf("startScale: %d \n", startScale);
-    printf("endScale: %d \n", endScale);
-    printf("time: %d \n", time);
-    
-    
-    
-    int angle = startAngle;
-    
-    float scalestep =(float)((endScale - startScale)/time);
-    
-    if (startScale > endScale)
-        scalestep = (float)((startScale - endScale)/time)*6; //added * 6 because it wasn't zooming in as much as OG ROTT did
-    
-    
-    
-    int scale = startScale;
-    
-    int anglestep = (endAngle - startAngle)/(time*6); //added *6 because it was rotating too effing fast
-    
-    //float scalestep =(float)((endScale - startScale)/time);
-    
-    printf("anglestep: %d \n", anglestep);
-    printf("scalestep: %f \n", scalestep);
-    
-    
-    CalcTics();
-    CalcTics();
-    
-    int i;
-    
-    SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    
-    for (i=0; i<time; i+=tics)
-    {
-        //printf("tics: %d\n", tics);
-    
-        SDL_RenderClear(renderer);
-        
-        SDL_Rect output;
-        
-        float factor = 0;
-        
-        if (startScale > endScale)
-        {
-            factor = 1 + ((float)(scale)/(abs(startScale - endScale)));
-        }
-        else
-        {
-            factor = ((float)(scale)/(abs(startScale - endScale)));
-        
-        }
-        
-        
-        printf("factor: %f \n", factor);
-        
-        float width = iGLOBAL_SCREENWIDTH * factor;
-        
-        float height = iGLOBAL_SCREENHEIGHT * factor;
-        
-        output.w = width;
-        
-        output.h = height;
-        
-/*
-        printf("width: %d \n", output.w);
-        printf("height: %d \n", output.h);
-*/
-               
-        output.x = (iGLOBAL_SCREENWIDTH - output.w)/2;
-        
-        output.y = (iGLOBAL_SCREENHEIGHT - output.h)/2;
-        
-        SDL_RenderCopyEx(renderer, newTex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
-        
-        SDL_RenderPresent(renderer);
-        
-        
-        
-        scale+=(scalestep);
-        angle+=(anglestep);
-        
-        CalcTics();
-    
-    }
-    
-    SDL_DestroyTexture(newTex);
-    
-    //RenderSurface(); //render the image straight...yeah yeah i know that's cheating
-
 }
 
 const SDL_Renderer * GetRenderer(void)

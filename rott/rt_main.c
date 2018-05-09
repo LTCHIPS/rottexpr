@@ -2198,6 +2198,8 @@ fromloadedgame:
             }
 
             ControlPanel( LastScan );
+            
+            
 
             // set detail level
             doublestep = 2 - DetailLevel;

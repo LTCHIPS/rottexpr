@@ -3426,7 +3426,7 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
         if (option == 0)
             factor = scale;
         if (option == 1)
-            factor = 1 + scale*-1;
+            factor = abs(1 + (scale*-1.0));
         if (option == 2)
             factor = 1 - scale;
         else
@@ -3436,9 +3436,9 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
         
         printf("factor: %f \n", factor);
         
-        x = (int)((float) iGLOBAL_SCREENWIDTH * factor);
+        x = abs((int)((float) iGLOBAL_SCREENWIDTH * factor));
         
-        y = (int)((float) (iGLOBAL_SCREENHEIGHT * factor));
+        y = abs((int)((float) (iGLOBAL_SCREENHEIGHT * factor)));
         
         DoScreenRotateScale(x, y, newTex, angle, factor);
         
@@ -3479,9 +3479,6 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
 //	   SetTextMode (  );
     c = FixedMulShift(scale,costable[angle],11);
     s = FixedMulShift(scale,sintable[angle],11);
-    
-    printf("c: %d \n", c);
-    printf("s: %d \n", s);
 
 //   c = c/2; //these values are to rotate degres or?
 //   s = s/2;
@@ -3735,12 +3732,12 @@ void RotationFunSDL(void)
     while (!Keyboard[sc_Escape])
     {
         IN_UpdateKeyboard ();
-        printf("PRE SCALE \n");
+        //printf("PRE SCALE \n");
         
         DoScreenRotateScale((int) ((float)iGLOBAL_SCREENWIDTH*scale), (int)((float)iGLOBAL_SCREENHEIGHT*scale), 
                             currScreen, (int) angle, scale);
         
-        printf("POST SCALE \n");
+        //printf("POST SCALE \n");
         //DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);
         //FlipPage();
         CalcTics();

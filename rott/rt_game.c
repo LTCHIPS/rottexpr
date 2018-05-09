@@ -461,7 +461,7 @@ void DrawPlayScreen (boolean bufferofsonly)
             
             
             DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
             
             //apparently the line below was causing segfaults on linux...
             
@@ -471,10 +471,10 @@ void DrawPlayScreen (boolean bufferofsonly)
             
             //enqueue(sdl_draw_obj_queue, shape);
             
-            GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
         
-        //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
         //}
 
@@ -4674,7 +4674,7 @@ void Died (void)
 
         rng = RandomNumber ("Died",0);
                 
-        rng = 191;
+        //rng = 191;
         
         //zooms in on screen
         if (pstate->falling==true)
