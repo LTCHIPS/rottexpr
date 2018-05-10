@@ -905,6 +905,10 @@ void VL_FadeOut (int start, int end, int red, int green, int blue, int steps)
     screenfaded = true;
 }
 
+SDL_Texture * GetMainSurfaceAsTexture();
+
+//void DoScreenRotateScale(int, int, SDL_Texture * , int, float);
+
 void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, int steps, float scale)
 {
     int      i,j,orig,delta;
@@ -940,7 +944,11 @@ void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, i
 
         WaitVBL ();
         VL_SetPalette (&palette2[0][0]);
-        DoScreenRotateScale(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, (SDL_Texture *) GetMainSurfaceAsTexture(), 0, scale);
+        
+        printf("%d \n", (int)((float)iGLOBAL_SCREENWIDTH*scale));
+        printf("%d \n", (int)((float)iGLOBAL_SCREENHEIGHT*scale));
+        
+        DoScreenRotateScale(iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT, (SDL_Texture *) GetMainSurfaceAsTexture(), 0, scale);
     }
 
 //

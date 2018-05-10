@@ -2729,7 +2729,7 @@ void DrawPlayerLocation ( void )
 ========================
 */
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option);
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option, boolean fadeOut);
 int playerview=0;
 void      ThreeDRefresh (void)
 {
@@ -2838,7 +2838,7 @@ void      ThreeDRefresh (void)
         bufferofs-=screenofs;
         DrawPlayScreen (true);
         //void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time);
-        RotateScreen(0,FINEANGLES,FINEANGLES,FINEANGLES*8,(VBLCOUNTER*3)/4, 0);
+        RotateScreen(0,FINEANGLES,FINEANGLES,FINEANGLES*8,(VBLCOUNTER*3)/4, 0, false);
         //RotateBuffer(0,FINEANGLES,FINEANGLES*8,FINEANGLES,(VBLCOUNTER*3)/4);
         bufferofs+=screenofs;
         fizzlein = false;
@@ -3113,9 +3113,9 @@ void StartupRotateBuffer ( int masked)
     //RotatedImage=SafeMalloc(131072*8);
     
     
-    int amountToAlloc = ((iGLOBAL_SCREENWIDTH * iGLOBAL_SCREENHEIGHT)*2) + 3072; //this replaces 131072
+    //int amountToAlloc = ((iGLOBAL_SCREENWIDTH * iGLOBAL_SCREENHEIGHT)*2) + 3072; //this replaces 131072
     
-    RotatedImage = SafeMalloc(amountToAlloc);
+    RotatedImage = SafeMalloc(131072);
     
 /*
     if (iGLOBAL_SCREENWIDTH == 320) {
@@ -3145,9 +3145,9 @@ void StartupRotateBuffer ( int masked)
 //SetupScreen(false);//used these 2 to test screen size
 //VW_UpdateScreen ();
     if (masked==0) 
-        memset(RotatedImage, 0, amountToAlloc);
+        memset(RotatedImage, 0, 131072);
     else
-        memset(RotatedImage, 0xff, amountToAlloc);
+        memset(RotatedImage, 0xff, 131072);
 /*
         if (iGLOBAL_SCREENWIDTH == 320) {
             memset(RotatedImage,0,131072);
@@ -3282,20 +3282,10 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 ////zxcv
     DisableScreenStretch();//bna++
 
-
-    //anglestep=((endangle-startangle)<<16)/time;
-    //scalestep=((endscale-startscale)<<6)/time;
-    
     anglestep = (endangle-startangle)<<16/time;
     scalestep = (endscale-startscale)<<6/time;
 
-    //angle=(startangle<<16);
-    
     angle = startangle<<16;
-    
-    //scale = startscale>>16;
-    
-    //scale = startscale;
 
     scale=(startscale<<6);
 
@@ -3318,9 +3308,9 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
-    //FlipPage();
+    FlipPage();
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
-    //FlipPage();
+    FlipPage();
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
     CalcTics();
     CalcTics();
@@ -3354,8 +3344,6 @@ void RotateBuffer (int startangle, int endangle, int startscale, int endscale, i
 
     savetics=GetFastTics();
     
-
-
     StartupRotateBuffer (0);
 
     ScaleAndRotateBuffer (startangle, endangle, startscale, endscale, time);
@@ -3368,9 +3356,9 @@ void RotateBuffer (int startangle, int endangle, int startscale, int endscale, i
 
 const SDL_Renderer * GetRenderer(void);
 
-void DoScreenRotateZoom(int startAngle, int endAngle, int startScale, int endScale, int time);
-
 void DoScreenRotateScale(int cx, int cy, SDL_Texture * tex, int angle, float scale);
+
+void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, int steps, float scale);
 
 
 //A note about option
@@ -3378,17 +3366,17 @@ void DoScreenRotateScale(int cx, int cy, SDL_Texture * tex, int angle, float sca
 //    0: factor is set to equal scale value every time. This is good for starting from a small screen to eventually grow to a larger screen.
 //    1: factor is set to equal 1 + scale value. This is good for zooming into the screen.
 //    2: factor is set to equal 1 - scale value. This is good for zooming out from the screen.
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option)
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option, boolean fadeOut)
 {
     DisableScreenStretch();
     
     //STUB_FUNCTION;
     
-    printf("startAngle: %d \n", startAngle);
-    printf("endAngle: %d \n", endAngle);
-    printf("startScale: %d \n", startScale);
-    printf("endScale: %d \n", endScale);
-    printf("time: %d \n", time);
+    //printf("startAngle: %d \n", startAngle);
+    //printf("endAngle: %d \n", endAngle);
+    //printf("startScale: %d \n", startScale);
+    //printf("endScale: %d \n", endScale);
+    //printf("time: %d \n", time);
     
     int angle = startAngle;
     
@@ -3404,9 +3392,9 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
     
     int anglestep = (endAngle - startAngle)/(time*6); //added *6 because it was rotating too effing fast
     
-    printf("anglestep: %d \n", anglestep);
-    printf("scalestep: %f \n", scalestep);
-    printf("startingScale: %f \n", scale);
+    //printf("anglestep: %d \n", anglestep);
+    //printf("scalestep: %f \n", scalestep);
+    //printf("startingScale: %f \n", scale);
     
     CalcTics();
     CalcTics();
@@ -3434,7 +3422,7 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
         
         
         
-        printf("factor: %f \n", factor);
+        //printf("factor: %f \n", factor);
         
         x = abs((int)((float) iGLOBAL_SCREENWIDTH * factor));
         
@@ -3449,6 +3437,9 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
         CalcTics();
     
     }
+    
+    if(fadeOut == true)
+        VL_FadeOutScaledScreen (0, 255, 0,0,0,VBLCOUNTER>>1, abs(scale));
     
     //DoScreenRotateScale(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, newTex, 0, 1.0);
     
@@ -3734,8 +3725,8 @@ void RotationFunSDL(void)
         IN_UpdateKeyboard ();
         //printf("PRE SCALE \n");
         
-        DoScreenRotateScale((int) ((float)iGLOBAL_SCREENWIDTH*scale), (int)((float)iGLOBAL_SCREENHEIGHT*scale), 
-                            currScreen, (int) angle, scale);
+        DoScreenRotateScale(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 
+                            currScreen, angle, scale);
         
         //printf("POST SCALE \n");
         //DrawRotatedScreen(iGLOBAL_SCREENWIDTH/2,iGLOBAL_SCREENHEIGHT/2,(byte *)bufferofs,angle,scale,0);

@@ -4445,7 +4445,7 @@ boolean ZoomDeathOkay ( void )
 
 #define DEATHROTATE 6
 
-void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option);
+void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option, boolean fadeOut);
 
 extern boolean dopefish;
 void Died (void)
@@ -4681,7 +4681,7 @@ void Died (void)
         {
             printf("doing death 0 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
-            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1);
+            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
             SD_Play (SD_PLAYERTCDEATHSND+(pstate->player));
             pstate->falling=false;
         }
@@ -4690,7 +4690,7 @@ void Died (void)
         {
             printf("doing death 1 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES>>6), (FINEANGLES), (VBLCOUNTER*(2+slowrate)));
-            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2);
+            RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2, true);
         
         }
         //zooms in on screen
@@ -4698,7 +4698,7 @@ void Died (void)
         {
             printf("doing death 2 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
-            RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1);
+            RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
             
         }
         //zooms out with spinning
@@ -4706,15 +4706,17 @@ void Died (void)
         {
             printf("doing death 3 rotate \n");
             //RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)), 2);
+            RotateScreen(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)), 2, true);
         }
         //fade to red
-        else
+        else{
             VL_FadeToColor (VBLCOUNTER*2, 100, 0, 0);
+            VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        }
 
         screenfaded=false;
 
-        VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        
         gamestate.episode = 1;
         player->flags &= ~FL_DONE;
 
@@ -4739,28 +4741,29 @@ void Died (void)
         {
             printf("GAME OVER SEQUENCE 1 \n");
             //RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2);
+            RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
         }
         else if (rng<128)
         {
             printf("GAME OVER SEQUENCE 2 \n");
             VL_FadeToColor (VBLCOUNTER*3, 255, 255, 255);
+            VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
         }
         else if (rng<192)
         {
             printf("GAME OVER SEQUENCE 3 \n");
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2);
+            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
         }
         else
         {
             printf("GAME OVER SEQUENCE 4 \n");
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2);
+            RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
         }
         screenfaded=false;
 
-        VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        //VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
 
         MU_StartSong(song_gameover);
 

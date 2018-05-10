@@ -667,7 +667,7 @@ void SetViewSize
     centerx     = viewwidth >> 1;
     centery     = viewheight >> 1;
     centeryfrac = (centery << 16);
-    yzangleconverter = ( 0xaf85 * viewheight ) / 200;
+    yzangleconverter = ( 0xaf85 * viewheight ) / 300;
 
     // Center the view horizontally
     screenx = ( iGLOBAL_SCREENWIDTH - viewwidth ) >> 1;

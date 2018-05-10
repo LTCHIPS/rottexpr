@@ -61,8 +61,6 @@ char 	   *iG_buf_center;
 
 SDL_Surface *sdl_surface = NULL;
 
-static SDL_Surface * sdl_zoomed_surface = NULL;
-
 SDL_Window * window = NULL;
 
 static SDL_Renderer * renderer = NULL;
@@ -1043,27 +1041,14 @@ void sdl_handle_window_events(void)
 
 void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale)
 {   
-    //printf("SCALE \n");
-/*
-    printf("center x: %d \n", w);
-    printf("center y: %d \n", h);
-    printf("angle: %d \n", angle);
-    printf("scale: %f \n", scale);
-*/
     
     SDL_RenderClear(renderer);
         
     SDL_Rect output;
     
+    output.w = (int)((float)w * scale);
     
-    output.w = w;
-    
-    output.h = h;
-    
-/*
-        printf("width: %d \n", output.w);
-        printf("height: %d \n", output.h);
-*/
+    output.h = (int)((float)h * scale);
                
     output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
         

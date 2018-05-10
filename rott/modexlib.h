@@ -139,6 +139,7 @@ void  VL_CopyBufferToAll ( byte *buffer );
 void  VL_CopyPlanarPage ( byte * src, byte * dest );
 void  VL_CopyPlanarPageToMemory ( byte * src, byte * dest );
 void  XFlipPage ( void );
+void  DoScreenRotateScale(int, int, SDL_Texture * , int, float);
 void  WaitVBL( void );
 void  TurnOffTextCursor ( void );
 
