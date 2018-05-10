@@ -3424,11 +3424,7 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
         
         //printf("factor: %f \n", factor);
         
-        x = abs((int)((float) iGLOBAL_SCREENWIDTH * factor));
-        
-        y = abs((int)((float) (iGLOBAL_SCREENHEIGHT * factor)));
-        
-        DoScreenRotateScale(x, y, newTex, angle, factor);
+        DoScreenRotateScale(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, newTex, angle, factor);
         
         scale+=(scalestep);
         if (angle < endAngle)

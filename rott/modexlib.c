@@ -1046,9 +1046,9 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale
         
     SDL_Rect output;
     
-    output.w = (int)((float)w * scale);
+    output.w = abs((int)((float)w * scale));
     
-    output.h = (int)((float)h * scale);
+    output.h = abs((int)((float)h * scale));
                
     output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
         
