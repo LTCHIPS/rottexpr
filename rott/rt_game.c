@@ -4674,7 +4674,7 @@ void Died (void)
 
         rng = RandomNumber ("Died",0);
                 
-        //rng = 191;
+        rng = 63;
         
         //zooms in on screen
         if (pstate->falling==true)

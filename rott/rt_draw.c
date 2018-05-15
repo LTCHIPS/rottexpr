@@ -3407,10 +3407,10 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
     
     SDL_Texture * newTex = SDL_CreateTextureFromSurface((SDL_Renderer *) GetRenderer(), sdl_surface);
     
+    float factor;
+    
     for (i=0; i<time; i+=tics)
     {
-        float factor;
-        
         if (option == 0)
             factor = scale;
         if (option == 1)
@@ -3419,8 +3419,6 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
             factor = 1 - scale;
         else
             factor = scale;
-        
-        
         
         //printf("factor: %f \n", factor);
         
@@ -3431,11 +3429,15 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
             angle+=(anglestep);
         
         CalcTics();
+        
+        //printf("scaleDRAW: %f \n", scale);
     
     }
     
+    //printf("factor: %f \n", factor);
+    
     if(fadeOut == true)
-        VL_FadeOutScaledScreen (0, 255, 0,0,0,VBLCOUNTER>>1, abs(scale));
+        VL_FadeOutScaledScreen (0, 255, 0,0,0,VBLCOUNTER>>1, abs(factor));
     
     //DoScreenRotateScale(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, newTex, 0, 1.0);
     

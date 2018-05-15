@@ -920,6 +920,9 @@ void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, i
     WaitVBL ();
     VL_GetPalette (&palette1[0][0]);
     memcpy (palette2, palette1, 768);
+    
+    
+    SDL_Texture * tex = GetMainSurfaceAsTexture();
 
 //
 // fade through intermediate frames
@@ -947,16 +950,23 @@ void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, i
         
         printf("%d \n", (int)((float)iGLOBAL_SCREENWIDTH*scale));
         printf("%d \n", (int)((float)iGLOBAL_SCREENHEIGHT*scale));
+        printf("%f \n", scale);
         
-        DoScreenRotateScale(iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT, (SDL_Texture *) GetMainSurfaceAsTexture(), 0, scale);
+        
+        DoScreenRotateScale(iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT, tex, 0, scale);
     }
 
 //
 // final color
 //
     VL_FillPalette (red,green,blue);
+    
+    
 
     screenfaded = true;
+    
+    SDL_DestroyTexture(tex);
+    
 }
 
 
