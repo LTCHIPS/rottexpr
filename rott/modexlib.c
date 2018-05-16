@@ -1039,6 +1039,9 @@ void sdl_handle_window_events(void)
 
 //void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked)
 
+extern int MinScreenWidth;
+extern int MinScreenHeight;
+
 void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale)
 {   
     
@@ -1049,6 +1052,11 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, int angle, float scale
     output.w = abs((int)((float)w * scale));
     
     output.h = abs((int)((float)h * scale));
+    
+    if (output.w < MinScreenWidth)
+        output.w = MinScreenWidth;
+    if (output.h < MinScreenHeight)
+        output.h = MinScreenHeight;
                
     output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
         

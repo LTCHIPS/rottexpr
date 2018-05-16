@@ -3291,7 +3291,7 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
 
     CalcTics();
     CalcTics();
-    SDL_SetRelativeMouseMode(SDL_FALSE);
+    //SDL_SetRelativeMouseMode(SDL_FALSE);
     
     for (i=0; i<time; i+=tics)
     {   //zxcv
@@ -3305,7 +3305,7 @@ void ScaleAndRotateBuffer (int startangle, int endangle, int startscale, int end
     
     //FreeSDLSurfaceZoom();
 
-    SDL_SetRelativeMouseMode(SDL_TRUE);
+    //SDL_SetRelativeMouseMode(SDL_TRUE);
     
     DrawRotatedScreen(Xh,Yh, (byte *)bufferofs,endangle&(FINEANGLES-1),endscale,0);
     FlipPage();
@@ -3387,10 +3387,9 @@ void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, in
     if (option == 1)
     {
         scale = 1.0;
-    
     }
     
-    int anglestep = (endAngle - startAngle)/(time*6); //added *6 because it was rotating too effing fast
+    int anglestep = (endAngle - startAngle)/(time*5.52); //added *6 because it was rotating too effing fast
     
     //printf("anglestep: %d \n", anglestep);
     //printf("scalestep: %f \n", scalestep);
@@ -3736,11 +3735,20 @@ void RotationFunSDL(void)
         if (buttons & (1 << 0))
         {
             if (scale>0)
+            {
                 scale-=0.01;
+                //printf("new width:  %f \n", (float)iGLOBAL_SCREENWIDTH * scale);
+                //printf("new height: %f \n", (float)iGLOBAL_SCREENHEIGHT * scale);
+                //printf("scale: %f \n", scale);
+                
+            }
         }
         else if (buttons & (1 << 1))
         {
             scale+=0.01;
+            //printf("new width:  %f \n", (float)iGLOBAL_SCREENWIDTH * scale);
+            //printf("new height: %f \n", (float)iGLOBAL_SCREENHEIGHT * scale);
+            //printf("scale: %f \n", scale);
         }
     }
     SDL_DestroyTexture(currScreen);
