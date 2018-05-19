@@ -112,6 +112,7 @@ void  AdaptDetail ( void );
 int   CalcHeight (void);
 void  DoLoadGameSequence( void );
 void RotateBuffer (int startangle, int endangle, int startscale, int endscale, int time);
+void RotateScreenScaleFloat(float startAngle, float endAngle, float startScale, float endScale, int time, boolean fadeOut, boolean drawPlayScreen);
 void ApogeeTitle (void);
 void DopefishTitle (void);
 void RotationFun (void);

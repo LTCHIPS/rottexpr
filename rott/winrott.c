@@ -11,9 +11,6 @@ int iGLOBAL_SCREENHEIGHT = 480;//bna val 600
 int iGLOBAL_SCREENBWIDE ;
 int iG_SCREENWIDTH;// default screen width in bytes
 
-int MinScreenWidth;
-int MinScreenHeight;
-
 int iGLOBAL_HEALTH_X;
 int iGLOBAL_HEALTH_Y;
 int iGLOBAL_AMMO_X;
@@ -67,9 +64,9 @@ void SetRottScreenRes (int Width, int Height)
     
     dTopYZANGLELIMIT = (44*FINEANGLES/360);;
     
-    MinScreenWidth =  ((float)iGLOBAL_SCREENWIDTH * 0.01875);
+    //MinScreenWidth =  ((float)iGLOBAL_SCREENWIDTH * 0.01875);
     
-    MinScreenHeight = ((float)iGLOBAL_SCREENHEIGHT * 0.02);
+    //MinScreenHeight = ((float)iGLOBAL_SCREENHEIGHT * 0.02);
     
 }
 
