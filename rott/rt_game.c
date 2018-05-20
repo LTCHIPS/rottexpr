@@ -1358,26 +1358,34 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
 
     M_LINKSTATE(ob, pstate);
 
-    signed char * playerCurrentAmmo = (signed char *) (int)pstate->ammo;
-    signed char * ammoInItem = (signed char *) (int)item_pickup->ammo;
-    signed char * maxAmmoInWeapon = (signed char *) (int)stats[item_pickup->itemnumber].ammo;
-    signed char * newAmmoAmount = (signed char *)((int)ammoInItem + (int)playerCurrentAmmo);
+    int playerCurrentAmmo = (int) pstate->ammo;
+    
+    int ammoInItem = (int) item_pickup->ammo;
+    
+    int maxAmmoInWeapon = (int)stats[item_pickup->itemnumber].ammo;
+    
+    
+    //printf("playerCurrentAmmo: %d \n", playerCurrentAmmo);
+    //printf("ammoInItem: %d \n", ammoInItem);
+    //printf("maxAmmoInWeapon: %d \n", maxAmmoInWeapon);
+    
+    int newAmmoAmount = ammoInItem + playerCurrentAmmo;
 
     if (newAmmoAmount > maxAmmoInWeapon)
     {
-        ammoInItem = (signed char *)((int)newAmmoAmount - (int)maxAmmoInWeapon);
+        ammoInItem = newAmmoAmount - maxAmmoInWeapon;
         if (ammoInItem < 0)
         {
             Error("Ammo in item cannot be set to a negative number!");
         }
-        item_pickup->ammo = (int) ammoInItem;
+        item_pickup->ammo = ammoInItem;
         newAmmoAmount = maxAmmoInWeapon;
     }
     else
     {
         ammoInItem = 0;
     }
-    pstate->ammo = (int)newAmmoAmount;
+    pstate->ammo = newAmmoAmount;
 
     if (pstate->ammo &&
         (pstate->missileweapon != -1) &&
@@ -1403,7 +1411,7 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
             }
 
             //update ammo count on missile weapon on ground
-            LASTSTAT->ammo = (int)ammoInItem;
+            LASTSTAT->ammo = ammoInItem;
             EnableOldWeapon(pstate);
         }
     }
