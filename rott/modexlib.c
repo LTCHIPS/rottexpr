@@ -268,7 +268,7 @@ void VL_CopyPlanarPageToMemory ( byte * src, byte * dest )
 */
 void VL_CopyBufferToAll ( byte *buffer )
 {
-    STUB_FUNCTION;
+    //STUB_FUNCTION;
 }
 
 /*

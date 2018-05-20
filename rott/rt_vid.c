@@ -987,7 +987,7 @@ void SetBorderColor (int color)
 
 void SetBorderColorInterrupt (int color)
 {
-    STUB_FUNCTION;
+    //STUB_FUNCTION;
 }
 
 
