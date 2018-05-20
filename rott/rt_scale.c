@@ -21,13 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "watcom.h"
 #include <stdio.h>
 #include <string.h>
-
-#ifdef DOS
-#include <malloc.h>
-#include <dos.h>
-#include <conio.h>
-#endif
-
 #include "modexlib.h"
 #include "rt_util.h"
 #include "rt_draw.h"
@@ -395,68 +388,22 @@ void ScaleTransparentClippedPost (byte * src, byte * buf, int level)
 
 void ScaleMaskedWidePost (byte * src, byte * buf, int x, int width)
 {
-#ifdef DOS
-    int  ofs;
-    int  msk;
-
-    whereami=30;
-    buf+=x>>2;
-    ofs=((x&3)<<3)+(x&3)+width-1;
-    VGAMAPMASK(*((byte *)mapmasks1+ofs));
-    ScaleMaskedPost(src,buf);
-    msk=(byte)*((byte *)mapmasks2+ofs);
-    if (msk==0)
-        return;
-    buf++;
-    VGAMAPMASK(msk);
-    ScaleMaskedPost(src,buf);
-    msk=(byte)*((byte *)mapmasks3+ofs);
-    if (msk==0)
-        return;
-    buf++;
-    VGAMAPMASK(msk);
-    ScaleMaskedPost(src,buf);
-#else
     buf += x;
 
     while (width--) {
         ScaleMaskedPost(src,buf);
         buf++;
     }
-#endif
 }
 
 void ScaleClippedWidePost (byte * src, byte * buf, int x, int width)
 {
-#ifdef DOS
-    int  ofs;
-    int  msk;
-
-    whereami=31;
-    buf+=x>>2;
-    ofs=((x&3)<<3)+(x&3)+width-1;
-    VGAMAPMASK(*((byte *)mapmasks1+ofs));
-    ScaleClippedPost(src,buf);
-    msk=(byte)*((byte *)mapmasks2+ofs);
-    if (msk==0)
-        return;
-    buf++;
-    VGAMAPMASK(msk);
-    ScaleClippedPost(src,buf);
-    msk=(byte)*((byte *)mapmasks3+ofs);
-    if (msk==0)
-        return;
-    buf++;
-    VGAMAPMASK(msk);
-    ScaleClippedPost(src,buf);
-#else
     buf += x;
 
     while (width--) {
         ScaleClippedPost(src,buf);
         buf++;
     }
-#endif
 }
 
 
@@ -573,17 +520,10 @@ void ScaleShape (visobj_t * sprite)
         startfrac=frac;
         if (doublestep>1)
         {
-#ifdef DOS
-            for (plane=startx; plane<startx+4; plane+=2,startfrac+=(dc_iscale<<1))
-#endif
             {
                 frac=startfrac;
 //   VGAWRITEMAP(plane&3);
-#ifdef DOS
-                for (x1=plane; x1<=x2; x1+=4, frac += (dc_iscale<<2))
-#else
                 for (x1=startx; x1<=x2; x1+=2, frac += (dc_iscale<<1))
-#endif
                 {
                     if (
                         (posts[x1].wallheight>sprite->viewheight) &&
@@ -599,24 +539,12 @@ void ScaleShape (visobj_t * sprite)
         }
         else
         {
-#ifdef DOS
-            for (plane=startx; plane<startx+4; plane++,startfrac+=dc_iscale)
-#endif
             {
                 frac=startfrac;
 
-#ifdef DOS
-                b=(byte *)bufferofs+(plane>>2);
-                VGAWRITEMAP(plane&3);
-#else
                 b=(byte *)bufferofs+startx;
-#endif
-
-#ifdef DOS
-                for (x1=plane; x1<=x2; x1+=4, frac += (dc_iscale<<2),b++)
-#else
+                
                 for (x1=startx; x1<=x2; x1++, frac += dc_iscale,b++)
-#endif
                 {
                     if (posts[x1].wallheight>sprite->viewheight)
                         continue;
@@ -699,26 +627,11 @@ void ScaleTransparentShape (visobj_t * sprite)
     startx=x1;
     startfrac=frac;
 
-#ifdef DOS
-    for (plane=startx; plane<startx+4; plane++,startfrac+=dc_iscale)
-#endif
-
     {
         frac=startfrac;
-
-#ifdef DOS
-        b=(byte *)bufferofs+(plane>>2);
-        VGAWRITEMAP(plane&3);
-        VGAREADMAP(plane&3);
-#else
         b=(byte *)bufferofs+startx;
-#endif
 
-#ifdef DOS
-        for (x1=plane; x1<=x2; x1+=4, frac += (dc_iscale<<2),b++)
-#else
         for (x1=startx; x1<=x2; x1++, frac += dc_iscale,b++)
-#endif
         {
             if (posts[x1].wallheight>sprite->viewheight)
                 continue;
@@ -788,25 +701,12 @@ void ScaleSolidShape (visobj_t * sprite)
     startx=x1;
     startfrac=frac;
 
-#ifdef DOS
-    for (plane=startx; plane<startx+4; plane++,startfrac+=dc_iscale)
-#endif
-
     {
         frac=startfrac;
 
-#ifdef DOS
-        b=(byte *)bufferofs+(plane>>2);
-        VGAWRITEMAP(plane&3);
-#else
         b=(byte *)bufferofs+startx;
-#endif
 
-#ifdef DOS
-        for (x1=plane; x1<=x2; x1+=4, frac += (dc_iscale<<2),b++)
-#else
         for (x1=startx; x1<=x2; x1++, frac += dc_iscale,b++)
-#endif
         {
             if (posts[x1].wallheight>sprite->viewheight)
                 continue;
@@ -879,23 +779,11 @@ void ScaleWeapon (int xoff, int y, int shapenum)
 
     startx=x1;
     startfrac=frac;
-
-#ifdef DOS
-    for (plane=startx; plane<startx+4; plane++,startfrac+=dc_iscale)
-#endif
     {
         frac=startfrac;
-#ifdef DOS
-        b=(byte *)bufferofs+(plane>>2);
-#else
         b=(byte *)bufferofs+startx;
-#endif
         VGAWRITEMAP(plane&3);
-#ifdef DOS
-        for (x1=plane; x1<=x2 ; x1+=4, frac += dc_iscale<<2,b++)
-#else
         for (x1=startx; x1<=x2 ; x1++, frac += dc_iscale,b++)
-#endif
             ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
     }
 }
@@ -964,26 +852,11 @@ void DrawUnScaledSprite (int x, int y, int shapenum, int shade)
 
     startx=x1;
     startfrac=frac;
-
-#ifdef DOS
-    for (plane=startx; plane<startx+4; plane++,startfrac+=dc_iscale)
-#endif
-
+    
     {
         frac=startfrac;
-
-#ifdef DOS
-        b=(byte *)bufferofs+(plane>>2);
-        VGAWRITEMAP(plane&3);
-#else
         b=(byte *)bufferofs+startx;
-#endif
-
-#ifdef DOS
-        for (x1=plane; x1<=x2 ; x1+=4, frac += dc_iscale<<2,b++)
-#else
         for (x1=startx; x1<=x2 ; x1++, frac += dc_iscale,b++)
-#endif
             ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
     }
 }
@@ -1072,26 +945,11 @@ void DrawPositionedScaledSprite (int x, int y, int shapenum, int height, int typ
     startx=x1;
     startfrac=frac;
 
-#ifdef DOS
-    for (plane=startx; plane<startx+4; plane++,startfrac+=dc_iscale)
-#endif
-
     {
         frac=startfrac;
-
-#ifdef DOS
-        b=(byte *)bufferofs+(plane>>2);
-        VGAWRITEMAP(plane&3);
-        VGAREADMAP(plane&3);
-#else
         b=(byte *)bufferofs+startx;
-#endif
 
-#ifdef DOS
-        for (x1=plane; x1<=x2 ; x1+=4, frac += dc_iscale<<2,b++)
-#else
         for (x1=startx; x1<=x2 ; x1++, frac += dc_iscale,b++)
-#endif
             if (type==0)
                 ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
             else
@@ -1330,28 +1188,12 @@ void DrawNormalSprite (int x, int y, int shapenum)
 
     startx=x-p->leftoffset;
     buffer = (byte*)bufferofs+ylookup[y-p->topoffset];
-
-#ifdef DOS
-    for (plane=startx; plane<startx+4; plane++)
-#endif
     {
-#ifdef DOS
-        b=buffer+(plane>>2);
-        VGAWRITEMAP(plane&3);
-#else
         b=buffer+startx;
-#endif
-
-#ifdef DOS
-        for (cnt = plane-startx; cnt < p->width; cnt+=4,b++)
-#else
         for (cnt = 0; cnt < p->width; cnt++,b++)
-#endif
             DrawNormalPost ((byte *)(p->collumnofs[cnt]+shape), b);
     }
 }
-
-#ifndef DOS
 
 void R_DrawColumn (byte * buf)
 {
@@ -1459,5 +1301,3 @@ void R_DrawSolidColumn (int color, byte * buf)
         dest += iGLOBAL_SCREENWIDTH;
     }
 }
-
-#endif

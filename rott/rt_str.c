@@ -110,11 +110,7 @@ void VW_DrawClippedString (int x, int y, const char *string)
                     if ((y>=0) && (y<iGLOBAL_SCREENHEIGHT))
                     {
                         if (*source>0)
-#ifdef DOS
-                            *((byte *)(bufferofs+ylookup[y]+(x>>2))) = *source;
-#else
                             *((byte *)(bufferofs+ylookup[y]+x)) = *source;
-#endif
                     }
                     source++;
                     y++;
@@ -172,53 +168,6 @@ void US_ClippedPrint (int x, int y, const char *string)
 
 void VW_DrawPropString (const char *string)
 {
-#ifdef DOS
-    byte  pix;
-    int   width,step,height,ht;
-    byte  *source, *dest, *origdest;
-    int   ch,mask;
-
-
-    ht = CurrentFont->height;
-    dest = origdest = (byte *)(bufferofs+ylookup[py]+(px>>2));
-
-
-    mask = 1<<(px&3);
-
-
-    while ((ch = *string++)!=0)
-    {
-        ch -= 31;
-        width = step = CurrentFont->width[ch];
-        source = ((byte *)CurrentFont)+CurrentFont->charofs[ch];
-        while (width--)
-        {
-            VGAMAPMASK(mask);
-
-            height = ht;
-            while (height--)
-            {
-                pix = *source;
-                if (pix)
-                    *dest = pix;
-
-                source++;
-                dest += linewidth;
-            }
-
-            px++;
-            mask <<= 1;
-            if (mask == 16)
-            {
-                mask = 1;
-                origdest++;
-            }
-            dest = origdest;
-        }
-    }
-    bufferheight = ht;
-    bufferwidth = ((dest+1)-origdest)*4;
-#else
     byte  pix;
     int   width,step,height,ht;
     byte  *source, *dest, *origdest;
@@ -252,7 +201,6 @@ void VW_DrawPropString (const char *string)
     }
     bufferheight = ht;
     bufferwidth = ((dest+1)-origdest);
-#endif
 }
 
 
@@ -292,11 +240,7 @@ void VW_DrawIPropString (const char *string)
 
 
     ht = CurrentFont->height;
-#ifdef DOS
-    dest = origdest = (byte *)(bufferofs+ylookup[py]+(px>>2));
-#else
     dest = origdest = (byte *)(bufferofs+ylookup[py]+px);
-#endif
 
 
     mask = 1<<(px&3);
@@ -323,25 +267,12 @@ void VW_DrawIPropString (const char *string)
             }
 
             px++;
-#ifdef DOS
-            mask <<= 1;
-            if (mask == 16)
-            {
-                mask = 1;
-                origdest++;
-            }
-#else
             origdest++;
-#endif
             dest = origdest;
         }
     }
     bufferheight = ht;
-#ifdef DOS
-    bufferwidth = ((dest+1)-origdest)*4;
-#else
     bufferwidth = ((dest+1)-origdest);
-#endif
 
 }
 
@@ -1844,36 +1775,36 @@ void TextFrame
     }
     if ( type == SINGLE_FRAME )
     {
-        DrawRottText( x1, y1, 'Ú', foreground, background );
-        DrawRottText( x2, y1, '¿', foreground, background );
-        DrawRottText( x1, y2, 'À', foreground, background );
-        DrawRottText( x2, y2, 'Ù', foreground, background );
+        DrawRottText( x1, y1, 'ï¿½', foreground, background );
+        DrawRottText( x2, y1, 'ï¿½', foreground, background );
+        DrawRottText( x1, y2, 'ï¿½', foreground, background );
+        DrawRottText( x2, y2, 'ï¿½', foreground, background );
         for( x = x1 + 1; x < x2; x++ )
         {
-            DrawRottText( x, y1, 'Ä', foreground, background );
-            DrawRottText( x, y2, 'Ä', foreground, background );
+            DrawRottText( x, y1, 'ï¿½', foreground, background );
+            DrawRottText( x, y2, 'ï¿½', foreground, background );
         }
         for( y = y1 + 1; y < y2; y++ )
         {
-            DrawRottText( x1, y, '³', foreground, background );
-            DrawRottText( x2, y, '³', foreground, background );
+            DrawRottText( x1, y, 'ï¿½', foreground, background );
+            DrawRottText( x2, y, 'ï¿½', foreground, background );
         }
     }
     if ( type == DOUBLE_FRAME )
     {
-        DrawRottText( x1, y1, 'É', foreground, background );
-        DrawRottText( x2, y1, '»', foreground, background );
-        DrawRottText( x1, y2, 'È', foreground, background );
-        DrawRottText( x2, y2, '¼', foreground, background );
+        DrawRottText( x1, y1, 'ï¿½', foreground, background );
+        DrawRottText( x2, y1, 'ï¿½', foreground, background );
+        DrawRottText( x1, y2, 'ï¿½', foreground, background );
+        DrawRottText( x2, y2, 'ï¿½', foreground, background );
         for( x = x1 + 1; x < x2; x++ )
         {
-            DrawRottText( x, y1, 'Í', foreground, background );
-            DrawRottText( x, y2, 'Í', foreground, background );
+            DrawRottText( x, y1, 'ï¿½', foreground, background );
+            DrawRottText( x, y2, 'ï¿½', foreground, background );
         }
         for( y = y1 + 1; y < y2; y++ )
         {
-            DrawRottText( x1, y, 'º', foreground, background );
-            DrawRottText( x2, y, 'º', foreground, background );
+            DrawRottText( x1, y, 'ï¿½', foreground, background );
+            DrawRottText( x2, y, 'ï¿½', foreground, background );
         }
     }
 }

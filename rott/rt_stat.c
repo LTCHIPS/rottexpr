@@ -19,12 +19,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 
 #include "rt_def.h"
-
-#ifdef DOS
-#include <malloc.h>
-#include <dos.h>
-#endif
-
 #include <string.h>
 #include "sprites.h"
 #include <stdio.h>

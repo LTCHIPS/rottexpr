@@ -33,10 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "modexlib.h"
 #include "rt_menu.h"
 
-#ifdef DOS
-#include <mem.h>
-#endif
-
 #include <stdlib.h>
 
 #include "rt_main.h"
@@ -105,29 +101,6 @@ byte   uniformcolors[MAXPLAYERCOLORS]= {
     129,
     109
 };
-
-#ifdef DOS
-byte    mapmasks1[4][9] = {
-    {1,3,7,15,15,15,15,15,15},
-    {2,6,14,14,14,14,14,14,14},
-    {4,12,12,12,12,12,12,12,12},
-    {8,8,8,8,8,8,8,8,8}
-};
-
-byte    mapmasks2[4][9] = {
-    {0,0,0,0,1,3,7,15,15},
-    {0,0,0,1,3,7,15,15,15},
-    {0,0,1,3,7,15,15,15,15},
-    {0,1,3,7,15,15,15,15,15}
-};
-
-byte    mapmasks3[4][9] = {
-    {0,0,0,0,0,0,0,0,1},
-    {0,0,0,0,0,0,0,1,3},
-    {0,0,0,0,0,0,1,3,7},
-    {0,0,0,0,0,1,3,7,15}
-};
-#endif
 
 
 /*
@@ -684,11 +657,7 @@ void SetViewSize
     }
 
     // Calculate offset of view window
-#ifdef DOS
-    screenofs = ( screenx >> 2 ) + ylookup[ screeny ];
-#else
     screenofs = screenx + ylookup[ screeny ];
-#endif
 
 //
 // calculate trace angles and projection constants

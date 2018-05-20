@@ -18,10 +18,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
 
-#ifdef DOS
-#include <mem.h>
-#endif
-
 #include "rt_def.h"
 #include "rt_util.h"
 #include "rt_sound.h"

@@ -17,13 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#ifdef DOS
-#include <dos.h>
-#include <io.h>
-#include <conio.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -192,11 +185,7 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
     m = (x&3);
     mask = (1 << m);
 
-#ifdef DOS
-    origdest = (byte *)(bufferofs+ylookup[y]+(x>>2));
-#else
     origdest = (byte *)(bufferofs+ylookup[y]+x);
-#endif
 
     if (VW_MarkUpdateBlock (x, y, x+width-1, y+height-1))
     {
@@ -205,11 +194,7 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
             src = (&(BkPic->data)+((80*200)*m)+(80*y)+(x>>2));
             dest = origdest;
 
-#ifdef DOS
-            VGAMAPMASK (mask);
-#else
             dest += planes;
-#endif
 
             for (j = 0; j < height; j++)
             {
@@ -219,30 +204,11 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
                     } else {
                         *dest = *src++;
                     }
-#ifdef DOS
-                    dest++;
-#else
                     dest += 4;
-#endif
                 }
-
-#ifndef DOS
-                // draw the remainder.  did the DOS version even bother? - SBF
-                if ((width & 3) > planes) {
-                    if (shade) {
-                        *dest = *(colormap + ((MENUSHADELEVEL>>2)<<8) + *src);
-                    } else {
-                        *dest = *src;
-                    }
-                }
-#endif
 
                 src += (80-(width/4));
-#ifdef DOS
-                dest += (linewidth-(width/4));
-#else
                 dest += (linewidth-(width&~3));
-#endif
             }
 
             m++;
@@ -254,9 +220,6 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
                 x+=4;
                 mask = 1;
                 m = 0;
-#ifdef DOS
-                origdest++;
-#endif
             }
         }
     }
@@ -1068,16 +1031,6 @@ void DrawGameString (int x, int y, const char * str, boolean bufferofsonly)
         tempbuf=bufferofs;
         bufferofs=page1start;
         VW_DrawPropString (str);
-#ifdef DOS
-        px=x;
-        py=y;
-        bufferofs=page2start;
-        VW_DrawPropString (str);
-        px=x;
-        py=y;
-        bufferofs=page3start;
-        VW_DrawPropString (str);
-#endif
         bufferofs=tempbuf;
     }
 }
@@ -1709,11 +1662,7 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
 
     mask = 1 << (xpos&3);
 
-#ifdef DOS
-    olddest = ylookup[ypos] + (xpos>>2);
-#else
     olddest = ylookup[ypos] + xpos;
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -1721,9 +1670,7 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -1742,32 +1689,13 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
                         *(dest+page3start) = pixel;
                     }
                 }
-
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
-
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         if (heightmod)
             src += (heightmod*width);
-
-#ifdef DOS
-        mask <<= 1;
-        if (mask == 16)
-        {
-            mask = 1;
-            olddest++;
-        }
-#endif
     }
 }
 
@@ -1806,11 +1734,7 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
 
     mask = 1 << (xpos&3);
 
-#ifdef DOS
-    olddest = ylookup[ypos] + (xpos>>2);
-#else
     olddest = ylookup[ypos] + xpos;
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -1818,9 +1742,7 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -1841,32 +1763,14 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
                         *(dest+page3start) = pixel;
                     }
                 }
-
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
 
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         if (heightmod)
             src += (heightmod*width);
-
-#ifdef DOS
-        mask <<= 1;
-        if (mask == 16)
-        {
-            mask = 1;
-            olddest++;
-        }
-#endif
     }
 }
 
@@ -1985,25 +1889,14 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
     int k;
     int amt;
 
-#ifdef DOS
-    if (up)
-        amt = 2;
-    else
-        amt = -2;
-#else
     if (up)
         amt = 8;
     else
         amt = -8;
-#endif
 
     mask = 1;
 
-#ifdef DOS
-    olddest = ylookup[ypos] + (xpos>>2);
-#else
     olddest = ylookup[ypos] + xpos;
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -2011,9 +1904,7 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -2036,18 +1927,10 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
                     }
                 }
 
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
 
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         mask <<= 1;
@@ -2208,25 +2091,14 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
     int k;
     int amt;
 
-#ifdef DOS
-    if (up)
-        amt = 2;
-    else
-        amt = -2;
-#else
     if (up)
         amt = 8;
     else
         amt = -8;
-#endif
 
     mask = 1;
 
-#ifdef DOS
-    olddest = (byte *)(bufferofs - screenofs + ylookup[ypos] + (xpos>>2));
-#else
     olddest = (byte *)(bufferofs - screenofs + ylookup[ypos] + xpos);
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -2234,9 +2106,7 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -2252,18 +2122,9 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
                     }
                 }
 
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
-
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         mask <<= 1;
@@ -2715,20 +2576,13 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
 
     mask = 1 << (xpos&3);
 
-#ifdef DOS
-    olddest = (byte *)(bufferofs + ylookup[ypos] + (xpos>>2));
-#else
     olddest = (byte *)(bufferofs + ylookup[ypos] + xpos);
-#endif
+    
     for (planes = 0; planes < 4; planes++)
     {
         VGAMAPMASK (mask);
 
         dest = olddest;
-
-#ifdef DOS
-        dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -2739,28 +2593,18 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
                 if (pixel != 255)
                     *(dest) = pixel;
 
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
 
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
-#ifdef DOS
         mask <<= 1;
         if (mask == 16)
         {
             mask = 1;
             olddest++;
         }
-#endif
     }
 }
 
@@ -2858,11 +2702,8 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
     int  plane;
     int w;
 
-#ifdef DOS
-    dest = ylookup[y]+(x>>2);
-#else
     dest = ylookup[y]+x;
-#endif
+
     mask = 1 << (x&3);
 
     dest1 = (byte *)(dest+page1start);
@@ -2880,20 +2721,13 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
                 screen2 += linewidth,
                 screen3 += linewidth, source+=width)
         {
-#ifdef DOS
-            memcpy (screen1, source, width);
-            memcpy (screen2, source, width);
-            memcpy (screen3, source, width);
-#else
             for (x = 0; x < width; x++) {
                 screen1[x*4+plane] = source[x];
                 screen2[x*4+plane] = source[x];
                 screen3[x*4+plane] = source[x];
             }
-#endif
         }
 
-#ifdef DOS
         mask <<= 1;
 
         if (mask == 16)
@@ -2903,7 +2737,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
             dest2++;
             dest3++;
         }
-#endif
     }
 }
 
