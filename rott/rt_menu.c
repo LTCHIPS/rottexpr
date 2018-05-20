@@ -1891,7 +1891,6 @@ void ControlPanel
         Keyboard[ sc_F9 ] = 0;
 
         loadsavesound = true;
-        CP_LoadGame( 1, 0 );
         break;
 
     case sc_F10:
@@ -5610,7 +5609,7 @@ void CP_DisplayOptions(void)
         {
             case 0:
                 if (!sdl_fullscreen){
-                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
                     sdl_fullscreen ^= 1;
                     borderWindow = 0;
                     borderlessWindow = 0;

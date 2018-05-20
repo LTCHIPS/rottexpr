@@ -423,8 +423,8 @@ void DrawPlayScreen (boolean bufferofsonly)
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
             
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3, 10,10, shape );
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
             
             //apparently the line below was causing segfaults on linux...
             
@@ -434,12 +434,10 @@ void DrawPlayScreen (boolean bufferofsonly)
             
             //enqueue(sdl_draw_obj_queue, shape);
             
-            GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
         
-        
-        
-        //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
         //}
 
@@ -4280,6 +4278,11 @@ boolean ZoomDeathOkay ( void )
 
 #define DEATHROTATE 6
 
+//void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option, boolean fadeOut);
+
+//void RotateScreenScaleFloat(float startAngle, float endAngle, float startScale, float endScale, int time, boolean fadeOut, boolean drawPlayScreen);
+
+
 extern boolean dopefish;
 void Died (void)
 {
@@ -4506,28 +4509,48 @@ void Died (void)
         int rng;
 
         rng = RandomNumber ("Died",0);
-
+        
+        //zooms in on screen
         if (pstate->falling==true)
         {
-            RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
+            RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
+            
             SD_Play (SD_PLAYERTCDEATHSND+(pstate->player));
             pstate->falling=false;
         }
-
+        //zooms out w/o spinning
         else if (rng < 64)
-            RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)));
+        {
+            //RotateBuffer (0, 0, (FINEANGLES>>6), (FINEANGLES), (VBLCOUNTER*(2+slowrate)));
+            //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2, true);
+            RotateScreenScaleFloat(0, 0, 1.0, 0.01875, (VBLCOUNTER*(2+slowrate)), true, false);
+        
+        }
+        //zooms in on screen
         else if (rng < 128)
         {
-            RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
+            RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
+
         }
+        //zooms out with spinning
         else if (rng < 192)
-            RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
-        else
+        {
+            //RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
+            RotateScreenScaleFloat(0, (360.0*3), 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+        }
+        //fade to red
+        else{
             VL_FadeToColor (VBLCOUNTER*2, 100, 0, 0);
+            VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        }
 
         screenfaded=false;
 
-        VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        
         gamestate.episode = 1;
         player->flags &= ~FL_DONE;
 
@@ -4548,18 +4571,36 @@ void Died (void)
 
         SD_Play (SD_GAMEOVERSND);
         rng=RandomNumber("Died",0);
+        
+        //rng = 63;
         if (rng<64)
-            RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+        {
+            //RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+            //RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);    
+            RotateScreenScaleFloat(0, 360, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+            
+        }
         else if (rng<128)
+        {
             VL_FadeToColor (VBLCOUNTER*3, 255, 255, 255);
+            VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        }
         else if (rng<192)
-            RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+        {
+            //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+            //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
+            RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+        }
         else
-            RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-
+        {
+            //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+            //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
+            RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+            
+        }
         screenfaded=false;
 
-        VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        //VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
 
         MU_StartSong(song_gameover);
 

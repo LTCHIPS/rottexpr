@@ -14,7 +14,7 @@ ROTT ?= rott
 
 # Regular build flags and rules
 
-CC ?= gcc
+CC ?= gccs
 
 CFLAGS ?= -g -O2
 CFLAGS += -Wall -Wno-unused

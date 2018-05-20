@@ -36,6 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "queue.h"
 #include "lumpy.h"
+#include "SDL2/SDL2_rotozoom.h"
 //#include <SDL2/SDL_image.h>
 
 
@@ -110,11 +111,6 @@ void GraphicsMode ( void )
     
     SDL_SetRelativeMouseMode(SDL_TRUE);
     
-    //SDL_WM_GrabInput(SDL_GRAB_ON);
-    //SDL_WM_SetCaption ("Rise of the Triad", "ROTT");
-    //SDL_ShowCursor (0);
-//    sdl_surface = SDL_SetVideoMode (320, 200, 8, flags);
-    
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     if (sdl_fullscreen)
         flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
@@ -124,7 +120,11 @@ void GraphicsMode ( void )
                                iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT,
                                flags);
     
-    //SDL_CreateWindowAndRenderer(iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 0, &window, &renderer);
+    if (window == NULL)
+    {
+        Error ("Could not set video mode\n");
+        exit(1);
+    }
     
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     
@@ -132,23 +132,13 @@ void GraphicsMode ( void )
                                     SDL_TEXTUREACCESS_STREAMING, iGLOBAL_SCREENWIDTH,
                                     iGLOBAL_SCREENHEIGHT);
     
-    
-    //sdl_surface = SDL_SetVideoMode (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT, 8, flags);
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
+    
+    
          
     SDL_SetSurfaceRLE(sdl_surface, 1);
                                         
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-    
-    //sdl_draw_obj_queue = malloc(sizeof(Queue));
-    
-    //queueInit(sdl_draw_obj_queue, sizeof(SDLDrawObj));
-    
-    //ToggleFullscreen();
-    if (window == NULL)
-    {
-        Error ("Could not set video mode\n");
-    }
     
 }
 
@@ -278,7 +268,7 @@ void VL_CopyPlanarPageToMemory ( byte * src, byte * dest )
 */
 void VL_CopyBufferToAll ( byte *buffer )
 {
-    STUB_FUNCTION;
+    //STUB_FUNCTION;
 }
 
 /*
@@ -416,7 +406,7 @@ void DrawObjsInSDLQueue(SDL_Texture * tex)
 
 void RenderSurface(void)
 {
-    SDL_Texture *newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
+    SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
     if (newTex == NULL) 
     {
@@ -515,6 +505,7 @@ void DisableScreenStretch(void)
     page3start = sdl_surface->pixels;
     StretchScreen = 0;
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
+    //SDL_RenderSetLogicalSize(renderer, 320, 200);
     
 }
 
@@ -630,3 +621,46 @@ void sdl_handle_window_events(void)
 
 }
 
+//extern int tics;
+
+//void CalcTics (void);
+
+//void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked)
+
+void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float scale)
+{   
+    
+    SDL_RenderClear(renderer);
+        
+    SDL_Rect output;
+    
+    output.w = abs((int)((float)w * scale));
+    
+    output.h = abs((int)((float)h * scale));
+    
+    //if (output.w < MinScreenWidth)
+        //output.w = MinScreenWidth;
+    //if (output.h < MinScreenHeight)
+        //output.h = MinScreenHeight;
+               
+    output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
+        
+    output.y = (iGLOBAL_SCREENHEIGHT - output.h)>>1;
+        
+    SDL_RenderCopyEx(renderer, tex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
+        
+    SDL_RenderPresent(renderer);
+
+
+}
+
+SDL_Texture * GetMainSurfaceAsTexture(void)
+{
+    return SDL_CreateTextureFromSurface(renderer, sdl_surface);
+}
+
+const SDL_Renderer * GetRenderer(void)
+{
+    return renderer;
+
+}
