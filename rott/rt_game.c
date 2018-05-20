@@ -4676,13 +4676,10 @@ void Died (void)
         int rng;
 
         rng = RandomNumber ("Died",0);
-                
-        //rng = 63;
         
         //zooms in on screen
         if (pstate->falling==true)
         {
-            //printf("doing death 0 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
             //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
             RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
@@ -4693,7 +4690,6 @@ void Died (void)
         //zooms out w/o spinning
         else if (rng < 64)
         {
-            //printf("doing death 1 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES>>6), (FINEANGLES), (VBLCOUNTER*(2+slowrate)));
             //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2, true);
             RotateScreenScaleFloat(0, 0, 1.0, 0.01875, (VBLCOUNTER*(2+slowrate)), true, false);
@@ -4702,7 +4698,6 @@ void Died (void)
         //zooms in on screen
         else if (rng < 128)
         {
-            //printf("doing death 2 rotate \n");
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
             //RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
             RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
@@ -4711,7 +4706,6 @@ void Died (void)
         //zooms out with spinning
         else if (rng < 192)
         {
-            //printf("doing death 3 rotate \n");
             //RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
             RotateScreenScaleFloat(0, (360.0*3), 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
         }
@@ -4748,29 +4742,24 @@ void Died (void)
         //rng = 63;
         if (rng<64)
         {
-            //printf("GAME OVER SEQUENCE 1 \n");
             //RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            //RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
-            
+            //RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);    
             RotateScreenScaleFloat(0, 360, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
             
         }
         else if (rng<128)
         {
-            //printf("GAME OVER SEQUENCE 2 \n");
             VL_FadeToColor (VBLCOUNTER*3, 255, 255, 255);
             VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
         }
         else if (rng<192)
         {
-            //printf("GAME OVER SEQUENCE 3 \n");
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
             //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
             RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
         }
         else
         {
-            //printf("GAME OVER SEQUENCE 4 \n");
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
             //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
             RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);

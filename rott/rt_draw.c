@@ -3372,12 +3372,12 @@ void RotateScreenScaleFloat(float startAngle, float endAngle, float startScale, 
     DisableScreenStretch();
     
     //STUB_FUNCTION;
-    printf("ROTATE SCREEN FLOAT FUNC: \n");
-    printf("startAngle: %f \n", startAngle);
-    printf("endAngle: %f \n", endAngle);
-    printf("startScale: %f \n", startScale);
-    printf("endScale: %f \n", endScale);
-    printf("time: %d \n", time);
+    //printf("ROTATE SCREEN FLOAT FUNC: \n");
+    //printf("startAngle: %f \n", startAngle);
+    //printf("endAngle: %f \n", endAngle);
+    //printf("startScale: %f \n", startScale);
+    //printf("endScale: %f \n", endScale);
+    //printf("time: %d \n", time);
     
     float angle = startAngle;
     
@@ -3387,8 +3387,8 @@ void RotateScreenScaleFloat(float startAngle, float endAngle, float startScale, 
     
     float anglestep = (endAngle - startAngle)/(time);
     
-    printf("anglestep: %f \n", anglestep);
-    printf("scalestep: %f \n", scalestep);
+    //printf("anglestep: %f \n", anglestep);
+    //printf("scalestep: %f \n", scalestep);
     //printf("startingScale: %f \n", scale);
     
     CalcTics();
