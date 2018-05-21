@@ -1890,6 +1890,7 @@ void ControlPanel
         LastScan          = 0;
         Keyboard[ sc_F9 ] = 0;
 
+        CP_LoadGame(1, 0);
         loadsavesound = true;
         break;
 

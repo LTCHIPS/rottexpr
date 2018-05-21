@@ -5191,11 +5191,22 @@ boolean LoadTheGame (int num, gamestorage_t * game)
 
     if (game->version!=ROTTVERSION)
         return false;
-
+    
+    //Fix for crash when loading a save on a custom map pack
+    if(GameLevels.avail)
+    {
+        memcpy(&game->info.file, &GameLevels.file, sizeof(GameLevels.file));
+        game->info.path = getcwd(0,0);
+    }
     memcpy (&GameLevels, &game->info, sizeof (GameLevels));
 
+    
+    
     gamestate.episode=game->episode;
     gamestate.mapon=game->area;
+    
+    //printf("LOAD PATH: %s \n", game->info.path);
+    //printf("LOAD FILENAME: %s \n", game->info.file);
 
     mapcrc=GetMapCRC (gamestate.mapon);
 
