@@ -1358,11 +1358,11 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
 
     M_LINKSTATE(ob, pstate);
 
-    int playerCurrentAmmo = (int) pstate->ammo;
+    int playerCurrentAmmo = pstate->ammo;
     
-    int ammoInItem = (int) item_pickup->ammo;
+    int ammoInItem = item_pickup->ammo;
     
-    int maxAmmoInWeapon = (int)stats[item_pickup->itemnumber].ammo;
+    int maxAmmoInWeapon = stats[item_pickup->itemnumber].ammo;
     
     
     //printf("playerCurrentAmmo: %d \n", playerCurrentAmmo);
