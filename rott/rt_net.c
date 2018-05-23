@@ -22,12 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
-
-#ifdef DOS
-#include <dos.h>
-#include <io.h>
-#endif
-
 #include "rt_def.h"
 #include "rt_main.h"
 #include "rt_net.h"
@@ -848,7 +842,7 @@ void ProcessRemoteRidicule ( void * pkt )
             ( ( who == MSG_DIRECTED_TO_TEAM ) && ( BATTLE_Team[ from ] ==
                     BATTLE_Team[ consoleplayer ] ) ) )
     {
-        strcpy( name, "(Å RR from " );
+        strcpy( name, "(ÔøΩ RR from " );
         strcat( name, PLAYERSTATE[from].codename );
         strcat( name, ")" );
         AddMessage( name, MSG_REMOTERIDICULE );

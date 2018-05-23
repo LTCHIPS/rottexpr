@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "WinRott.h"
 #include "rt_def.h"
+#include "SDL2/SDL.h"
 /*
 int iGLOBAL_SCREENWIDTH;//bna val 800
 int iGLOBAL_SCREENHEIGHT;//bna val 600
@@ -121,8 +122,13 @@ extern  byte    *bufferofs;
 extern  byte    *displayofs;
 extern  boolean  graphicsmode;
 
+//extern SDL_Window* window;
+
+extern SDL_Surface * sdl_surface;
+
 
 void  GraphicsMode ( void );
+void  ChangeResolution( int, int);
 void  SetTextMode ( void );
 void  VL_SetVGAPlaneMode ( void );
 void  VL_ClearBuffer (byte *buf, byte color);
@@ -133,6 +139,7 @@ void  VL_CopyBufferToAll ( byte *buffer );
 void  VL_CopyPlanarPage ( byte * src, byte * dest );
 void  VL_CopyPlanarPageToMemory ( byte * src, byte * dest );
 void  XFlipPage ( void );
+void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float scale);
 void  WaitVBL( void );
 void  TurnOffTextCursor ( void );
 

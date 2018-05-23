@@ -1594,6 +1594,10 @@ void StandardEnemyInit(objtype *ob,int dir)
 void OutfitBlitzguardWith(objtype *ob)
 {
     int number = GameRandomNumber("outfitting blitzguard",0);
+    
+    srand((unsigned) number);
+    
+    number = rand() % 400;
 
     if (number < 100)
     {
@@ -1610,32 +1614,31 @@ void OutfitBlitzguardWith(objtype *ob)
         ob->temp3 = stat_drunkmissile;
         ob->temp2 = 3;
     }
-    else if (number > 200 && number <= 225)
+    else if (number > 200 && number <= 250)
     {
         ob->temp3 = stat_firewall;
         ob->temp2 = 3;
     }
-    else if (number > 225 && number <= 250)
+    else if (number > 250 && number <= 300)
     {
         ob->temp3 = stat_firebomb;
         ob->temp2 = 3;
     }
 #if (SHAREWARE == 0)
-    else if (number > 250)
+    else if (number > 300 && number <= 350)
+    {
+        //excalibat
+        ob->temp3 = stat_bat;
+        ob->temp2 = 3;
+    }
+    else if (number > 350)
     {
         //dark staff
         ob->temp3 = stat_kes;
         ob->temp2 = 3;
     }
-    //TODO: Figure out a way to allow biltzguards to attack with excalibat w/o crashing the game?
-    //TODO: Teach blitzguards to fire split missiles...effectively
 
 #endif
-    else
-    {
-        ob->temp3 = stat_bazooka;
-        ob->temp2 = 3;
-    }
 }
 
 extern boolean allowBlitzMoreMissileWeps;
@@ -1645,19 +1648,74 @@ void ConsiderOutfittingBlitzguard(objtype *ob)
 {
     //WILEYBLITZCHANCE is defined to be 20
     if ((GameRandomNumber("wiley blitzguard",0) < WILEYBLITZCHANCE) &&
-            (gamestate.difficulty >= gd_medium)
+        (gamestate.difficulty >= gd_medium)
        )
     {
         if (allowBlitzMoreMissileWeps)
         {
             OutfitBlitzguardWith(ob);
         }
-        else {
+        else 
+        {
             ob->temp3 = stat_bazooka;
             ob->temp2 = 3;
         }
     }
 }
+
+void BlitzBatAttack(objtype*ob, objtype*target)
+{   
+    objtype *temp,*temp2;
+    //objtype *grenadetarget;
+    statobj_t*tstat;
+    int dx,dy,dz,angle,momx,momy,op,magangle;
+    int tilexlow,tilexhigh;
+    int tileylow,tileyhigh;
+    int radius =0x10000;
+    int x,y;
+
+    if (target->flags & FL_DYING)
+        return;
+    dx = abs(target->x - ob->x);
+    dy = abs(target->y - ob->y);
+    dz = abs(target->z - ob->z);
+    if ((dx > 0x10000) || (dy > 0x10000) || (dz > 20))
+        return;
+    
+    SD_PlaySoundRTP(SD_EXCALISWINGSND,ob->x,ob->y);
+    //magangle = abs(ob->angle - AngleBetween(ob,target));
+    //if (magangle > VANG180)
+        //magangle = ANGLES - magangle;
+
+    //if (magangle > ANGLES/8)
+        //return;
+
+
+    angle= ob->angle+ANGLES/16;
+    Fix(angle);
+
+    
+    //if (temp->obclass != grenadeobj)
+    momx = FixedMul(0x3000l,costable[angle]);
+    momy = -FixedMul(0x3000l,sintable[angle]);
+    if (levelheight > 2)
+    {   op = FixedMul(GRAVITY,(maxheight-100)<<16) << 1;
+        target->momentumz = -FixedSqrtHP(op);
+    }
+    target->flags |= FL_NOFRICTION;
+    SD_PlaySoundRTP(SD_EXCALIHITSND,ob->x,ob->y);
+    if ((gamestate.violence == vl_excessive) && (GameRandomNumber("Bat Gibs",0) < 150))
+    {   target->flags |= FL_HBM;
+        DamageThing(target,50);
+    }
+    else
+        DamageThing(target,10);
+    if ((target->flags & FL_HBM) && (target->hitpoints > 0))
+        target->flags &= ~FL_HBM;
+    Collision(target,ob,momx,momy);
+        
+}
+
 
 
 /*
@@ -5635,7 +5693,7 @@ walls:
                         ob->momentumx = -ob->momentumx;
                         int rand;
 
-                        rand = RandomNumber("Spawn Ricochet Sound in SpawnGunSmoke",0);
+                        rand = RandomNumber("Spawn Ricochet Sound",0);
                         if (rand < 80)
                             SD_PlaySoundRTP(SD_RICOCHET1SND,ob->x,ob->y);
                         else if (rand < 160)
@@ -5649,7 +5707,7 @@ walls:
                         ob->momentumy = -ob->momentumy;
                         int rand;
 
-                        rand = RandomNumber("Spawn Ricochet Sound in SpawnGunSmoke",0);
+                        rand = RandomNumber("Spawn Ricochet Sound",0);
                         if (rand < 80)
                             SD_PlaySoundRTP(SD_RICOCHET1SND,ob->x,ob->y);
                         else if (rand < 160)
@@ -7757,7 +7815,8 @@ void PushWallMove(int num)
 }
 
 void ActorMovement (objtype *ob)
-{   int tryx,tryy,tryz,limitok,max,friction,ocl;
+{   
+    int tryx,tryy,tryz,limitok,max,friction,ocl;
 
 
 
@@ -11663,6 +11722,7 @@ void T_Chase (objtype *ob)
                 chance = 400/dist;
             else
                 chance = 300/dist;
+            
 
             if (GameRandomNumber("T_Chase",ocl) <chance)
             {   if ((ocl == b_heinrichobj) && (Near(ob,PLAYER[0],4)))
@@ -12089,6 +12149,135 @@ void T_AutoPath (objtype *ob)
 }
 
 
+void A_Shoot (objtype *ob)
+{
+    int   dx,dy,dz,dist;
+    int   accuracy,damage,sound;
+    objtype * target;
+    int   num;
+    int   savedangle;
+
+    ActorMovement(ob);
+
+    //ob->flags |= FL_FULLLIGHT; bats don't emit light
+//if (!(ob->flags & FL_SHOOTABLE))
+    //Error("\na dead instance of %s is shooting at you",debugstr[ob->obclass]);
+
+    if (!ob->ticcount)
+    {   if (ob->obclass == strikeguardobj)
+            ob->flags &= ~FL_NOFRICTION;
+
+        target = (objtype*)(ob->target);
+        if (!target)
+            Error("an instance of %s called shoot without a target\n",debugstr[ob->obclass]);
+
+        if(!(ob->obclass == blitzguardobj && ob->temp3 == stat_bat))
+        {
+            ob->flags &= ~FL_FULLLIGHT;
+        }
+        
+
+
+        dx = (target->x - ob->x);
+        dy = (ob->y - target->y);
+        dz = target->z-ob->z;
+
+
+        if(ob->obclass == blitzguardobj && ob->temp3 == stat_bat )
+        {
+            //is the target close enough for me to hit with my bat?
+            if ((abs(dx) <= 0x10000) && (abs(dy) <= 0x10000) && (abs(dz) <= 20))
+                BlitzBatAttack(ob, target);
+            else
+                //resort to pistol to damage target
+                goto pistol;
+            ob->target = NULL;
+            return;
+        }
+        
+        else if ((ob->obclass == blitzguardobj) && (ob->temp3) &&
+                (ob->temp3 != stat_gasmask) && (ob->temp3 != stat_asbesto) &&
+                (ob->temp3 != stat_bulletproof) &&
+                (gamestate.difficulty >= gd_medium) &&
+                ((abs(dx) > 0xc000) || (abs(dy) > 0xc000))
+           )
+        {
+            int i;
+            missile_stats* newmissiledata;
+
+            newmissiledata = &PlayerMissileData[GetWeaponForItem(ob->temp3)];
+
+            // ready to annihilate this poor bastard
+
+            SpawnMissile(ob,newmissiledata->obclass,newmissiledata->speed,
+                         AngleBetween(ob,player), newmissiledata->state,
+                         newmissiledata->offset);
+
+            if (newmissiledata->obclass == p_drunkmissileobj)
+            {
+                for(i=0; i<4; i++)
+                {
+                    SpawnMissile(ob,newmissiledata->obclass,newmissiledata->speed,
+                                 AngleBetween(ob,player), newmissiledata->state,
+                                 newmissiledata->offset);
+                }
+            }
+            ob->target = NULL;
+            ob->temp2 --;
+            if (ob->temp2 == 0)
+                ob->temp3 = 0;
+            return;
+        }
+
+
+        if ((!areabyplayer[ob->areanumber]) && (target->obclass ==  playerobj))
+            return;
+
+        //if (!CheckLine(ob,target,SHOOT))       // player is behind a wall
+        //return;
+
+pistol:
+        savedangle=ob->angle;
+        ob->angle = atan2_appx (dx,dy);
+        dist = FindDistance(dx,dy);
+        ob->yzangle = FINEANGLES-atan2_appx(dist, dz<<10);
+
+        if ((ob->yzangle>MAXYZANGLE) && (ob->yzangle<FINEANGLES-MAXYZANGLE))
+            ob->yzangle=MAXYZANGLE;
+
+        dist>>=16;
+
+        accuracy=(WHICHACTOR<<4)+((gamestate.difficulty) << 6);
+
+        num = GameRandomNumber("A_Shoot3",ob->obclass);
+
+        if (num<128) num=128; // Don't let accuracy fall below 50% original
+
+        accuracy=FixedMulShift(num,accuracy,8); // scale accuracy based off randomness
+
+        // check for maximum accuracy;
+
+        if (accuracy>255) accuracy=255;
+
+        if (ob->obclass==highguardobj)
+            damage=DMG_MP40;
+        else if (ob->obclass == triadenforcerobj)
+            damage=DMG_MP40;
+        else
+            damage=DMG_ENEMYBULLETWEAPON;
+
+
+        RayShoot (ob, damage, 255-accuracy);
+
+        ob->angle=savedangle;
+        sound = BAS[ob->obclass].fire;
+        SD_PlaySoundRTP(sound,ob->x,ob->y);
+        MISCVARS->madenoise = true;
+        if ((!(ob->flags& FL_HASAUTO)) || (!ob->temp3))
+            ob->target = NULL;
+    }
+}
+
 
 
 /*
@@ -12101,6 +12290,7 @@ void T_AutoPath (objtype *ob)
 ===============
 */
 
+/*
 void A_Shoot (objtype *ob)
 {
     int   dx,dy,dz,dist;
@@ -12214,6 +12404,7 @@ void A_Shoot (objtype *ob)
             ob->target = NULL;
     }
 }
+*/
 
 
 

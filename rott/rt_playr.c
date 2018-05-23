@@ -17,16 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#ifdef DOS
-#include <dos.h>
-#endif
-
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
-
 #include "rt_def.h"
 #include "watcom.h"
 #include "rt_sound.h"
@@ -2360,17 +2354,7 @@ void PollJoystickMove (void)
 
 void StartVRFeedback (int guntype)
 {
-#ifdef DOS
-    union REGS inregs;
-    union REGS outregs;
-
-    inregs.x.eax = VR_FEEDBACK_SERVICE;
-    inregs.x.ebx = 1;
-    inregs.x.ecx = guntype;
-    int386 (0x33, &inregs, &outregs);
-#else
     STUB_FUNCTION;
-#endif
 }
 
 //******************************************************************************
@@ -2381,16 +2365,7 @@ void StartVRFeedback (int guntype)
 
 void StopVRFeedback (void)
 {
-#ifdef DOS
-    union REGS inregs;
-    union REGS outregs;
-
-    inregs.x.eax = VR_FEEDBACK_SERVICE;
-    inregs.x.ebx = 0;
-    int386 (0x33, &inregs, &outregs);
-#else
     STUB_FUNCTION;
-#endif
 }
 
 //******************************************************************************
@@ -2403,67 +2378,7 @@ void StopVRFeedback (void)
 
 void PollVirtualReality (void)
 {
-#ifdef DOS
-    union REGS inregs;
-    union REGS outregs;
-    short int  mousexmove,
-          mouseymove;
-    word vr_buttons;
-
-    inregs.x.eax = VR_INPUT_SERVICE;
-
-    inregs.x.ebx = player->angle;
-    inregs.x.ecx = player->yzangle;
-
-    int386 (0x33, &inregs, &outregs);
-
-    vr_buttons = outregs.w.bx;
-
-    buttonpoll[bt_run          ] |= VR_BUTTON(VR_RUNBUTTON          );
-    buttonpoll[bt_strafeleft   ] |= VR_BUTTON(VR_STRAFELEFTBUTTON   );
-    buttonpoll[bt_straferight  ] |= VR_BUTTON(VR_STRAFERIGHTBUTTON  );
-    buttonpoll[bt_attack       ] |= VR_BUTTON(VR_ATTACKBUTTON       );
-    buttonpoll[bt_lookup       ] |= VR_BUTTON(VR_LOOKUPBUTTON       );
-    buttonpoll[bt_lookdown     ] |= VR_BUTTON(VR_LOOKDOWNBUTTON     );
-    buttonpoll[bt_swapweapon   ] |= VR_BUTTON(VR_SWAPWEAPONBUTTON   );
-    buttonpoll[bt_use          ] |= VR_BUTTON(VR_USEBUTTON          );
-    buttonpoll[bt_horizonup    ] |= VR_BUTTON(VR_HORIZONUPBUTTON    );
-    buttonpoll[bt_horizondown  ] |= VR_BUTTON(VR_HORIZONDOWNBUTTON  );
-    buttonpoll[bt_map          ] |= VR_BUTTON(VR_MAPBUTTON          );
-    buttonpoll[bt_pistol       ] |= VR_BUTTON(VR_PISTOLBUTTON       );
-    buttonpoll[bt_dualpistol   ] |= VR_BUTTON(VR_DUALPISTOLBUTTON   );
-    buttonpoll[bt_mp40         ] |= VR_BUTTON(VR_MP40BUTTON         );
-    buttonpoll[bt_missileweapon] |= VR_BUTTON(VR_MISSILEWEAPONBUTTON);
-    buttonpoll[bt_recordsound  ] |= VR_BUTTON(VR_RECORDBUTTON       );
-
-    mousexmove = outregs.w.cx;
-    mouseymove = outregs.w.dx;
-
-    VX = 0;
-    VY = 0;
-
-
-    if ((abs (mouseymove)) >= threshold)
-    {
-        VY =  MOUSE_TZ_INPUT_SCALE*mouseymove;
-        if (abs(mouseymove)>200)
-        {
-            buttonpoll[bt_run]=true;
-        }
-    }
-
-    if ((abs (mousexmove)) >= threshold)
-    {
-        VX = -mouse_ry_input_scale*mousexmove;
-        VX += FixedMul(MX,sensitivity_scalar[mouseadjustment]*MOUSE_RY_SENSITIVITY_SCALE);
-        if (abs(mousexmove)>10)
-        {
-            buttonpoll[bt_run]=true;
-        }
-    }
-#else
     STUB_FUNCTION;
-#endif
 }
 
 
@@ -2907,7 +2822,7 @@ void PollAssassin (void)
 //******************************************************************************
 
 
-extern int yzangleDeno;
+//extern int yzangleDeno;
 //239 seems to work fine for 1080
 
 void PollControls (void)
@@ -3022,6 +2937,7 @@ void PollControls (void)
         weaponscale -= 1000;
     
     }
+/*
     if (Keyboard[sc_7]) {
         //	 SetTextMode (  );
         yzangleDeno +=  1;
@@ -3039,6 +2955,7 @@ void PollControls (void)
         AddMessage(msgYZANG,MSG_BONUS);
         //  testval--;
     }
+*/
 //bna section end
 
     for (i = (NUMTXBUTTONS-1); i >= 0; i--)

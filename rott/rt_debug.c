@@ -1368,6 +1368,7 @@ void WeaponCheat (int weapon)
 extern boolean ricochetingRocketsEnabled;
 
 extern boolean perfectAccuracy;
+void RotationFunSDL(void);
 
 void CheckCode (int which)
 {
@@ -1623,7 +1624,7 @@ void CheckCode (int which)
 
         case ROTATIONFUN:
             ShutdownClientControls();
-            RotationFun();
+            RotationFunSDL();
             StartupClientControls();
             SetupScreen( true );
             break;

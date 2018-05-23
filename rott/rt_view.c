@@ -33,10 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "modexlib.h"
 #include "rt_menu.h"
 
-#ifdef DOS
-#include <mem.h>
-#endif
-
 #include <stdlib.h>
 
 #include "rt_main.h"
@@ -105,29 +101,6 @@ byte   uniformcolors[MAXPLAYERCOLORS]= {
     129,
     109
 };
-
-#ifdef DOS
-byte    mapmasks1[4][9] = {
-    {1,3,7,15,15,15,15,15,15},
-    {2,6,14,14,14,14,14,14,14},
-    {4,12,12,12,12,12,12,12,12},
-    {8,8,8,8,8,8,8,8,8}
-};
-
-byte    mapmasks2[4][9] = {
-    {0,0,0,0,1,3,7,15,15},
-    {0,0,0,1,3,7,15,15,15},
-    {0,0,1,3,7,15,15,15,15},
-    {0,1,3,7,15,15,15,15,15}
-};
-
-byte    mapmasks3[4][9] = {
-    {0,0,0,0,0,0,0,0,1},
-    {0,0,0,0,0,0,0,1,3},
-    {0,0,0,0,0,0,1,3,7},
-    {0,0,0,0,0,1,3,7,15}
-};
-#endif
 
 
 /*
@@ -288,10 +261,9 @@ void CalcProjection ( void )
 ==========================
 */
 
-int yzangleDeno = 200;
-
 extern int FocalWidthOffset;
 
+extern int hudRescaleFactor;
 
 void SetViewSize
 (
@@ -633,8 +605,8 @@ void SetViewSize
         StatusBar |= TOP_STATUS_BAR;
 
         // Account for height of top status bar
-        maxheight -= 16;
-        topy      += 16;
+        maxheight -= 16 * hudRescaleFactor;
+        topy      += 16 * hudRescaleFactor;
     }
 
 //   if ( size == 7 ){maxheight -= 16;}//bna++
@@ -645,7 +617,7 @@ void SetViewSize
         // Turn on health and ammo bar
         StatusBar |= BOTTOM_STATUS_BAR;
 
-        maxheight -= 16;
+        maxheight -= 16 * hudRescaleFactor;
 
     }
     else if ( size < 10 )
@@ -674,6 +646,7 @@ void SetViewSize
     
     //what the hell is the significance of 0xaf85???
     
+/*
     switch(iGLOBAL_SCREENWIDTH)
     {
         case 320:
@@ -710,9 +683,11 @@ void SetViewSize
             yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
             break;    
     }
+*/
     
     
     //yzangleconverter = ( 0xaf85 * viewheight ) / (yzangleDeno);
+    yzangleconverter = ( 0xaf85 * viewheight ) / 300;
 
     // Center the view horizontally
     screenx = ( iGLOBAL_SCREENWIDTH - viewwidth ) >> 1;
@@ -729,11 +704,7 @@ void SetViewSize
     }
 
     // Calculate offset of view window
-#ifdef DOS
-    screenofs = ( screenx >> 2 ) + ylookup[ screeny ];
-#else
     screenofs = screenx + ylookup[ screeny ];
-#endif
 
 //
 // calculate trace angles and projection constants
@@ -792,7 +763,7 @@ void SetupScreen ( boolean flip )
     {
         shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
         //DrawTiledRegion( 0, 16, 320, 200 - 32, 0, 16, shape );
-        DrawTiledRegion( 0, 16, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 32, 0, 16, shape );//bna++
+        DrawTiledRegion( 0, 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 0, 16, shape );//bna++
     }
 
     if ( viewsize == 0 )

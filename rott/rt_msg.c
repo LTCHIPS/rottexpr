@@ -33,11 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_main.h"
 #include "rt_net.h"
 #include "rt_com.h"
-
-#ifdef DOS
-#include <mem.h>
-#endif
-
 #include <stdlib.h>
 //MED
 #include "memcheck.h"
@@ -466,6 +461,8 @@ void UpdateMessages
 ====================
 */
 
+extern int hudRescaleFactor;
+
 void DisplayMessage   (int num,int position)
 {
     PrintX = 1;
@@ -478,7 +475,7 @@ void DisplayMessage   (int num,int position)
 
     if ( SHOW_TOP_STATUS_BAR() )
     {
-        PrintY += 16;
+        PrintY += 16 * hudRescaleFactor;
     }
     if ( !MessagesEnabled )
     {

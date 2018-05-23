@@ -33,6 +33,15 @@ typedef struct
     byte     data;
 } pic_t;
 
+typedef struct
+{
+    pic_t * shape;
+    int x;
+    int y;
+    byte * data;
+} SDLDrawObj;
+
+
 #define CONVERT_ENDIAN_pic_t(pp) { }
 
 typedef struct

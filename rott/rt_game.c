@@ -17,13 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 */
-
-#ifdef DOS
-#include <dos.h>
-#include <io.h>
-#include <conio.h>
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -164,6 +157,8 @@ static int playeruniformcolor;
 #define BONUSBONUS   100000
 
 
+extern Queue * sdl_draw_obj_queue;
+
 extern void VL_MemToScreenClipped (byte *source, int width, int height, int x, int y);
 void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, boolean up, boolean bufferofsonly);
 extern void    MoveScreenUpLeft();
@@ -190,11 +185,7 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
     m = (x&3);
     mask = (1 << m);
 
-#ifdef DOS
-    origdest = (byte *)(bufferofs+ylookup[y]+(x>>2));
-#else
     origdest = (byte *)(bufferofs+ylookup[y]+x);
-#endif
 
     if (VW_MarkUpdateBlock (x, y, x+width-1, y+height-1))
     {
@@ -203,11 +194,7 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
             src = (&(BkPic->data)+((80*200)*m)+(80*y)+(x>>2));
             dest = origdest;
 
-#ifdef DOS
-            VGAMAPMASK (mask);
-#else
             dest += planes;
-#endif
 
             for (j = 0; j < height; j++)
             {
@@ -217,30 +204,11 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
                     } else {
                         *dest = *src++;
                     }
-#ifdef DOS
-                    dest++;
-#else
                     dest += 4;
-#endif
                 }
-
-#ifndef DOS
-                // draw the remainder.  did the DOS version even bother? - SBF
-                if ((width & 3) > planes) {
-                    if (shade) {
-                        *dest = *(colormap + ((MENUSHADELEVEL>>2)<<8) + *src);
-                    } else {
-                        *dest = *src;
-                    }
-                }
-#endif
 
                 src += (80-(width/4));
-#ifdef DOS
-                dest += (linewidth-(width/4));
-#else
                 dest += (linewidth-(width&~3));
-#endif
             }
 
             m++;
@@ -252,9 +220,6 @@ void V_ReDrawBkgnd (int x, int y, int width, int height, boolean shade)
                 x+=4;
                 mask = 1;
                 m = 0;
-#ifdef DOS
-                origdest++;
-#endif
             }
         }
     }
@@ -409,6 +374,7 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
     }
 }
 int topBarCenterOffsetX;
+extern int hudRescaleFactor;
 
 //******************************************************************************
 //
@@ -431,10 +397,12 @@ void DrawPlayScreen (boolean bufferofsonly)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
             
-            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16, 0,16, shape );
+            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 0,16, shape );
         }
         shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+        
         GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
+        
     }
 
     if ( BATTLEMODE )
@@ -453,23 +421,22 @@ void DrawPlayScreen (boolean bufferofsonly)
         if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-                
-            //this causes a seg fault when MUSIC_StopSong calls Mix_HaltMusic for some odd reason when player pauses the game...
-            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 16, 34,32, shape );
-                
-            //...yet if we do this...no seg fault
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16, iGLOBAL_SCREENWIDTH, 13, 10,10, shape );
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29, iGLOBAL_SCREENWIDTH, 3, 10,10, shape ); //fill in remaining spots
             
+            
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
+            
+            //apparently the line below was causing segfaults on linux...
+            
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
             
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-                  
-            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
             
+            //enqueue(sdl_draw_obj_queue, shape);
             
-            
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
-            
+        
         GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
         //}
@@ -1064,16 +1031,6 @@ void DrawGameString (int x, int y, const char * str, boolean bufferofsonly)
         tempbuf=bufferofs;
         bufferofs=page1start;
         VW_DrawPropString (str);
-#ifdef DOS
-        px=x;
-        py=y;
-        bufferofs=page2start;
-        VW_DrawPropString (str);
-        px=x;
-        py=y;
-        bufferofs=page3start;
-        VW_DrawPropString (str);
-#endif
         bufferofs=tempbuf;
     }
 }
@@ -1401,26 +1358,34 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
 
     M_LINKSTATE(ob, pstate);
 
-    signed char * playerCurrentAmmo = (signed char *) (int)pstate->ammo;
-    signed char * ammoInItem = (signed char *) (int)item_pickup->ammo;
-    signed char * maxAmmoInWeapon = (signed char *) (int)stats[item_pickup->itemnumber].ammo;
-    signed char * newAmmoAmount = (signed char *)((int)ammoInItem + (int)playerCurrentAmmo);
+    int playerCurrentAmmo = pstate->ammo;
+    
+    int ammoInItem = item_pickup->ammo;
+    
+    int maxAmmoInWeapon = stats[item_pickup->itemnumber].ammo;
+    
+    
+    //printf("playerCurrentAmmo: %d \n", playerCurrentAmmo);
+    //printf("ammoInItem: %d \n", ammoInItem);
+    //printf("maxAmmoInWeapon: %d \n", maxAmmoInWeapon);
+    
+    int newAmmoAmount = ammoInItem + playerCurrentAmmo;
 
     if (newAmmoAmount > maxAmmoInWeapon)
     {
-        ammoInItem = (signed char *)((int)newAmmoAmount - (int)maxAmmoInWeapon);
+        ammoInItem = newAmmoAmount - maxAmmoInWeapon;
         if (ammoInItem < 0)
         {
             Error("Ammo in item cannot be set to a negative number!");
         }
-        item_pickup->ammo = (int) ammoInItem;
+        item_pickup->ammo = ammoInItem;
         newAmmoAmount = maxAmmoInWeapon;
     }
     else
     {
         ammoInItem = 0;
     }
-    pstate->ammo = (int)newAmmoAmount;
+    pstate->ammo = newAmmoAmount;
 
     if (pstate->ammo &&
         (pstate->missileweapon != -1) &&
@@ -1446,7 +1411,7 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
             }
 
             //update ammo count on missile weapon on ground
-            LASTSTAT->ammo = (int)ammoInItem;
+            LASTSTAT->ammo = ammoInItem;
             EnableOldWeapon(pstate);
         }
     }
@@ -1705,11 +1670,7 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
 
     mask = 1 << (xpos&3);
 
-#ifdef DOS
-    olddest = ylookup[ypos] + (xpos>>2);
-#else
     olddest = ylookup[ypos] + xpos;
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -1717,9 +1678,7 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -1738,32 +1697,13 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
                         *(dest+page3start) = pixel;
                     }
                 }
-
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
-
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         if (heightmod)
             src += (heightmod*width);
-
-#ifdef DOS
-        mask <<= 1;
-        if (mask == 16)
-        {
-            mask = 1;
-            olddest++;
-        }
-#endif
     }
 }
 
@@ -1802,11 +1742,7 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
 
     mask = 1 << (xpos&3);
 
-#ifdef DOS
-    olddest = ylookup[ypos] + (xpos>>2);
-#else
     olddest = ylookup[ypos] + xpos;
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -1814,9 +1750,7 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -1837,32 +1771,14 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
                         *(dest+page3start) = pixel;
                     }
                 }
-
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
 
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         if (heightmod)
             src += (heightmod*width);
-
-#ifdef DOS
-        mask <<= 1;
-        if (mask == 16)
-        {
-            mask = 1;
-            olddest++;
-        }
-#endif
     }
 }
 
@@ -1981,25 +1897,14 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
     int k;
     int amt;
 
-#ifdef DOS
-    if (up)
-        amt = 2;
-    else
-        amt = -2;
-#else
     if (up)
         amt = 8;
     else
         amt = -8;
-#endif
 
     mask = 1;
 
-#ifdef DOS
-    olddest = ylookup[ypos] + (xpos>>2);
-#else
     olddest = ylookup[ypos] + xpos;
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -2007,9 +1912,7 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -2032,18 +1935,10 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
                     }
                 }
 
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
 
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         mask <<= 1;
@@ -2204,25 +2099,14 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
     int k;
     int amt;
 
-#ifdef DOS
-    if (up)
-        amt = 2;
-    else
-        amt = -2;
-#else
     if (up)
         amt = 8;
     else
         amt = -8;
-#endif
 
     mask = 1;
 
-#ifdef DOS
-    olddest = (byte *)(bufferofs - screenofs + ylookup[ypos] + (xpos>>2));
-#else
     olddest = (byte *)(bufferofs - screenofs + ylookup[ypos] + xpos);
-#endif
 
     for (planes = 0; planes < 4; planes++)
     {
@@ -2230,9 +2114,7 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
 
         dest = olddest;
 
-#ifndef DOS
         dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -2248,18 +2130,9 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
                     }
                 }
 
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
-
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
         mask <<= 1;
@@ -2711,20 +2584,13 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
 
     mask = 1 << (xpos&3);
 
-#ifdef DOS
-    olddest = (byte *)(bufferofs + ylookup[ypos] + (xpos>>2));
-#else
     olddest = (byte *)(bufferofs + ylookup[ypos] + xpos);
-#endif
+    
     for (planes = 0; planes < 4; planes++)
     {
         VGAMAPMASK (mask);
 
         dest = olddest;
-
-#ifdef DOS
-        dest += planes;
-#endif
 
         for (y = 0; y < height; y++)
         {
@@ -2735,28 +2601,18 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
                 if (pixel != 255)
                     *(dest) = pixel;
 
-#ifdef DOS
-                dest++;
-#else
                 dest += 4;
-#endif
             }
 
-#ifdef DOS
-            dest += (linewidth-width);
-#else
             dest += (linewidth-width*4);
-#endif
         }
 
-#ifdef DOS
         mask <<= 1;
         if (mask == 16)
         {
             mask = 1;
             olddest++;
         }
-#endif
     }
 }
 
@@ -2854,11 +2710,8 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
     int  plane;
     int w;
 
-#ifdef DOS
-    dest = ylookup[y]+(x>>2);
-#else
     dest = ylookup[y]+x;
-#endif
+
     mask = 1 << (x&3);
 
     dest1 = (byte *)(dest+page1start);
@@ -2876,20 +2729,13 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
                 screen2 += linewidth,
                 screen3 += linewidth, source+=width)
         {
-#ifdef DOS
-            memcpy (screen1, source, width);
-            memcpy (screen2, source, width);
-            memcpy (screen3, source, width);
-#else
             for (x = 0; x < width; x++) {
                 screen1[x*4+plane] = source[x];
                 screen2[x*4+plane] = source[x];
                 screen3[x*4+plane] = source[x];
             }
-#endif
         }
 
-#ifdef DOS
         mask <<= 1;
 
         if (mask == 16)
@@ -2899,7 +2745,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
             dest2++;
             dest3++;
         }
-#endif
     }
 }
 
@@ -3468,6 +3313,7 @@ void LevelCompleted
     EndBonusSkip       = false;
     EndBonusStartY     = 90;
 
+    
     EnableScreenStretch();
     tmpPic = ( pic_t * )W_CacheLumpName( "mmbk", PU_CACHE, Cvt_pic_t, 1 );
     VWB_DrawPic( 0, 0, tmpPic );
@@ -4440,6 +4286,11 @@ boolean ZoomDeathOkay ( void )
 
 #define DEATHROTATE 6
 
+//void RotateScreen(int startAngle, int endAngle, int startScale, int endScale, int time, int option, boolean fadeOut);
+
+//void RotateScreenScaleFloat(float startAngle, float endAngle, float startScale, float endScale, int time, boolean fadeOut, boolean drawPlayScreen);
+
+
 extern boolean dopefish;
 void Died (void)
 {
@@ -4666,28 +4517,48 @@ void Died (void)
         int rng;
 
         rng = RandomNumber ("Died",0);
-
+        
+        //zooms in on screen
         if (pstate->falling==true)
         {
-            RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
+            RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
+            
             SD_Play (SD_PLAYERTCDEATHSND+(pstate->player));
             pstate->falling=false;
         }
-
+        //zooms out w/o spinning
         else if (rng < 64)
-            RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)));
+        {
+            //RotateBuffer (0, 0, (FINEANGLES>>6), (FINEANGLES), (VBLCOUNTER*(2+slowrate)));
+            //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2, true);
+            RotateScreenScaleFloat(0, 0, 1.0, 0.01875, (VBLCOUNTER*(2+slowrate)), true, false);
+        
+        }
+        //zooms in on screen
         else if (rng < 128)
         {
-            RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
+            //RotateScreen(0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
+            RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
+
         }
+        //zooms out with spinning
         else if (rng < 192)
-            RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
-        else
+        {
+            //RotateBuffer(0, (FINEANGLES*4), (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(3+slowrate)));
+            RotateScreenScaleFloat(0, (360.0*3), 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+        }
+        //fade to red
+        else{
             VL_FadeToColor (VBLCOUNTER*2, 100, 0, 0);
+            VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        }
 
         screenfaded=false;
 
-        VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        
         gamestate.episode = 1;
         player->flags &= ~FL_DONE;
 
@@ -4708,18 +4579,36 @@ void Died (void)
 
         SD_Play (SD_GAMEOVERSND);
         rng=RandomNumber("Died",0);
+        
+        //rng = 63;
         if (rng<64)
-            RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+        {
+            //RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+            //RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);    
+            RotateScreenScaleFloat(0, 360, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+            
+        }
         else if (rng<128)
+        {
             VL_FadeToColor (VBLCOUNTER*3, 255, 255, 255);
+            VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        }
         else if (rng<192)
-            RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+        {
+            //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+            //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
+            RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+        }
         else
-            RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-
+        {
+            //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
+            //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
+            RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
+            
+        }
         screenfaded=false;
 
-        VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
+        //VL_FadeOut (0, 255, 0,0,0,VBLCOUNTER>>1);
 
         MU_StartSong(song_gameover);
 
@@ -5236,8 +5125,7 @@ int LoadBuffer (byte ** dest, byte ** src)
 //
 //******************************************************************************
 
-
-extern unsigned int freeSlot;
+extern boolean doRescaling;
 
 boolean LoadTheGame (int num, gamestorage_t * game)
 {
@@ -5303,11 +5191,22 @@ boolean LoadTheGame (int num, gamestorage_t * game)
 
     if (game->version!=ROTTVERSION)
         return false;
-
+    
+    //Fix for crash when loading a save on a custom map pack
+    if(GameLevels.avail)
+    {
+        memcpy(&game->info.file, &GameLevels.file, sizeof(GameLevels.file));
+        game->info.path = getcwd(0,0);
+    }
     memcpy (&GameLevels, &game->info, sizeof (GameLevels));
 
+    
+    
     gamestate.episode=game->episode;
     gamestate.mapon=game->area;
+    
+    //printf("LOAD PATH: %s \n", game->info.path);
+    //printf("LOAD FILENAME: %s \n", game->info.file);
 
     mapcrc=GetMapCRC (gamestate.mapon);
 
@@ -5629,7 +5528,9 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     UpdateScore (gamestate.score);
     UpdateLives (locplayerstate->lives);
     UpdateTriads (player, 0);
+    
     PreCache ();
+    DisableScreenStretch();
     InitializeMessages();
 
     for (i=0; i<100; i++)

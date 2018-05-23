@@ -32,14 +32,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <ctype.h>
 
-#if PLATFORM_DOS
-#include <conio.h>
-#include <dos.h>
-#include <io.h>
-#elif PLATFORM_UNIX
 #include <unistd.h>
-#include "SDL.h"
-#endif
+#include "SDL2/SDL.h"
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -119,6 +113,8 @@ int px;
 int py;
 int bufferheight;
 int bufferwidth;
+
+extern SDL_Window *window;
 
 cfont_t *IFont;
 font_t  *CurrentFont;
@@ -757,7 +753,6 @@ CP_MenuNames ExtOptionsNames[] =
     "ALLOW Y AXIS MOUSE",
     "CROSS HAIR",
     "JUMPING",
-    "FULLSCREEN",
     "AUTOAIM MISSILE WEPS",
     "ENABLE AUTOAIM"
 };
@@ -773,7 +768,9 @@ CP_MenuNames ExtGameOptionsNames[] =
 CP_MenuNames VisualOptionsNames[] = 
 {
     "SCREEN RESOLUTION",
-    "ADJUST FOCAL WIDTH"
+    "ADJUST FOCAL WIDTH",
+    "HUD SCALING",
+    "DISPLAY OPTIONS"
 };
 
 CP_MenuNames ScreenResolutions[] = 
@@ -822,20 +819,39 @@ CP_itemtype ScreenResolutionMenu[] = {
     {1, "", ' ',NULL},
 };
 
-CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 2, 0, 43, VisualOptionsNames, mn_largefont };
+CP_MenuNames DisplayOptionsNames[] = {
+    "Fullscreen",
+    "Bordered Window",
+    "Borderless Window",
+};
+
+CP_itemtype DisplayOptionsItems[] = {
+    {1, "", 'F', NULL},
+    {1, "", 'B', NULL},
+    {1, "", 'B', NULL}
+};
+
+CP_iteminfo VisualOptionsItems = { 20, MENU_Y, 4, 0, 43, VisualOptionsNames, mn_largefont };
 
 CP_iteminfo ScreenResolutionItems = {NORMALKEY_X, 17, 19, 0, 16, ScreenResolutions, mn_tinyfont};
 
-CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 8, 0, 43, ExtOptionsNames, mn_largefont };
+CP_iteminfo ExtOptionsItems = { 20, MENU_Y, 7, 0, 43, ExtOptionsNames, mn_largefont };
 
 CP_iteminfo ExtGameOptionsItems = { 20, MENU_Y, 4, 0, 43, ExtGameOptionsNames, mn_largefont }; //LT added
 
+CP_iteminfo DisplayOptionsMenu = { 20, MENU_Y, 3, 0, 43, DisplayOptionsNames, mn_largefont }; //LT added
+
 void CP_ScreenResolution(void);
+
+void CP_DisplayOptions(void);
+void DoAdjustHudScale(void);
 
 CP_itemtype VisualsOptionsMenu[] = 
 {
     {1, "", 'S', (menuptr)CP_ScreenResolution},
-    {1, "", 'F', (menuptr)DoAdjustFocalWidth}
+    {1, "", 'F', (menuptr)DoAdjustFocalWidth},
+    {1, "", 'H', (menuptr)DoAdjustHudScale},
+    {1, "", 'D', (menuptr)CP_DisplayOptions}
 };
 
 CP_itemtype ExtOptionsMenu[] =
@@ -845,7 +861,6 @@ CP_itemtype ExtOptionsMenu[] =
     {1, "", 'D', NULL},
     {1, "", 'C', NULL},
     {1, "", 'J', NULL},
-    {1, "", 'F', NULL},
     {1, "", 'A', NULL},
     {1, "", 'U', NULL},
 };
@@ -1487,10 +1502,6 @@ int getASCII ( void )
     int returnvalue = 0;
     int scancode = 0;
 
-#ifdef DOS
-    _disable ();      // must disable for SHIFT purposes
-#endif
-
     IN_UpdateKeyboard ();
 
     LS = Keyboard[sc_LShift];
@@ -1518,10 +1529,6 @@ int getASCII ( void )
     Keyboard[sc_LShift] = LS;
     Keyboard[sc_RShift] = RS;
 
-#ifdef DOS
-    _enable ();
-#endif
-
     return (returnvalue);
 }
 
@@ -1539,9 +1546,7 @@ void ScanForSavedGames ()
     char str[45];
     int which;
     boolean found = false;
-#ifndef DOS
     char *pathsave;
-#endif
 
     //
     // SEE WHICH SAVE GAME FILES ARE AVAILABLE & READ STRING IN
@@ -1885,8 +1890,8 @@ void ControlPanel
         LastScan          = 0;
         Keyboard[ sc_F9 ] = 0;
 
+        CP_LoadGame(1, 0);
         loadsavesound = true;
-        CP_LoadGame( 1, 0 );
         break;
 
     case sc_F10:
@@ -3544,16 +3549,9 @@ void QuickSaveGame (void)
     s=&game.picture[0];
     for (i=0; i<320; i+=2)
     {
-#ifdef DOS
-        VGAREADMAP(i&3);
-        b=(byte *)bufferofs+(i>>2);
-        for (j=0; j<100; j++,s++,b+=iGLOBAL_SCREENBWIDE<<1)
-            *s=*b;
-#else
         b=(byte *)bufferofs+i;
         for (j=0; j<100; j++,s++,b+=(iGLOBAL_SCREENWIDTH<<1))
             *s=*b;
-#endif
     }
 
     ScanForSavedGames ();
@@ -4868,11 +4866,6 @@ void WaitKeyUp (void)
 void ReadAnyControl (ControlInfo *ci)
 {
 
-#if PLATFORM_DOS
-    union REGS inregs;
-    union REGS outregs;
-#endif
-
     int mouseactive = 0;
     word buttons = 0;
 //   struct Spw_IntPacket packet;
@@ -4907,71 +4900,6 @@ void ReadAnyControl (ControlInfo *ci)
         else if (mousey <= -SENSITIVE)
         {
             ci->dir = dir_North;
-            mouseactive = 1;
-        }
-
-#elif PLATFORM_DOS
-        // READ MOUSE MOTION COUNTERS
-        // RETURN DIRECTION
-        // HOME MOUSE
-        // CHECK MOUSE BUTTONS
-
-        inregs.w.ax = PMOUSE;
-        int386 (MouseInt, &inregs, &outregs);
-
-        mousex = outregs.w.cx;
-        mousey = outregs.w.dx;
-
-
-        if (mousey < (CENTER-SENSITIVE))
-        {
-            ci->dir = dir_North;
-
-            inregs.w.cx = CENTER;
-            inregs.w.dx = CENTER;
-
-            inregs.w.ax = SMOUSE;
-            int386 (MouseInt, &inregs, &outregs);
-
-            mouseactive = 1;
-
-        }
-        else if (mousey > (CENTER+SENSITIVE))
-        {
-            ci->dir = dir_South;
-
-            inregs.w.cx = CENTER;
-            inregs.w.dx = CENTER;
-
-            inregs.w.ax = SMOUSE;
-            int386 (MouseInt, &inregs, &outregs);
-
-            mouseactive = 1;
-        }
-
-        if (mousex < (CENTER-SENSITIVE))
-        {
-            ci->dir = dir_West;
-
-            inregs.w.cx = CENTER;
-            inregs.w.dx = CENTER;
-
-            inregs.w.ax = SMOUSE;
-            int386 (MouseInt, &inregs, &outregs);
-
-
-            mouseactive = 1;
-        }
-        else if (mousex > (CENTER+SENSITIVE))
-        {
-            ci->dir = dir_East;
-
-            inregs.w.cx = CENTER;
-            inregs.w.dx = CENTER;
-
-            inregs.w.ax = SMOUSE;
-            int386 (MouseInt, &inregs, &outregs);
-
             mouseactive = 1;
         }
 #endif
@@ -5187,31 +5115,13 @@ void DrawCustomKeyboard (void)
 //
 //****************************************************************************
 
-void MusicVolume
-(
-    void
-)
-
+void MusicVolume (void)
 {
-#ifdef DOS
-    extern boolean SOUNDSETUP;
-#endif
 
     SliderMenu( &MUvolume, 254, 0, 33, 81, 225, 8, "block3", MUSIC_SetVolume,
                 "Music Volume", "Low", "High" );
 
-#ifdef DOS
-    if ( SOUNDSETUP )
-    {
-        DrawSoundSetupMainMenu();
-    }
-    else
-    {
-#endif
-        DrawControlMenu();
-#ifdef DOS
-    }
-#endif
+    DrawControlMenu();
 }
 
 
@@ -5227,9 +5137,6 @@ void FXVolume
 )
 
 {
-#ifdef DOS
-    extern boolean SOUNDSETUP;
-#endif
     int oldvolume;
 
     oldvolume = FXvolume;
@@ -5237,18 +5144,7 @@ void FXVolume
     SliderMenu( &FXvolume, 254, 0, 33, 81, 225, 8, "block3", FX_SetVolume,
                 "Sound Volume", "Low", "High" );
 
-#ifdef DOS
-    if ( SOUNDSETUP )
-    {
-        DrawSoundSetupMainMenu();
-    }
-    else
-    {
-#endif
-        DrawControlMenu();
-#ifdef DOS
-    }
-#endif
+    DrawControlMenu();
 }
 
 
@@ -5463,6 +5359,15 @@ void DoAdjustFocalWidth (void)
     DrawVisualsMenu ();
 }
 
+
+extern int hudRescaleFactor;
+void DoAdjustHudScale (void)
+{   
+    SliderMenu (&hudRescaleFactor, 10, 0, 44, 81, 194, 1, "block2", NULL,
+                "Adjust Hud Scaling", "Small", "Large" );
+    DrawVisualsMenu ();
+}
+
 void DrawScreenResolutionMenu(void)
 {
     MenuNum = 1;
@@ -5621,6 +5526,132 @@ void CP_ScreenResolution(void)
 
     DrawVisualsMenu();
 }
+extern boolean sdl_fullscreen;
+extern boolean borderWindow;
+extern boolean borderlessWindow;
+
+void DrawDisplayOptionsButtons (void)
+{
+    int i,
+        on;
+    int button_on;
+    int button_off;
+
+    button_on  = W_GetNumForName ("snd_on");
+    button_off = W_GetNumForName ("snd_off");
+
+    for (i = 0; i < DisplayOptionsMenu.amount; i++)
+        if (DisplayOptionsItems[i].active != CP_Active3)
+        {
+            //
+            // DRAW SELECTED/NOT SELECTED GRAPHIC BUTTONS
+            //
+
+            on = 0;
+
+            switch (i)
+            {
+            case 0:
+                if (sdl_fullscreen  == 1) on = 1;
+                break;
+            case 1:
+                if (borderWindow == 1)on = 1;
+                break;
+            case 2:
+                if (borderlessWindow == 1) on = 1;
+                break;
+            default:
+                break;
+            }
+
+            if (on)
+                DrawMenuBufItem (20+22, DisplayOptionsMenu.y+i*14-1, button_on);
+            else
+                DrawMenuBufItem (20+22, DisplayOptionsMenu.y+i*14-1, button_off);
+        }
+}
+
+/*
+CP_MenuNames DisplayOptionsNames[] = {
+    "Fullscreen",
+    "Bordered Window",
+    "Borderless Window",
+};
+*/
+
+void DrawDisplayOptionsMenu (void)
+{
+    MenuNum = 1;
+
+    SetAlternateMenuBuf();
+    ClearMenuBuf();
+    SetMenuTitle ("Display Options");
+
+    MN_GetCursorLocation( &DisplayOptionsMenu, &DisplayOptionsItems[ 0 ] );
+    DrawMenu (&DisplayOptionsMenu, &DisplayOptionsItems[0]);
+    DrawDisplayOptionsButtons();
+    
+    DisplayInfo (0);
+
+    FlipMenuBuf();
+}
+
+
+void CP_DisplayOptions(void)
+{
+    DrawDisplayOptionsMenu();
+
+    int which;
+    
+    do
+    {
+        which = HandleMenu (&DisplayOptionsMenu, &DisplayOptionsItems[0], NULL);
+        switch(which)
+        {
+            case 0:
+                if (!sdl_fullscreen){
+                    SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+                    sdl_fullscreen ^= 1;
+                    borderWindow = 0;
+                    borderlessWindow = 0;
+                }
+                DrawDisplayOptionsButtons ();
+                break;
+            case 1:
+                if (!borderWindow){
+                    if (sdl_fullscreen)
+                    {
+                        SDL_SetWindowFullscreen(window, 0);
+                    }
+                    SDL_SetWindowBordered(window, SDL_TRUE);
+                    sdl_fullscreen = 0;
+                    borderWindow ^=1;
+                    borderlessWindow = 0;
+                }
+                DrawDisplayOptionsButtons ();
+                break;
+            case 2:
+                if (!borderlessWindow){
+                    if (sdl_fullscreen)
+                    {
+                        SDL_SetWindowFullscreen(window, 0);
+                    }
+                    SDL_SetWindowBordered(window, SDL_FALSE);
+                    sdl_fullscreen = 0;
+                    borderWindow = 0;
+                    borderlessWindow^=1;
+                }
+                DrawDisplayOptionsButtons();
+                break;
+            default:
+                break;
+        }
+        
+    } while (which >= 0);
+    
+    DrawVisualsMenu();
+
+}
 
 
 //****************************************************************************
@@ -5646,16 +5677,14 @@ void DrawExtOptionsMenu (void)
     FlipMenuBuf();
 }
 
-static char * ExtOptionsDesc[8] = {
+static char * ExtOptionsDesc[7] = {
     "Allow mouse look.",
     "Invert the mouse.",
     "Move forward and backward using mouse.",
     "Enable Crosshairs.",
     "Allow Jumping (may completely break levels)",
-    "Toggle Fullscreen",
     "Missile weapons are auto aimed after 1st shot.",
-    "Allow auto aim"
-
+    "Allow auto aim."
 };
 
 void DrawExtOptionDescription (int w)
@@ -5685,7 +5714,6 @@ extern int inverse_mouse;
 extern boolean usemouselook;
 extern boolean iG_aimCross;
 extern boolean usejump;
-extern boolean sdl_fullscreen;
 extern boolean autoAimMissileWeps;
 extern boolean autoAim;
 extern boolean allowMovementWithMouseYAxis;
@@ -5733,20 +5761,18 @@ void CP_ExtOptionsMenu (void)
             DrawExtOptionsButtons ();
             break;
         case 5:
-            if (SDL_WM_ToggleFullScreen(SDL_GetVideoSurface()))
-            {
-                sdl_fullscreen ^= 1;
-                DrawExtOptionsButtons ();
-            }
-            break;
-        case 6:
             if(!usemouselook)
                 autoAimMissileWeps ^= 1;
             DrawExtOptionsButtons();
             break;
-        case 7:
+        case 6:
             if(!usemouselook)
                 autoAim ^= 1;
+            autoAimMissileWeps ^= 1;
+            DrawExtOptionsButtons();
+            break;
+        case 7:
+            autoAim ^= 1;
             DrawExtOptionsButtons();
             break;
         }
@@ -5793,12 +5819,9 @@ void DrawExtOptionsButtons (void)
                 if (usejump       == 1) on = 1;
                 break;
             case 5:
-                if (sdl_fullscreen== 1) on = 1;
-                break;
-            case 6:
                 if (autoAimMissileWeps == 1) on = 1;
                 break;
-            case 7:
+            case 6:
                 if (autoAim == 1) on = 1;
                 break;
             }
@@ -9273,759 +9296,6 @@ int CP_EnterCodeNameMenu
     }
 }
 
-#ifdef DOS
-void SS_DrawSBTypeMenu( void );
-void SS_SBTypeMenu( void );
-void SS_DrawPortMenu( void );
-void SS_PortMenu( void );
-void SS_Draw8BitDMAMenu( void );
-void SS_8BitDMAMenu( void );
-void SS_Draw16BitDMAMenu( void );
-void SS_16BitDMAMenu( void );
-void SS_DrawIrqMenu( void );
-void SS_IrqMenu( void );
-void SS_Quit( void );
-void DrawSoundSetupMainMenu( void );
-void CP_SoundSetup( void );
-void SS_MusicMenu( void );
-void SS_DrawMusicMenu( void );
-void SS_SoundMenu( void );
-void SS_DrawSoundMenu( void );
-void SS_SetupMusicCardMenu( void );
-void DrawMusicCardMenu( void );
-void SS_SetupSoundBlaster( int sbmenu );
-void SS_SetupSoundCardMenu( void );
-void SS_VoiceMenu( int sbmenu );
-void SS_DrawVoiceMenu( void );
-void SS_ChannelMenu( void );
-void SS_DrawChannelMenu( void );
-void SS_BitMenu( void );
-void SS_DrawBitMenu( void );
-
-extern int musicnums[ 11 ];
-extern int fxnums[ 11 ];
-
-static int midinums[ 12 ]  = {
-    0x220, 0x230, 0x240, 0x250, 0x300, 0x320,
-    0x330, 0x332, 0x334, 0x336, 0x340, 0x360
-};
-static int voicenums[8] = {1, 2, 3, 4, 5, 6, 7, 8};
-static int resnums[2]   = {8, 16};
-static int smnums[2]    = {1, 2};
-
-//
-// MENU ITEMS
-//
-CP_MenuNames SoundSetupMenuNames[] =
-{
-    "SETUP SOUND FX",
-    "SETUP MUSIC",
-    "SOUND FX VOLUME",
-    "MUSIC VOLUME",
-    "QUIT"
-};
-
-CP_iteminfo SoundSetupMenuItems  = { MENU_X, 48, 5, STARTITEM, 32, SoundSetupMenuNames, mn_largefont };
-CP_itemtype SoundSetupMenu[] =
-{
-    { CP_CursorLocation, "\0",  'S', (menuptr)SS_SoundMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_MusicMenu },
-    { CP_Active,         "\0",  'S', (menuptr)FXVolume },
-    { CP_Active,         "\0",  'M', (menuptr)MusicVolume },
-    { CP_Active,         "\0",  'Q', (menuptr)SS_Quit }
-};
-
-CP_MenuNames SoundSetupMusicNames[] =
-{
-    "None",
-    "Ultrasound",
-    "Sound Blaster",
-    "Sound Man 16",
-    "Pro Audio Spectrum",
-    "AWE 32",
-    "Soundscape",
-    "Wave Blaster",
-    "General Midi",
-    "Sound Canvas",
-    "Adlib"
-};
-
-CP_iteminfo SoundSetupMusicItems  = { 44, MENU_Y + 15, 11, STARTITEM, 16, SoundSetupMusicNames, mn_smallfont };
-CP_itemtype SoundSetupMusic[] =
-{
-    { CP_CursorLocation, "\0",  'N', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'U', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'P', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'A', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'W', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'G', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupMusicCardMenu },
-    { CP_Active,         "\0",  'A', (menuptr)SS_SetupMusicCardMenu }
-};
-
-
-CP_MenuNames SoundSetupSoundNames[] =
-{
-    "None",
-    "Ultrasound",
-    "Sound Blaster",
-    "Sound Man 16",
-    "Pro Audio Spectrum",
-    "AWE 32",
-    "Soundscape",
-    "Adlib",
-    "Disney Sound Source",
-    "Tandy Sound Source",
-    "PC Speaker"
-};
-
-CP_iteminfo SoundSetupSoundItems  = { MENU_X, MENU_Y + 15, 11, STARTITEM, 16, SoundSetupSoundNames, mn_smallfont };
-CP_itemtype SoundSetupSound[] =
-{
-    { CP_CursorLocation, "\0",  'N', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'U', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'P', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'A', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'A', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'S', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'T', (menuptr)SS_SetupSoundCardMenu },
-    { CP_Active,         "\0",  'P', (menuptr)SS_SetupSoundCardMenu }
-};
-
-CP_MenuNames SoundSetupMidiPortNames[] =
-{
-    "220", "230", "240", "250", "300", "320",
-    "330", "332", "334", "336", "340", "360"
-};
-
-CP_iteminfo SoundSetupMidiPortItems = { 108, MENU_Y + 10, 12, STARTITEM, 16, SoundSetupMidiPortNames, mn_smallfont };
-CP_itemtype SoundSetupMidiPort[] =
-{
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_CursorLocation, "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL }
-};
-
-CP_MenuNames SoundSetupVoiceNames[] =
-{
-    "1 voice",
-    "2 voices",
-    "3 voices",
-    "4 voices",
-    "5 voices",
-    "6 voices",
-    "7 voices",
-    "8 voices"
-};
-
-CP_iteminfo SoundSetupVoiceItems  = { MENU_X + 36, 24, 8, STARTITEM, 32, SoundSetupVoiceNames, mn_largefont };
-CP_itemtype SoundSetupVoice[] =
-{
-    { CP_CursorLocation, "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL }
-};
-
-CP_MenuNames SoundSetupChannelNames[] =
-{
-    "  Mono Sound FX",
-    "Stereo Sound FX"
-};
-
-CP_iteminfo SoundSetupChannelItems  = { MENU_X, MP_Y, 2, STARTITEM, 32, SoundSetupChannelNames, mn_largefont };
-CP_itemtype SoundSetupChannel[] =
-{
-    { CP_CursorLocation, "\0",  'M', NULL },
-    { CP_Active,         "\0",  'S', NULL }
-};
-
-CP_MenuNames SoundSetupResolutionNames[] =
-{
-    "8 Bit Mixing",
-    "16 Bit Mixing"
-};
-
-CP_iteminfo SoundSetupResolutionItems  = { MENU_X, MP_Y, 2, STARTITEM, 32, SoundSetupResolutionNames, mn_largefont };
-CP_itemtype SoundSetupResolution[] =
-{
-    { CP_CursorLocation, "\0",  'a', NULL },
-    { CP_Active,         "\0",  'b', NULL }
-};
-
-static int typenums[ 5 ] =
-{
-    fx_SB, fx_SB20, fx_SBPro, fx_SBPro2, fx_SB16
-};
-
-static char typetostring[ 6 ] =
-{
-    5, 0, 2, 1, 3, 4
-};
-
-#define UNDEFINED -1
-
-CP_MenuNames TypeNames[] =
-{
-    "Sound Blaster or compatible",
-    "Sound Blaster 2.0",
-    "Sound Blaster Pro (old)",
-    "Sound Blaster Pro 2.0 (new)",
-    "Sound Blaster 16 or AWE32",
-    "Undefined"
-};
-
-CP_iteminfo TypeItems  = { MENU_X - 13, MENU_Y + 36, 5, STARTITEM, 10, TypeNames, mn_smallfont };
-CP_itemtype TypeMenu[] =
-{
-    { CP_CursorLocation, "\0",  'S', NULL },
-    { CP_Active,         "\0",  'S', NULL },
-    { CP_Active,         "\0",  'S', NULL },
-    { CP_Active,         "\0",  'S', NULL },
-    { CP_Active,         "\0",  'S', NULL }
-};
-
-static int portnums[ 7 ] =
-{
-    0x210, 0x220, 0x230, 0x240, 0x250, 0x260, 0x280
-};
-
-CP_MenuNames PortNames[] =
-{
-    "210", "220", "230", "240", "250", "260", "280"
-};
-
-CP_iteminfo PortItems = { 92, 32, 7, STARTITEM, 32, PortNames, mn_largefont };
-CP_itemtype PortMenu [] =
-{
-    { CP_CursorLocation, "\0",  '2', NULL },
-    { CP_Active,         "\0",  '2', NULL },
-    { CP_Active,         "\0",  '2', NULL },
-    { CP_Active,         "\0",  '2', NULL },
-    { CP_Active,         "\0",  '2', NULL },
-    { CP_Active,         "\0",  '2', NULL },
-    { CP_Active,         "\0",  '2', NULL }
-};
-
-static int _8BitDMAnums[ 3 ] =
-{
-    0, 1, 3
-};
-
-CP_MenuNames _8BitDMANames[] =
-{
-    "DMA channel 0",
-    "DMA channel 1",
-    "DMA channel 3"
-};
-
-CP_iteminfo _8BitDMAItems = { 32, 60, 3, STARTITEM, 32, _8BitDMANames, mn_largefont };
-CP_itemtype _8BitDMAMenu [] =
-{
-    { CP_CursorLocation, "\0",  '0', NULL },
-    { CP_Active,         "\0",  '1', NULL },
-    { CP_Active,         "\0",  '3', NULL }
-};
-
-static int _16BitDMAnums[ 3 ] =
-{
-    5, 6, 7
-};
-
-CP_MenuNames _16BitDMANames[] =
-{
-    "DMA channel 5",
-    "DMA channel 6",
-    "DMA channel 7"
-};
-
-CP_iteminfo _16BitDMAItems = { 32, 60, 3, STARTITEM, 32, _16BitDMANames, mn_largefont };
-CP_itemtype _16BitDMAMenu [] =
-{
-    { CP_CursorLocation, "\0",  '5', NULL },
-    { CP_Active,         "\0",  '6', NULL },
-    { CP_Active,         "\0",  '7', NULL }
-};
-
-static int irqnums[ 8 ] =
-{
-    2, 3, 5, 7, 10, 11, 12, 15
-};
-
-CP_MenuNames IrqNames[] =
-{
-    "IRQ 2",
-    "IRQ 3",
-    "IRQ 5",
-    "IRQ 7",
-    "IRQ 10",
-    "IRQ 11",
-    "IRQ 12",
-    "IRQ 15"
-};
-
-CP_iteminfo IrqItems = { 82, 24, 8, STARTITEM, 32, IrqNames, mn_largefont };
-CP_itemtype IrqMenu [] =
-{
-    { CP_CursorLocation, "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL },
-    { CP_Active,         "\0",  'a', NULL }
-};
-
-CP_MenuNames SBSetupNames[] =
-{
-    "Use Current Settings",
-    "Custom Setup"
-};
-
-CP_iteminfo SBSetupItems  = { MENU_X - 11, MENU_Y + 76, 2, STARTITEM, 19, SBSetupNames, mn_largefont };
-CP_itemtype SBSetupMenu[] =
-{
-    { CP_CursorLocation, "\0",  'U', SS_SetupSoundBlaster },
-    { CP_Active,         "\0",  'C', (menuptr)SS_SBTypeMenu },
-};
-
-extern fx_blaster_config SBSettings;
-
-//******************************************************************************
-//
-// SS_DrawSBSetupMenu()
-//
-//******************************************************************************
-
-void SS_DrawSBSetupMenu
-(
-    void
-)
-
-{
-    char text[ 80 ];
-    char num[ 10 ];
-    char *undefined;
-
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Sound Blaster Setup" );
-
-    WindowW = 288;
-    WindowH = 158;
-    WindowX = 96;
-    WindowY = 32;
-    PrintX  = 0;
-    PrintY  = 32;
-
-    CurrentFont = tinyfont;
-
-    undefined = "Undefined";
-
-    SBSetupMenu[ 0 ].active = CP_Active;
-
-    PrintBattleOption( true, WindowX + 16, PrintY, "Current Settings:" );
-    PrintY += 9;
-
-    strcpy( text, "Card Type : " );
-
-    if ( ( SBSettings.Type < fx_SB ) || ( SBSettings.Type > fx_SB16 ) )
-    {
-        SBSettings.Type = UNDEFINED;
-        strcat( text, undefined );
-        SBSetupMenu[ 0 ].active = CP_Inactive;
-    }
-    else
-    {
-        strcat( text, TypeNames[ (unsigned int)typetostring[ SBSettings.Type ] ] );
-    }
-
-    PrintBattleOption( true, WindowX, PrintY, text );
-    PrintY += 6;
-
-    strcpy( text, "Port : " );
-    if ( SBSettings.Address != (unsigned long)UNDEFINED )
-    {
-        itoa( SBSettings.Address, num, 16 );
-        strcat( text, num );
-    }
-    else
-    {
-        strcat( text, undefined );
-        SBSetupMenu[ 0 ].active = CP_Inactive;
-    }
-
-    PrintBattleOption( true, WindowX + 19, PrintY, text );
-    PrintY += 6;
-
-    strcpy( text, "IRQ : " );
-    if ( SBSettings.Interrupt != (unsigned long)UNDEFINED )
-    {
-        itoa( SBSettings.Interrupt, num, 10 );
-        strcat( text, num );
-    }
-    else
-    {
-        strcat( text, undefined );
-        SBSetupMenu[ 0 ].active = CP_Inactive;
-    }
-    PrintBattleOption( true, WindowX + 23, PrintY, text );
-    PrintY += 6;
-
-    strcpy( text, "DMA : " );
-    if ( SBSettings.Dma8 != (unsigned long)UNDEFINED )
-    {
-        itoa( SBSettings.Dma8, num, 10 );
-        strcat( text, num );
-    }
-    else
-    {
-        strcat( text, undefined );
-        SBSetupMenu[ 0 ].active = CP_Inactive;
-    }
-    PrintBattleOption( true, WindowX + 21, PrintY, text );
-    PrintY += 6;
-
-    strcpy( text, "16-Bit DMA : " );
-    if ( SBSettings.Dma16 != (unsigned long)UNDEFINED )
-    {
-        itoa( SBSettings.Dma16, num, 10 );
-        strcat( text, num );
-    }
-    else
-    {
-        strcat( text, undefined );
-    }
-    PrintBattleOption( true, WindowX - 4, PrintY, text );
-    PrintY += 6;
-
-    MN_GetCursorLocation( &SBSetupItems, &SBSetupMenu[ 0 ] );
-    DrawMenu( &SBSetupItems, &SBSetupMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-    RefreshMenuBuf( 0 );
-}
-
-
-//******************************************************************************
-//
-// SS_DrawSBTypeMenu()
-//
-//******************************************************************************
-
-void SS_DrawSBTypeMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select Sound Blaster Type" );
-    MN_GetActive( &TypeItems, &TypeMenu[ 0 ], SBSettings.Type, typenums );
-    DrawMenu( &TypeItems, &TypeMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_SBTypeMenu()
-//
-//******************************************************************************
-
-void SS_SBTypeMenu
-(
-    void
-)
-
-{
-    int which;
-
-    do
-    {
-        SS_DrawSBTypeMenu();
-        which = HandleMenu( &TypeItems, &TypeMenu[0], NULL );
-        if ( which >= 0 )
-        {
-            SBSettings.Type = typenums[ which ];
-            SS_PortMenu();
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    handlewhich = -2;
-}
-
-//******************************************************************************
-//
-// SS_DrawPortMenu()
-//
-//******************************************************************************
-
-void SS_DrawPortMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select Sound Blaster Port" );
-    MN_GetActive( &PortItems, &PortMenu[ 0 ], SBSettings.Address, portnums );
-    DrawMenu( &PortItems, &PortMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_PortMenu()
-//
-//******************************************************************************
-
-void SS_PortMenu
-(
-    void
-)
-
-{
-    int which;
-
-    do
-    {
-        SS_DrawPortMenu();
-        which = HandleMenu( &PortItems, &PortMenu[0], NULL );
-        if ( which >= 0 )
-        {
-            SBSettings.Address = portnums[ which ];
-            SBSettings.Emu = SBSettings.Address;
-            SS_8BitDMAMenu();
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    handlewhich = -1;
-}
-
-//******************************************************************************
-//
-// SS_Draw8BitDMAMenu()
-//
-//******************************************************************************
-
-void SS_Draw8BitDMAMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select 8-bit DMA Channel" );
-    MN_GetActive( &_8BitDMAItems, &_8BitDMAMenu[ 0 ], SBSettings.Dma8, _8BitDMAnums );
-    DrawMenu( &_8BitDMAItems, &_8BitDMAMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_8BitDMAMenu()
-//
-//******************************************************************************
-
-void SS_8BitDMAMenu
-(
-    void
-)
-
-{
-    int which;
-
-    do
-    {
-        SS_Draw8BitDMAMenu();
-        which = HandleMenu( &_8BitDMAItems, &_8BitDMAMenu[0], NULL );
-        if ( which >= 0 )
-        {
-            SBSettings.Dma8 = _8BitDMAnums[ which ];
-            SS_16BitDMAMenu();
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    handlewhich = -1;
-}
-
-//******************************************************************************
-//
-// SS_Draw16BitDMAMenu()
-//
-//******************************************************************************
-
-void SS_Draw16BitDMAMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select 16-bit DMA Channel" );
-    MN_GetActive( &_16BitDMAItems, &_16BitDMAMenu[ 0 ], SBSettings.Dma16, _16BitDMAnums );
-    DrawMenu( &_16BitDMAItems, &_16BitDMAMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_16BitDMAMenu()
-//
-//******************************************************************************
-
-void SS_16BitDMAMenu
-(
-    void
-)
-
-{
-    int which;
-
-    if ( SBSettings.Type != fx_SB16 )
-    {
-        SS_IrqMenu();
-        return;
-    }
-
-    do
-    {
-        SS_Draw16BitDMAMenu();
-        which = HandleMenu( &_16BitDMAItems, &_16BitDMAMenu[0], NULL );
-        if ( which >= 0 )
-        {
-            SBSettings.Dma16 = _16BitDMAnums[ which ];
-            SS_IrqMenu();
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    handlewhich = -1;
-}
-
-//******************************************************************************
-//
-// SS_DrawIrqMenu()
-//
-//******************************************************************************
-
-void SS_DrawIrqMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select Sound Blaster IRQ" );
-    MN_GetActive( &IrqItems, &IrqMenu[ 0 ], SBSettings.Interrupt, irqnums );
-    DrawMenu( &IrqItems, &IrqMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_IrqMenu()
-//
-//******************************************************************************
-
-void SS_IrqMenu
-(
-    void
-)
-
-{
-    int which;
-
-    do
-    {
-        SS_DrawIrqMenu();
-        which = HandleMenu( &IrqItems, &IrqMenu[0], NULL );
-
-        if ( which >= 0 )
-        {
-            SBSettings.Interrupt = irqnums[ which ];
-            SS_SetupSoundBlaster( true );
-
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    handlewhich = -1;
-}
-#endif
-
-
 //******************************************************************************
 //
 // GetNextWord()
@@ -10158,731 +9428,3 @@ void CP_ErrorMsg
 
     MN_PlayMenuSnd( SD_ESCPRESSEDSND );
 }
-
-#ifdef DOS
-
-//****************************************************************************
-//
-// DrawSoundSetupMainMenu ()
-//
-//****************************************************************************
-void DrawSoundSetupMainMenu
-(
-    void
-)
-
-{
-    MenuNum = 1;
-
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Sound Setup" );
-    if ( FXMode == 0 )
-    {
-        SoundSetupMenu[ 2 ].active = CP_Inactive;
-    }
-    else if ( SoundSetupMenu[ 2 ].active == CP_Inactive )
-    {
-        SoundSetupMenu[ 2 ].active = CP_Active;
-    }
-
-    if ( MusicMode == 0 )
-    {
-        SoundSetupMenu[ 3 ].active = CP_Inactive;
-    }
-    else if ( SoundSetupMenu[ 3 ].active == CP_Inactive )
-    {
-        SoundSetupMenu[ 3 ].active = CP_Active;
-    }
-
-    MN_GetCursorLocation( &SoundSetupMenuItems, &SoundSetupMenu[ 0 ] );
-    DrawMenu( &SoundSetupMenuItems, &SoundSetupMenu[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-
-//******************************************************************************
-//
-// Sound Setup Quit
-//
-//******************************************************************************
-
-void SS_Quit
-(
-    void
-)
-
-{
-    extern boolean WriteSoundFile;
-
-    CP_DisplayMsg( "Do you wish to\nsave your changes?\n"
-                   "Press ESC to return\nto sound setup.", 12 );
-
-    if ( CP_Acknowledge != CP_ESC )
-    {
-        WriteSoundFile = true;
-        if ( CP_Acknowledge == CP_NO )
-        {
-            WriteSoundFile = false;
-        }
-
-        MU_FadeOut(310);
-        VL_FadeOut (0, 255, 0, 0, 0, 10);
-        ShutdownMenuBuf();
-        QuitGame ();
-    }
-
-    DrawSoundSetupMainMenu();
-}
-
-//******************************************************************************
-//
-// Sound Setup
-//
-//******************************************************************************
-
-void CP_SoundSetup ( void )
-{
-    int which;
-    extern boolean WriteSoundFile;
-
-    WriteSoundFile = false;
-
-    SetupMenuBuf();
-    DrawSoundSetupMainMenu();
-    IN_ClearKeysDown();
-
-    if ( MusicMode != 0 )
-    {
-        MU_StartSong( song_title );
-    }
-
-    while( 1 )
-    {
-        which = HandleMenu( &SoundSetupMenuItems, SoundSetupMenu, NULL );
-        if ( which == -1 )
-        {
-            SS_Quit();
-        }
-    }
-}
-
-//******************************************************************************
-//
-// SS_MusicMenu ()
-//
-//******************************************************************************
-
-void SS_MusicMenu
-(
-    void
-)
-
-{
-    int which;
-
-    MN_MakeActive( &SoundSetupMusicItems, &SoundSetupMusic[ 0 ], MusicMode );
-
-    SS_DrawMusicMenu ();
-    IN_ClearKeysDown();
-
-    do
-    {
-        which = HandleMenu( &SoundSetupMusicItems, &SoundSetupMusic[ 0 ], NULL );
-    }
-    while( which > 0 );
-
-    DrawSoundSetupMainMenu();
-    handlewhich = RETURNVAL;
-}
-
-
-//******************************************************************************
-//
-// SS_DrawMusicMenu ()
-//
-//******************************************************************************
-
-void SS_DrawMusicMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select Music Card" );
-
-    MN_GetCursorLocation( &SoundSetupMusicItems, &SoundSetupMusic[ 0 ] );
-    DrawMenu( &SoundSetupMusicItems, &SoundSetupMusic[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-
-//******************************************************************************
-//
-// SS_SetupMusicCardMenu()
-//
-//******************************************************************************
-
-void SS_SetupMusicCardMenu
-(
-    void
-)
-
-{
-    int status;
-    int select;
-    if ( ( ( musicnums[ handlewhich ] == SoundBlaster ) ||
-            ( musicnums[ handlewhich ] == WaveBlaster ) ||
-            ( musicnums[ handlewhich ] == Awe32 ) ) &&
-            ( fxnums[ FXMode ] != SoundBlaster ) &&
-            ( fxnums[ FXMode ] != Awe32 ) )
-    {
-        CP_ErrorMsg( "Music Error",
-                     "Please set your Sound FX card to Sound Blaster before "
-                     "selecting this card for music.", mn_smallfont );
-
-        handlewhich = -1;
-        return;
-    }
-
-    MusicMode = handlewhich;
-
-    MU_Shutdown();
-
-    if ( ( musicnums[ MusicMode ] == GenMidi ) ||
-            ( musicnums[ MusicMode ] == SoundCanvas ) ||
-            ( musicnums[ MusicMode ] == WaveBlaster ) ||
-            ( musicnums[ MusicMode ] == Awe32 ) )
-    {
-        DrawMusicCardMenu();
-
-        IN_ClearKeysDown ();
-
-        select = HandleMenu( &SoundSetupMidiPortItems,
-                             &SoundSetupMidiPort[0], NULL );
-
-        if ( select > -1 )
-        {
-            MidiAddress = midinums[ select ];
-        }
-        else
-        {
-            SS_DrawMusicMenu ();
-            handlewhich = RETURNVAL;
-            MusicMode = 0;
-            return;
-        }
-    }
-
-    if ( MusicMode != 0 )
-    {
-        if ( ( musicnums[ handlewhich ] == WaveBlaster ) ||
-                ( musicnums[ handlewhich ] == Awe32 ) )
-        {
-            SD_Shutdown();
-        }
-
-        SetAlternateMenuBuf();
-        ClearMenuBuf();
-        SetMenuTitle( "Music Card Initialization" );
-        WindowW = 288;
-        WindowH = 158;
-        PrintX = WindowX = 0;
-        PrintY = WindowY = 65;
-        newfont1 = (font_t *)W_CacheLumpName( "newfnt1", PU_CACHE, Cvt_font_t, 1 );
-        CurrentFont = newfont1;
-        MenuBufCPrint( "Initializing card.\nPlease wait." );
-        FlipMenuBuf();
-        RefreshMenuBuf( 0 );
-
-        status = MU_Startup( false );
-        if ( status )
-        {
-            MusicMode = 0;
-
-            CP_ErrorMsg( "Music Error", MUSIC_ErrorString( MUSIC_Error ),
-                         mn_smallfont );
-            SS_DrawMusicMenu ();
-            handlewhich = RETURNVAL;
-        }
-        else
-        {
-            handlewhich = -1;
-            MU_StartSong( song_title );
-        }
-
-        if ( ( musicnums[ MusicMode ] == WaveBlaster ) ||
-                ( musicnums[ MusicMode ] == Awe32 ) )
-        {
-            status = SD_Startup( false );
-            if ( status != FX_Ok )
-            {
-                CP_ErrorMsg( "Sound FX Error", FX_ErrorString( FX_Error ),
-                             mn_smallfont );
-
-                handlewhich = -2;
-            }
-        }
-    }
-    else
-    {
-        handlewhich = -1;
-        MU_Shutdown();
-    }
-}
-
-
-//******************************************************************************
-//
-// DrawMusicCardMenu()
-//
-//******************************************************************************
-
-void DrawMusicCardMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle( "Select MIDI Port Address" );
-    MN_GetActive( &SoundSetupMidiPortItems, &SoundSetupMidiPort[ 0 ],
-                  MidiAddress, midinums );
-    DrawMenu( &SoundSetupMidiPortItems, &SoundSetupMidiPort[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_SoundMenu ()
-//
-//******************************************************************************
-
-void SS_SoundMenu
-(
-    void
-)
-
-{
-    int which;
-
-    MN_MakeActive( &SoundSetupSoundItems, &SoundSetupSound[0], FXMode );
-
-    SS_DrawSoundMenu ();
-    IN_ClearKeysDown();
-
-    do {
-        which = HandleMenu( &SoundSetupSoundItems, &SoundSetupSound[ 0 ], NULL );
-    }
-    while( which >= 0 );
-
-    DrawSoundSetupMainMenu();
-    handlewhich = RETURNVAL;
-}
-
-
-//******************************************************************************
-//
-// SS_DrawSoundMenu ()
-//
-//******************************************************************************
-
-void SS_DrawSoundMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle ("Select Sound FX Card");
-
-    MN_GetCursorLocation( &SoundSetupSoundItems, &SoundSetupSound[0] );
-
-    DrawMenu( &SoundSetupSoundItems, &SoundSetupSound[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-
-//******************************************************************************
-//
-// SS_SetupSoundBlaster()
-//
-//******************************************************************************
-
-void SS_SetupSoundBlaster
-(
-    int sbmenu
-)
-
-{
-    int status;
-
-    status = FX_SetupSoundBlaster( SBSettings, &MaxVoices,
-                                   &MaxBits, &MaxChannels );
-
-    if ( status == FX_Ok )
-    {
-        SS_VoiceMenu( sbmenu );
-
-        if ( handlewhich < 0 )
-        {
-            return;
-        }
-        SetAlternateMenuBuf();
-        ClearMenuBuf();
-        SetMenuTitle( "Sound Card Initialization" );
-        WindowW = 288;
-        WindowH = 158;
-        PrintX = WindowX = 0;
-        PrintY = WindowY = 65;
-        newfont1 = (font_t *)W_CacheLumpName( "newfnt1", PU_CACHE, Cvt_font_t, 1 );
-        CurrentFont = newfont1;
-        MenuBufCPrint( "Initializing card.\nPlease wait." );
-        FlipMenuBuf();
-        RefreshMenuBuf( 0 );
-
-        status = SD_Startup( false );
-
-        RefreshMenuBuf( 0 );
-    }
-
-    if ( status != FX_Ok )
-    {
-        CP_ErrorMsg( "Sound FX Error", FX_ErrorString( FX_Error ),
-                     mn_smallfont );
-
-        handlewhich = -2;
-    }
-}
-
-
-//******************************************************************************
-//
-// SS_SetupSoundCardMenu()
-//
-//******************************************************************************
-
-void SS_SetupSoundCardMenu
-(
-    void
-)
-
-{
-    int which;
-    int FXstatus;
-    extern int fxnums[];
-
-    INFXSETUP = true;
-
-    FXMode = handlewhich;
-
-    SD_Shutdown();
-
-    if ( FXMode == 0 )
-    {
-        handlewhich = -1;
-    }
-    else
-    {
-        if ( ( fxnums[ FXMode ] == SoundBlaster ) ||
-                ( fxnums[ FXMode ] == Awe32 ) )
-        {
-            do
-            {
-                SS_DrawSBSetupMenu();
-                which = HandleMenu( &SBSetupItems, &SBSetupMenu[ 0 ], NULL );
-            }
-            while( which == -2 );
-
-            if ( which == -1 )
-            {
-                FXMode = 0;
-                handlewhich = 0;
-                SS_DrawSoundMenu();
-            }
-            else
-            {
-                handlewhich = -1;
-            }
-
-            INFXSETUP = false;
-            return;
-        }
-
-        FXstatus = SD_SetupFXCard( &MaxVoices, &MaxBits, &MaxChannels );
-        if ( FXstatus == FX_Ok )
-        {
-            SS_VoiceMenu( true );
-
-            if ( handlewhich == -1 )
-            {
-                SS_DrawSoundMenu ();
-                handlewhich = RETURNVAL;
-                FXMode = 0;
-                SD_Shutdown ();
-                INFXSETUP = false;
-                return;
-            }
-
-            SetAlternateMenuBuf();
-            ClearMenuBuf();
-            SetMenuTitle( "Sound Card Initialization" );
-            WindowW = 288;
-            WindowH = 158;
-            PrintX = WindowX = 0;
-            PrintY = WindowY = 65;
-            newfont1 = (font_t *)W_CacheLumpName( "newfnt1", PU_CACHE, Cvt_font_t, 1 );
-            CurrentFont = newfont1;
-            MenuBufCPrint( "Initializing card.\nPlease wait." );
-            FlipMenuBuf();
-            RefreshMenuBuf( 0 );
-
-            FXstatus = SD_Startup( false );
-
-            RefreshMenuBuf( 0 );
-        }
-
-        if ( FXstatus != FX_Ok )
-        {
-            FXMode = 0;
-            handlewhich = RETURNVAL;
-
-            CP_ErrorMsg( "Sound FX Error", FX_ErrorString( FX_Error ),
-                         mn_smallfont );
-            SS_DrawSoundMenu();
-        }
-        else
-        {
-            handlewhich = -1;
-        }
-    }
-
-    INFXSETUP = false;
-}
-
-
-//******************************************************************************
-//
-// SS_VoiceMenu ()
-//
-//******************************************************************************
-
-void SS_VoiceMenu
-(
-    int sbmenu
-)
-
-{
-    int which;
-
-    if ( MaxVoices < 2 )
-    {
-        NumVoices = 1;
-        SS_ChannelMenu();
-        return;
-    }
-
-    do
-    {
-        SS_DrawVoiceMenu ();
-
-        which = HandleMenu( &SoundSetupVoiceItems, &SoundSetupVoice[0],
-                            NULL );
-        if ( which >= 0 )
-        {
-            NumVoices = voicenums[ which ];
-            SS_ChannelMenu();
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    if ( sbmenu )
-    {
-        handlewhich = -1;
-    }
-    else
-    {
-        handlewhich = -2;
-    }
-}
-
-//******************************************************************************
-//
-// SS_DrawVoiceMenu()
-//
-//******************************************************************************
-
-void SS_DrawVoiceMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle ("Number of Voices");
-
-    MN_GetActive( &SoundSetupVoiceItems, &SoundSetupVoice[0],
-                  NumVoices, voicenums );
-
-    DrawMenu( &SoundSetupVoiceItems, &SoundSetupVoice[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_ChannelMenu ()
-//
-//******************************************************************************
-
-void SS_ChannelMenu
-(
-    void
-)
-
-{
-    int which;
-
-    if ( MaxChannels < 2 )
-    {
-        NumChannels = 1;
-        SS_BitMenu();
-        return;
-    }
-
-    do
-    {
-        SS_DrawChannelMenu ();
-        which = HandleMenu( &SoundSetupChannelItems, &SoundSetupChannel[0],
-                            NULL );
-        if ( which >= 0 )
-        {
-            NumChannels = smnums[ which ];
-            SS_BitMenu();
-            if ( handlewhich == -1 )
-            {
-                continue;
-            }
-            return;
-        }
-    }
-    while( which >= 0 );
-
-    handlewhich = -1;
-}
-
-//******************************************************************************
-//
-// SS_DrawChannelMenu()
-//
-//******************************************************************************
-
-void SS_DrawChannelMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle ("Number of Channels");
-
-    MN_GetActive( &SoundSetupChannelItems, &SoundSetupChannel[0],
-                  NumChannels, smnums );
-
-    DrawMenu( &SoundSetupChannelItems, &SoundSetupChannel[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-
-//******************************************************************************
-//
-// SS_BitMenu ()
-//
-//******************************************************************************
-
-void SS_BitMenu
-(
-    void
-)
-
-{
-    int which;
-
-    if ( MaxBits < 16 )
-    {
-        NumBits = 8;
-        return;
-    }
-
-    SS_DrawBitMenu ();
-
-    which = HandleMenu( &SoundSetupResolutionItems,
-                        &SoundSetupResolution[0], NULL );
-
-    if ( which >= 0 )
-    {
-        NumBits = resnums[ which ];
-        return;
-    }
-
-    handlewhich = -1;
-}
-
-
-//******************************************************************************
-//
-// SS_DrawBitMenu()
-//
-//******************************************************************************
-
-void SS_DrawBitMenu
-(
-    void
-)
-
-{
-    MenuNum = SNDCARDS;
-
-    SetAlternateMenuBuf();
-    ClearMenuBuf();
-    SetMenuTitle ("Playback Resolution");
-
-    MN_GetActive( &SoundSetupResolutionItems, &SoundSetupResolution[0],
-                  NumBits, resnums );
-
-    DrawMenu( &SoundSetupResolutionItems, &SoundSetupResolution[ 0 ] );
-    DisplayInfo( 0 );
-
-    FlipMenuBuf();
-}
-#endif

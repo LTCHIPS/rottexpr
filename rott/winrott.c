@@ -37,7 +37,7 @@ extern int FocalWidthOffset;
 void RecalculateFocalWidth(void)
 {
     iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
-    dGLOBAL_FPFOCALWIDTH = 160.0 - FocalWidthOffset;
+    dGLOBAL_FPFOCALWIDTH = 160 - FocalWidthOffset;
 }
 
 void SetRottScreenRes (int Width, int Height)
@@ -61,7 +61,12 @@ void SetRottScreenRes (int Width, int Height)
     iG_SCREENWIDTH = iGLOBAL_SCREENWIDTH*(96/320);// default screen width in bytes
     
     dTopYZANGLELIMIT = (44*FINEANGLES/360);
-
+    //dTopYZANGLELIMIT = (44*FINEANGLES/360);;
+    
+    //MinScreenWidth =  ((float)iGLOBAL_SCREENWIDTH * 0.01875);
+    
+    //MinScreenHeight = ((float)iGLOBAL_SCREENHEIGHT * 0.02);
+    
 }
 
 //----------------------------------------------------------------------
