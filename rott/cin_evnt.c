@@ -283,7 +283,7 @@ void ParseBack ( eventtype * event )
     char name2[10];
     int duration;
     int yoffset;
-    int width;
+    int width = 0;
     int startx;
     int endx;
 

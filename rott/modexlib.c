@@ -225,10 +225,10 @@ void VL_SetVGAPlaneMode ( void )
     iG_X_center = iGLOBAL_SCREENWIDTH / 2;
     iG_Y_center = (iGLOBAL_SCREENHEIGHT / 2)+10 ;//+10 = move aim down a bit
 
-    iG_buf_center = bufferofs + (screensize/2);//(iG_Y_center*iGLOBAL_SCREENWIDTH);//+iG_X_center;
+    iG_buf_center = (char *)(bufferofs + (screensize/2));//(iG_Y_center*iGLOBAL_SCREENWIDTH);//+iG_X_center;
 
-    bufofsTopLimit =  bufferofs + screensize - iGLOBAL_SCREENWIDTH;
-    bufofsBottomLimit = bufferofs + iGLOBAL_SCREENWIDTH;
+    bufofsTopLimit =  (char *) (bufferofs + screensize - iGLOBAL_SCREENWIDTH);
+    bufofsBottomLimit = (char *) (bufferofs + iGLOBAL_SCREENWIDTH);
 
     // start stretched
     EnableScreenStretch();
@@ -560,7 +560,7 @@ void DrawCenterAim ()
                 x = iG_playerTilt;
                 iG_playerTilt=x/2;
             }
-            iG_buf_center = bufferofs + ((iG_Y_center-iG_playerTilt)*iGLOBAL_SCREENWIDTH);//+iG_X_center;
+            iG_buf_center = (char *)(bufferofs + ((iG_Y_center-iG_playerTilt)*iGLOBAL_SCREENWIDTH));//+iG_X_center;
 
             for (x=iG_X_center-10; x<=iG_X_center-4; x++) {
                 if ((iG_buf_center+x < bufofsTopLimit)&&(iG_buf_center+x > bufofsBottomLimit)) {

@@ -230,7 +230,7 @@ void   DrawPlanePosts (void)
 {
     int height;
     char * buf;
-    byte * shape;
+    byte * shape = NULL;
     int lastwall=-2;
     int plane;
     int i;
@@ -238,7 +238,7 @@ void   DrawPlanePosts (void)
     shadingtable=colormap+(16<<8);
     {
         VGAWRITEMAP(plane);
-        buf=(byte *)(bufferofs);
+        buf=(char *)(bufferofs);
 
         for (i=0; i<viewwidth; i++,buf++)
         {
@@ -253,7 +253,7 @@ void   DrawPlanePosts (void)
                 else
                     shape=W_CacheLumpNum(lastwall,PU_CACHE, Cvt_patch_t, 1);
             }
-            DrawRotPost (height,shape+posts[i].texture,buf,posts[i].offset);
+            DrawRotPost (height,shape+posts[i].texture,(byte*)buf,posts[i].offset);
         }
     }
 }
@@ -367,7 +367,7 @@ void DrawTransformedPlanes ( void )
     int greatest;
     int height;
     int i;
-    visobj_t * closest;
+    visobj_t * closest = NULL;
 
     numvisible = visptr-&vislist[0];
     if (!numvisible)

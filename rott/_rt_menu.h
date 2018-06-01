@@ -194,7 +194,7 @@ enum {MOUSE, JOYSTICK, KEYBOARDBTNS, KEYBOARDMOVE, SPECIAL1, SPECIAL2};
 //
 //******************************************************************************
 
-static byte *ScanNames[] =    // Scan code names with single chars
+static char *ScanNames[] =    // Scan code names with single chars
 {
     "?","?","1","2","3","4","5","6","7","8","9","0","-","+","?","?",
     "Q","W","E","R","T","Y","U","I","O","P","[","]","|","?","A","S",
@@ -215,7 +215,7 @@ static byte ExtScanCodes[] = // Scan codes with >1 char names
     0x50, 0x4b, 0x4d, 0x00
 };
 
-static byte *ExtScanNames[] = // Names corresponding to ExtScanCodes
+static char *ExtScanNames[] = // Names corresponding to ExtScanCodes
 {
     "Esc","BkSp","Tab","Ctrl","Space","CapLk","F1","F2","F3","F4",
     "F5","F6","F7","F8","F9","F10","F11","F12","SclLk","Enter","Shift",

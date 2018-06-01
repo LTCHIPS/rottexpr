@@ -793,6 +793,8 @@ void VL_FadeIn (int start, int end, byte *palette, int steps)
 //
     VL_SetPalette (palette);
     screenfaded = false;
+    VH_UpdateScreen();
+    
 }
 
 

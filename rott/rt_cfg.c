@@ -2053,7 +2053,7 @@ void GetAlternatePath (char * tokenstr, AlternateInformation *info)
     if (!stricmp (token, tokenstr))
     {
         GetTokenEOL (false);
-        memset (&info->path[0], 0, sizeof (info->path));
+        memset (&info->path[0], 0, sizeof (&info->path));
         strcpy (&info->path[0], &name[0]);
     }
 }
@@ -2080,7 +2080,7 @@ void GetAlternateFile (char * tokenstr, AlternateInformation *info)
             {
 #if (SHAREWARE == 0)
                 info->avail = true;
-                memset (&info->file[0], 0, sizeof (info->file));
+                memset (&info->file[0], 0, sizeof (&info->file));
                 strcpy (&info->file[0], &token[0]);
 #else
                 printf("Alternate file %s ignored.\n",token);

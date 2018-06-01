@@ -3972,7 +3972,7 @@ void DefineKey
             buttonscan[ (unsigned int)order[ handlewhich ] ] = key;
 
             strcpy( &NormalKeyNames[ handlewhich ][ KEYNAMEINDEX ],
-                    IN_GetScanName( key ) );
+                    (char *)IN_GetScanName( key ) );
 
             picked = true;
 
