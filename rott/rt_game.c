@@ -373,6 +373,14 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
                         source->height, x, y );
     }
 }
+
+void QueueItemToDraw(pic_t * source, int x, int y)
+{
+
+
+}
+
+
 int topBarCenterOffsetX;
 extern int hudRescaleFactor;
 
@@ -432,10 +440,15 @@ void DrawPlayScreen (boolean bufferofsonly)
             
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
             
+            
+            
+            
             //enqueue(sdl_draw_obj_queue, shape);
             
             //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
+        
+        
         
         GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
@@ -447,16 +460,9 @@ void DrawPlayScreen (boolean bufferofsonly)
         if ( demoplayback )
         {
             shape = ( pic_t * )W_CacheLumpName( "demo", PU_CACHE, Cvt_pic_t, 1 );
-            if (iGLOBAL_SCREENWIDTH == 640) {
-                DrawPPic( 148*2, 465, shape->width, shape->height,
-                          ( byte * )&shape->data, 1, true, bufferofsonly );
-            } else if (iGLOBAL_SCREENWIDTH == 800) {
-                DrawPPic( 380, 585, shape->width, shape->height,
-                          ( byte * )&shape->data, 1, true, bufferofsonly );
-            } else {
-                DrawPPic( 148, 185, shape->width, shape->height,
-                          ( byte * )&shape->data, 1, true, bufferofsonly );
-            }
+            
+            DrawPPic( (iGLOBAL_SCREENWIDTH-(shape->width<<2)), (iGLOBAL_SCREENHEIGHT-shape->height)>>1, 
+                    shape->width, shape->height, ( byte * )&shape->data, 1, true, bufferofsonly );
         }
     }
 
@@ -483,21 +489,11 @@ void DrawPlayScreen (boolean bufferofsonly)
 
         // Draw player's name
         
-        if (iGLOBAL_SCREENWIDTH == 800)
-        {
-            DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
-            VW_MeasurePropString( LastNames[ character ], &width, &height );
-            DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
-                         LastNames[ character ], bufferofsonly );
-        }
-        else
-        {  
-            DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
-            VW_MeasurePropString( LastNames[ character ], &width, &height );
-            DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
-                         LastNames[ character ], bufferofsonly );
+        DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
+        VW_MeasurePropString( LastNames[ character ], &width, &height );
+        DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
+                     LastNames[ character ], bufferofsonly );
         
-        }
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
         DrawTriads( bufferofsonly );

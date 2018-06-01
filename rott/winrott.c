@@ -37,7 +37,7 @@ extern int FocalWidthOffset;
 void RecalculateFocalWidth(void)
 {
     iGLOBAL_FOCALWIDTH = 160 - FocalWidthOffset;
-    dGLOBAL_FPFOCALWIDTH = 160 - FocalWidthOffset;
+    dGLOBAL_FPFOCALWIDTH = (double) FocalWidthOffset;
 }
 
 void SetRottScreenRes (int Width, int Height)
