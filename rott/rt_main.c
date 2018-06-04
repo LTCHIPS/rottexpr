@@ -163,7 +163,6 @@ extern void RecordDemoQuery ( void );
 
 int main (int argc, char *argv[])
 {
-    char *macwd;
     extern char *BATTMAPS;
     
     _argc = argc;
@@ -1639,7 +1638,6 @@ void QuitGame ( void )
 #else
     byte *txtscn;
 #endif
-    int k;
 
     MU_FadeOut(200);
     while (MU_FadeActive())
