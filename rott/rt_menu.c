@@ -1549,7 +1549,7 @@ void ScanForSavedGames ()
     // SEE WHICH SAVE GAME FILES ARE AVAILABLE & READ STRING IN
     //
     memset (&SaveGamesAvail[0], 0, sizeof (SaveGamesAvail));
-#if PLATFORM_DOS || PLATFORM_WIN32
+#if PLATFORM_WIN32
     GetPathFromEnvironment( filename, ApogeePath, SaveName );
 #else
     strncpy (filename, SaveName, 256);
@@ -1579,7 +1579,7 @@ void ScanForSavedGames ()
     }
     else
         MainMenu[loadgame].active = CP_Inactive;
-#if ((!PLATFORM_DOS) && (!PLATFORM_WIN32))
+#if !PLATFORM_WIN32
     chdir (pathsave);
     free (pathsave);
 #endif
