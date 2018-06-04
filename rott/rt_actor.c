@@ -1665,14 +1665,8 @@ void ConsiderOutfittingBlitzguard(objtype *ob)
 
 void BlitzBatAttack(objtype*ob, objtype*target)
 {   
-    objtype *temp,*temp2;
     //objtype *grenadetarget;
-    statobj_t*tstat;
-    int dx,dy,dz,angle,momx,momy,op,magangle;
-    int tilexlow,tilexhigh;
-    int tileylow,tileyhigh;
-    int radius =0x10000;
-    int x,y;
+    int dx,dy,dz,angle,momx,momy,op;
 
     if (target->flags & FL_DYING)
         return;
