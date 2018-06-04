@@ -320,7 +320,6 @@ void SetSoundDefaultValues
     //
     //  no config file, so select default values
     //
-#if !defined(PLATFORM_DOS)
     // icculus' SDL_mixer driver looks like a soundscape to us
     MusicMode   = 6;
     FXMode      = 6;
@@ -328,27 +327,6 @@ void SetSoundDefaultValues
     NumChannels = 2;
     NumBits     = 16;
     stereoreversed = false;
-#else
-    MusicMode   = 0;
-    FXMode      = 0;
-    NumVoices   = 4;
-    NumChannels = 1;
-    NumBits     = 8;
-    MidiAddress = 0x330;
-    stereoreversed = false;
-
-    status = FX_GetBlasterSettings( &blaster );
-    if ( status == FX_Ok )
-    {
-        SBSettings.Type      = blaster.Type;
-        SBSettings.Address   = blaster.Address;
-        SBSettings.Interrupt = blaster.Interrupt;
-        SBSettings.Dma8      = blaster.Dma8;
-        SBSettings.Dma16     = blaster.Dma16;
-        SBSettings.Midi      = blaster.Midi;
-        SBSettings.Emu       = blaster.Emu;
-    }
-#endif
 }
 
 
