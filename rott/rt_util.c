@@ -815,10 +815,7 @@ void FixFilePath(char *filename)
 }
 
 
-#if PLATFORM_DOS
-/* no-op. */
-
-#elif PLATFORM_WIN32
+#if PLATFORM_WIN32
 int _dos_findfirst(char *filename, int x, struct find_t *f)
 {
     long rc = _findfirst(filename, &f->data);
@@ -936,7 +933,6 @@ int _dos_findnext(struct find_t *f)
 #endif
 
 
-#if !PLATFORM_DOS
 void _dos_getdate(struct dosdate_t *date)
 {
     time_t curtime = time(NULL);
@@ -955,7 +951,6 @@ void _dos_getdate(struct dosdate_t *date)
         date->dayofweek = tm->tm_wday + 1;
     }
 }
-#endif
 
 
 void GetPathFromEnvironment( char *fullname, const char *envname, const char *filename )
