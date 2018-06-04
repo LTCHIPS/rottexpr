@@ -188,11 +188,7 @@ void Square (void);
 #endif
 
 
-#ifdef DOS
-void my_outp(int port, int data);
-#else
 #define my_outp(a,b)
-#endif
 
 #ifdef __WATCOMC__
 #pragma aux my_outp =  \
