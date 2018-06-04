@@ -174,8 +174,6 @@ void W_AddFile (char *_filename)
 
 void W_CheckWADIntegrity ( void )
 {
-    int crc;
-
 // CRC disabled because it's not very useful these days
 
 #ifdef DOS
