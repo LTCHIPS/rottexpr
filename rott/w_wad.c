@@ -101,11 +101,7 @@ void W_AddFile (char *_filename)
 // read the entire file in
 //      FIXME: shared opens
 
-#ifdef PLATFORM_DOS
-    if ( (handle = open (filename,O_RDWR | O_BINARY)) == -1)
-#else
     if ( (handle = open (filename,O_RDONLY | O_BINARY)) == -1)
-#endif
         return;
 
     startlump = numlumps;
