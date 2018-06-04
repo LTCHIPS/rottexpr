@@ -423,7 +423,6 @@ void ScaleShape (visobj_t * sprite)
     int      x1,x2;
     int      tx;
     int      size;
-    int      plane;
 
     whereami=32;
     shape=W_CacheLumpNum(sprite->shapenum,PU_CACHE, Cvt_patch_t, 1);
@@ -575,7 +574,6 @@ void ScaleTransparentShape (visobj_t * sprite)
     byte * b;
     int    startfrac;
     int    startx;
-    int    plane;
 
     whereami=33;
     shape=W_CacheLumpNum(sprite->shapenum,PU_CACHE, Cvt_transpatch_t, 1);
@@ -656,7 +654,6 @@ void ScaleSolidShape (visobj_t * sprite)
     int      x1,x2;
     int      tx;
     int      size;
-    int      plane;
     byte * b;
     int    startfrac;
     int    startx;
@@ -736,7 +733,6 @@ void ScaleWeapon (int xoff, int y, int shapenum)
     byte * b;
     int    startfrac;
     int    startx;
-    int    plane;
 
     whereami=35;
     SetPlayerLightLevel();
@@ -810,7 +806,6 @@ void DrawUnScaledSprite (int x, int y, int shapenum, int shade)
     byte * b;
     int    startfrac;
     int    startx;
-    int    plane;
 
     whereami=36;
     shadingtable=colormap+(shade<<8);
@@ -896,7 +891,6 @@ void DrawPositionedScaledSprite (int x, int y, int shapenum, int height, int typ
     byte * b;
     int    startfrac;
     int    startx;
-    int    plane;
     int    size;
 
     whereami=38;
@@ -1172,7 +1166,6 @@ void DrawNormalSprite (int x, int y, int shapenum)
     int cnt;
     byte *shape;
     patch_t *p;
-    int plane;
     byte * b;
     int startx;
 
@@ -1287,7 +1280,6 @@ void R_DrawClippedColumn (byte * buf)
 void R_DrawSolidColumn (int color, byte * buf)
 {
     int count;
-    int frac, fracstep;
     byte *dest;
 
     count = dc_yh - dc_yl + 1;
