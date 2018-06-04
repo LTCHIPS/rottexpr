@@ -171,22 +171,6 @@ void W_AddFile (char *_filename)
 void W_CheckWADIntegrity ( void )
 {
 // CRC disabled because it's not very useful these days
-
-#ifdef DOS
-    crc = CalculateCRC ((byte *)lumpinfo, numlumps*sizeof(lumpinfo_t) );
-
-    if (crc != WADCHECKSUM)
-    {
-        printf("==============================================================================\n");
-        printf("ATTENTION: This version of ROTT has been modified.  If you would like to get\n");
-        printf("a copy of the original game, call 1-800-APOGEE1 or run ROTTHELP.EXE.\n");
-        printf("      You will not receive technical support for this modified version.\n");
-//      printf("                        Press any key to continue\n");
-        printf("==============================================================================\n");
-//      printf("crc=%ld\n",crc);
-//      getch();
-    }
-#endif
 }
 
 
@@ -236,9 +220,6 @@ void W_InitMultipleFiles (char **filenames)
 #if (DATACORRUPTIONTEST == 1)
     lumpcheck=SafeMalloc(numlumps);
     memset(lumpcheck,255,numlumps);
-#endif
-#ifdef DOS
-    if (!SOUNDSETUP)
 #endif
         W_CheckWADIntegrity ();
 }
