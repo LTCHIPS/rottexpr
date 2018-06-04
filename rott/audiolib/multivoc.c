@@ -418,7 +418,6 @@ void MV_ServiceVoc
    {
    VoiceNode *voice;
    VoiceNode *next;
-   char      *buffer;
 
 #ifdef PLAT_DOS
    if ( MV_DMAChannel >= 0 )
