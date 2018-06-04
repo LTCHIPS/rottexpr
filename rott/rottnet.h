@@ -23,13 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "develop.h"
 
-#ifdef DOS
-#define PEL_WRITE_ADR   0x3c8
-#define PEL_DATA        0x3c9
-
-#define I_ColorBlack(r,g,b) {outp(PEL_WRITE_ADR,0);outp(PEL_DATA,r);outp(PEL_DATA,g);outp(PEL_DATA,b);};
-#endif
-
 #define	MAXNETNODES		14			// max computers in a game
 
 #if ( SHAREWARE == 1 )

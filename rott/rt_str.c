@@ -171,7 +171,7 @@ void VW_DrawPropString (const char *string)
     byte  pix;
     int   width,step,height,ht;
     byte  *source, *dest, *origdest;
-    int   ch,mask;
+    int   ch;
 
     ht = CurrentFont->height;
     dest = origdest = (byte *)(bufferofs+ylookup[py]+px);

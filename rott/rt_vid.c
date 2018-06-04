@@ -60,18 +60,6 @@ boolean  screenfaded;
 
 //******************************************************************************
 //
-// LOCALS
-//
-//******************************************************************************
-
-static byte  pixmasks[4] = {1,2,4,8};
-static byte  leftmasks[4] = {15,14,12,8};
-static byte  rightmasks[4] = {1,3,7,15};
-
-
-
-//******************************************************************************
-//
 // VL_MemToScreen ()
 //
 //******************************************************************************
@@ -176,7 +164,6 @@ void DrawTiledRegion
     int    sourcey;
     int    sourcewidth;
     int    sourceheight;
-    int    mask;
     int    plane;
     int    planesize;
     byte  *start;

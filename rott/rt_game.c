@@ -2704,7 +2704,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
     byte *dest1, *dest2, *dest3, mask;
     byte *screen1, *screen2, *screen3;
     int  plane;
-    int w;
 
     dest = ylookup[y]+x;
 
@@ -4774,11 +4773,9 @@ boolean SaveTheGame (int num, gamestorage_t * game)
     char   filename[MAX_PATH];
     byte   * altbuffer;
     int    size;
-    int    avail;
     int    savehandle;
     int    crc;
     int    i;
-    char   letter;
     int myticcount;
 
     if (num > 15 || num < 0)
@@ -4804,40 +4801,6 @@ boolean SaveTheGame (int num, gamestorage_t * game)
 
 
     GetPathFromEnvironment( filename, ApogeePath, loadname );
-
-#if PLATFORM_DOS
-    {
-        struct diskfree_t dfree;
-        // Determine available disk space
-        letter = toupper(filename[0]);
-        if (
-            (letter >= 'A') &&
-            (letter <= 'Q')
-        )
-        {
-            if (_dos_getdiskfree ((letter-'A'+1), &dfree))
-                Error ("Error in _dos_getdiskfree call\n");
-        }
-        else
-        {
-            if (_dos_getdiskfree (0, &dfree))
-                Error ("Error in _dos_getdiskfree call\n");
-        }
-
-        avail = (int) dfree.avail_clusters *
-                dfree.bytes_per_sector *
-                dfree.sectors_per_cluster;
-        avail -= 8192;
-
-        // Check to see if we have enough
-
-        if (avail < MAXSAVEDGAMESIZE)
-        {
-            CP_DisplayMsg ("There is not enough\nspace on your disk\nto Save Game!\nPress any key to continue", 13);
-            return (false);
-        }
-    }
-#endif
 
     // Open the savegame file
 

@@ -32,12 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 extern "C" {
 #endif
 
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-#  if PLATFORM_DOS
-#    define REALMODE
-#  endif
-#endif
-
 #if defined(REALMODE)
 #define FAR __far
 #else

@@ -233,7 +233,6 @@ void PlayMovie ( char * name, boolean uselumpy )
     ShutdownCinematic ();
 }
 
-#ifndef DOS
 int cin_iscale;
 byte *cin_source;
 int cin_texturemid;
@@ -275,5 +274,4 @@ void DrawFilmPost (byte * buf, byte * src, int height)
         buf += linewidth;
     }
 }
-#endif
 

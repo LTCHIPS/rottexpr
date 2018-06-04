@@ -20,13 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef _rt_util_private
 #define _rt_util_private
 
-#ifdef DOS
-#define PEL_WRITE_ADR   0x3c8
-#define PEL_READ_ADR    0x3c7
-#define PEL_DATA        0x3c9
-#define PEL_MASK        0x3c6
-#endif
-
 #define ERRORROW        2
 #define ERRORCOL        11
 
@@ -43,5 +36,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define WeightR  3
 #define WeightG  5
 #define WeightB  2
-
 #endif

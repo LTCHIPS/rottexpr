@@ -19,11 +19,6 @@
 #include "buildengine/cache1d.h"
 #endif
 
-#if PLATFORM_DOS
-// Use the original Apogee Sound System libs instead.  --ryan.
-#error you probably should not compile this.
-#endif
-
 #if (defined __WATCOMC__)
 // This is probably out of date.  --ryan.
 #include "dukesnd_watcom.h"
@@ -59,16 +54,8 @@ int MUSIC_ErrorCode = MUSIC_Ok;
 
 static char warningMessage[80];
 static char errorMessage[80];
-static int fx_initialized = 0;
-static int numChannels = MIX_CHANNELS;
-static void (*callback)(unsigned long);
-static int reverseStereo = 0;
-static int reverbDelay = 256;
-static int reverbLevel = 0;
-static int fastReverb = 0;
 static FILE *debug_file = NULL;
 static int initialized_debugging = 0;
-static int mixerIsStereo = 1;
 
 // This gets called all over the place for information and debugging messages.
 //  If the user set the DUKESND_DEBUG environment variable, the messages

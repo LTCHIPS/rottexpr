@@ -169,9 +169,6 @@ extern boolean MONOPRESENT;
 extern boolean MAPSTATS;
 extern boolean TILESTATS;
 extern boolean HUD;
-#ifdef DOS
-extern boolean SOUNDSETUP;
-#endif
 
 extern char CWD[40];
 

@@ -51,20 +51,10 @@ extern volatile int Keytail;
 extern volatile int Keyboard[MAXKEYBOARDSCAN];   // Keyboard status array
 extern volatile int Keystate[MAXKEYBOARDSCAN];   // Keyboard state array
 
-#ifdef DOS
-extern volatile int ticcount;     // Current ticcount (usually 70Hz)
-extern volatile int fasttics;
-
-#define GetTicCount()	ticcount
-#define GetFastTics()	fasttics
-
-#define SetFastTics(a) {fasttics=a;}
-#else
 int GetTicCount (void);
 int GetFastTics (void);
 
 void SetFastTics(int);
-#endif
 
 extern int KeyboardStarted;
 
