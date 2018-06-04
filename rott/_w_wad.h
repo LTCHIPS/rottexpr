@@ -32,11 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #elif ( LOWCOST == 1)
 #define WADCHECKSUM (12185)
 #else
-#ifdef DOS
-#define WADCHECKSUM (45677)
-#else
 #define WADCHECKSUM (20567)
-#endif
 #endif
 
 #else
