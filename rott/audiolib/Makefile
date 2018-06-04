@@ -6,8 +6,8 @@ RANLIB ?= ranlib
 
 ARFLAGS ?= rcT
 
-CFLAGS ?= -g -O2
-CFLAGS += -Wall
+CFLAGS ?= -std=c17 -g -Og
+CFLAGS += -Wall -Wextra -Wshadow -Wpedantic
 CFLAGS += $(shell sdl-config --cflags)
 
 OBJS :=
