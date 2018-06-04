@@ -34,17 +34,4 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 unsigned long DisableInterrupts( void );
 void          RestoreInterrupts( unsigned long flags );
 
-#ifdef PLAT_DOS
-#pragma aux DisableInterrupts = \
-   "pushfd",                    \
-   "pop    eax",                \
-   "cli"                        \
-   modify [ eax ];
-
-#pragma aux RestoreInterrupts = \
-   "push   eax",                \
-   "popfd"                      \
-   parm [ eax ];
-#endif
-
 #endif
