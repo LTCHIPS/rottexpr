@@ -232,7 +232,6 @@ void   DrawPlanePosts (void)
     char * buf;
     byte * shape = NULL;
     int lastwall=-2;
-    int plane;
     int i;
 
     shadingtable=colormap+(16<<8);
