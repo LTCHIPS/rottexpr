@@ -316,15 +316,10 @@ void Error (char *error, ...)
 {
     char msgbuf[300];
     va_list	argptr;
-    char i;
     int size;
     char * sptr;
-    char buf[30];
-    int handle;
-    int x,y;
     int level;
     static int inerror = 0;
-    char filename[ 128 ];
 
 
     inerror++;
