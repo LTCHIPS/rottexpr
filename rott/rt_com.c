@@ -59,8 +59,6 @@ void SetTransitTime( int client, int time );
 
 #ifdef PLATFORM_UNIX
 
-static int sock = -1;
-
 static void ReadUDPPacket()
 {
     rottcom->remotenode = -1;
@@ -83,7 +81,6 @@ static void WriteUDPPacket()
 void InitROTTNET (void)
 {
     int netarg;
-    long netaddress;
 
     if (ComStarted==true)
         return;
