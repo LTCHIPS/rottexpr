@@ -1383,6 +1383,8 @@ void GameLoop (void)
                         SetupGameLevel ();
                         UpdateTriads(player,0);
                         playstate = ex_stillplaying;
+                        DisableScreenStretch();
+
                     }
                 }
             }
@@ -1401,6 +1403,8 @@ void GameLoop (void)
             SetupGameLevel ();
 
             playstate = ex_stillplaying;
+            DisableScreenStretch();//bna++ shut off streech mode
+
             break;
 
         case ex_skiplevel:
@@ -1420,6 +1424,7 @@ void GameLoop (void)
 #if (SHAREWARE==0)
             if ((playstate==ex_bossdied) && (gamestate.mapon!=30))
             {
+                
                 int shape;
                 lbm_t * LBM;
                 byte *s;
@@ -1496,6 +1501,8 @@ void GameLoop (void)
                 fizzlein = true;
                 SetupGameLevel ();
                 playstate = ex_stillplaying;
+                DisableScreenStretch();//bna++ shut off streech mode
+
             }
             else
             {
@@ -1566,7 +1573,6 @@ void GameLoop (void)
 boolean CheckForQuickLoad  (void )
 
 {
-
     EnableScreenStretch();//bna++
     if ( pickquick )
     {

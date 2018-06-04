@@ -434,12 +434,21 @@ void SetupScreen ( boolean flip )
     {
         DrawCPUJape();
     }
-
-    DrawPlayScreen (true);
-    if (flip==true)
-    {
+    if (flip == true){
+        boolean wasStretched = false;
+        
+        if(StretchScreen)
+        {
+            wasStretched = true;
+        }
+        DisableScreenStretch();
+        DrawPlayScreen (true);
         ThreeDRefresh();
         VL_CopyDisplayToHidden();
+        if (wasStretched == true)
+        {
+            EnableScreenStretch();
+        }
     }
 }
 
