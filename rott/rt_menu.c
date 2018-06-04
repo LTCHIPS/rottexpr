@@ -313,9 +313,6 @@ static int MenuNum = 0;
 static int handlewhich;
 static int CSTactive = 0;
 static boolean INFXSETUP = false;
-static int MaxVoices;
-static int MaxBits;
-static int MaxChannels;
 
 //
 // MENU CURSOR SHAPES
