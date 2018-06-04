@@ -2443,7 +2443,6 @@ void InterpolateDoor (visobj_t * plane)
     byte * shape2;
     byte * buf;
     patch_t *p;
-    int pl;
 
     whereami=18;
     dx=(plane->x2-plane->x1+1);
@@ -2532,7 +2531,6 @@ void InterpolateMaskedWall (visobj_t * plane)
     transpatch_t *p;
     patch_t *p2;
     patch_t *p3;
-    int pl;
     boolean drawbottom,drawmiddle,drawtop;
     int topoffset;
 
@@ -2969,9 +2967,6 @@ void StartupRotateBuffer ( int masked)
 
 //   int Xres = 320;//org
 //   int Yres = 200;//org
-    int   Xres =   iGLOBAL_SCREENWIDTH;
-    int   Yres = iGLOBAL_SCREENHEIGHT;
-
 
     iG_masked = masked;
 
