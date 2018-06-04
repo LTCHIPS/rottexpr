@@ -63,19 +63,6 @@ int zonememorystarted=0;
 static memzone_t       *mainzone;
 static memzone_t       *levelzone;
 static int levelzonesize=LEVELZONESIZE;
-static struct meminfo
-{
-    unsigned LargestBlockAvail;
-    unsigned MaxUnlockedPage;
-    unsigned LargestLockablePage;
-    unsigned LinAddrSpace;
-    unsigned NumFreePagesAvail;
-    unsigned NumPhysicalPagesFree;
-    unsigned TotalPhysicalPages;
-    unsigned FreeLinAddrSpace;
-    unsigned SizeOfPageFile;
-    unsigned Reserved[3];
-} MemInfo;
 
 /*
 ========================
