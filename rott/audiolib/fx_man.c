@@ -541,8 +541,6 @@ void FX_SetVolume
    )
 
    {
-   int status;
-
 #ifdef PLAT_DOS
    switch( FX_SoundDevice )
       {
