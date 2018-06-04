@@ -57,17 +57,6 @@ enum FX_ERRORS
     FX_DPMI_Error
 };
 
-#ifdef DOS
-enum fx_BLASTER_Types
-{
-    fx_SB     = 1,
-    fx_SBPro  = 2,
-    fx_SB20   = 3,
-    fx_SBPro2 = 4,
-    fx_SB16   = 6
-};
-#endif
-
 
 char *FX_ErrorString( int ErrorNumber );
 int   FX_SetupCard( int SoundCard, fx_device *device );
