@@ -2704,7 +2704,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
     byte *dest1, *dest2, *dest3, mask;
     byte *screen1, *screen2, *screen3;
     int  plane;
-    int w;
 
     dest = ylookup[y]+x;
 
@@ -4774,11 +4773,9 @@ boolean SaveTheGame (int num, gamestorage_t * game)
     char   filename[MAX_PATH];
     byte   * altbuffer;
     int    size;
-    int    avail;
     int    savehandle;
     int    crc;
     int    i;
-    char   letter;
     int myticcount;
 
     if (num > 15 || num < 0)
