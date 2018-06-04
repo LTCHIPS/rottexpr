@@ -472,8 +472,6 @@ void XFlipPage ( void )
 
 void EnableScreenStretch(void)
 {
-    int i,offset;
-
     if (iGLOBAL_SCREENWIDTH <= 320 || StretchScreen) return;
 
     if (unstretch_sdl_surface == NULL)
