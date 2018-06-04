@@ -127,14 +127,11 @@ struct find_t
 int _dos_findfirst(char *filename, int x, struct find_t *f);
 int _dos_findnext(struct find_t *f);
 
-#elif PLATFORM_DOS
-/* no-op */
 #else
 #error please define for your platform.
 #endif
 
 
-#if !PLATFORM_DOS
 struct dosdate_t
 {
     unsigned char day;
@@ -144,7 +141,6 @@ struct dosdate_t
 };
 
 void _dos_getdate(struct dosdate_t *date);
-#endif
 
 
 #if (SOFTERROR==1)
