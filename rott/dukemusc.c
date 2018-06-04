@@ -19,11 +19,6 @@
 #include "buildengine/cache1d.h"
 #endif
 
-#if PLATFORM_DOS
-// Use the original Apogee Sound System libs instead.  --ryan.
-#error you probably should not compile this.
-#endif
-
 #if (defined __WATCOMC__)
 // This is probably out of date.  --ryan.
 #include "dukesnd_watcom.h"
