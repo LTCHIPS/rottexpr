@@ -12,13 +12,7 @@
 #include <string.h>
 #include <assert.h>
 
-#if (defined __WATCOMC__)
-#include "dukesnd_watcom.h"
-#endif
-
-#if (!defined __WATCOMC__)
 #define cdecl
-#endif
 
 #include "SDL2/SDL.h"
 #include "SDL_mixer.h"
@@ -118,10 +112,6 @@ static void MV_CalcPanTable
     }
 }
 /* end ASS copy-pastage */
-
-#ifdef __WATCOMC__
-#pragma aux (__cdecl) channelDoneCallback;
-#endif
 
 // This function is called whenever an SDL_mixer channel completes playback.
 //  We use this for state management and calling the application's callback.
