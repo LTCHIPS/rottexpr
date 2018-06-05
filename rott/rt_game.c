@@ -394,7 +394,6 @@ void DrawPlayScreen (boolean bufferofsonly)
     pic_t *shape;
     
     int    shapenum;
-    int ShowKillsYoffset = 0;//bna++
 
     //figure out where the middle point of the status bar should be for top bar
     topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320) >> 1;
@@ -422,10 +421,6 @@ void DrawPlayScreen (boolean bufferofsonly)
     {
         shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
 
-        if ( SHOW_KILLS() )
-        {
-            ShowKillsYoffset = KILLS_HEIGHT;
-        }
         if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
@@ -1661,17 +1656,12 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
     int x;
     int y;
     int planes;
-    byte mask;
     byte pixel;
-
-    mask = 1 << (xpos&3);
 
     olddest = ylookup[ypos] + xpos;
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -1730,20 +1720,15 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
     int x;
     int y;
     int planes;
-    byte mask;
     byte pixel;
     byte * cmap;
 
     cmap=playermaps[color]+(1<<12);
 
-    mask = 1 << (xpos&3);
-
     olddest = ylookup[ypos] + xpos;
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -2386,11 +2371,8 @@ void GM_DrawBonus
 )
 
 {
-    int    x;
-
     if ( which < stat_gasmask )
     {
-        x = POWERUP1X;
         poweruptime = GetBonusTimeForItem(which);
         poweradjust = (poweruptime >> 4);
         powerupheight  = 0;
@@ -2399,7 +2381,6 @@ void GM_DrawBonus
     }
     else
     {
-        x = POWERUP2X;
         protectiontime = GetBonusTimeForItem(which);
         poweradjust = (protectiontime >> 4);
         protectionheight = 0;
