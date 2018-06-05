@@ -1188,12 +1188,7 @@ void SpawnDoor (int tilex, int tiley, int lock, int texture)
     int i;
     doorobj_t * lastdoorobj;
     int up,dn,lt,rt;
-    int abovewallstart;
-    int swallstart;
     int basetexture;
-
-    abovewallstart=W_GetNumForName("ABVWSTRT")+1;
-    swallstart=W_GetNumForName("SIDESTRT")+1;
 
     doorobjlist[doornum]=(doorobj_t*)Z_LevelMalloc(sizeof(doorobj_t),PU_LEVELSTRUCT,NULL);
     if (!doorobjlist[doornum])
@@ -2115,14 +2110,8 @@ void SpawnMaskedWall (int tilex, int tiley, int which, int flags)
     int side, middle, above, bottom;
     maskedwallobj_t * lastmaskobj;
     boolean metal;
-    int maskedstart;
-    int abovemaskedwallstart;
-    int swallstart;
 
     himask=W_GetNumForName("HMSKSTRT")+1;
-    maskedstart=W_GetNumForName("MASKSTRT");
-    abovemaskedwallstart=W_GetNumForName("ABVMSTRT");
-    swallstart=W_GetNumForName("SIDESTRT");
 
     maskobjlist[maskednum]=(maskedwallobj_t*)Z_LevelMalloc(sizeof(maskedwallobj_t),PU_LEVELSTRUCT,NULL);
     memset(maskobjlist[maskednum],0,sizeof(maskedwallobj_t));
@@ -3036,12 +3025,10 @@ void Teleport(elevator_t*eptr,int destination)
 void OperateElevatorDoor(int dnum)
 {
     elevator_t*eptr;
-    doorobj_t *dptr,*door1,*door2;
+    doorobj_t *dptr;
 
     dptr = doorobjlist[dnum];
     eptr = &ELEVATOR[dptr->eindex];
-    door1 = doorobjlist[eptr->door1];
-    door2 = doorobjlist[eptr->door2];
 
     switch(eptr->state)
     {   /*
@@ -3171,7 +3158,7 @@ int SetNextAction(elevator_t*eptr,int action)
 
 void OperateElevatorSwitch(objtype*ob,int elevnum,int checkx,int checky)
 {   elevator_t*eptr;
-    doorobj_t *door1,*door2;
+    doorobj_t *door;
 
     eptr = &ELEVATOR[elevnum];
 
@@ -3186,11 +3173,10 @@ void OperateElevatorSwitch(objtype*ob,int elevnum,int checkx,int checky)
         return;
     }
 
-    door1 = doorobjlist[eptr->door1];
-    door2 = doorobjlist[eptr->door2];
+    door = doorobjlist[eptr->door1];
 
-    if ((abs(ob->tilex-door1->tilex)<=1) && //switch at source
-            (abs(ob->tiley-door1->tiley)<=1))
+    if ((abs(ob->tilex-door->tilex)<=1) && //switch at source
+            (abs(ob->tiley-door->tiley)<=1))
     {   if (!SetNextAction(eptr,1)) // set next to dest
             return;
 #if (DEVELOPMENT == 1)
