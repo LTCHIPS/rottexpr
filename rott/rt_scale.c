@@ -169,38 +169,8 @@ void ScaleTransparentPost (byte * src, byte * buf, int level)
     int  bottomscreen;
     byte * oldlevel;
     byte * seelevel;
-#if (DEVELOPMENT == 1)
-    boolean found=false;
-    int  i;
-#endif
 
     whereami=25;
-#if (DEVELOPMENT == 1)
-    if ((shadingtable>=colormap) && (shadingtable<=(colormap+(31*256))))
-    {
-        found=true;
-    }
-    else if ((shadingtable>=redmap) && (shadingtable<=(redmap+(31*256))))
-    {
-        found=true;
-    }
-    else
-    {
-        for (i=0; i<MAXPLAYERCOLORS; i++)
-        {
-            if ((shadingtable>=playermaps[i]) || (shadingtable<=(playermaps[i]+(31*256))))
-                found=true;
-        }
-    }
-    if (found==false)
-    {
-        Error ("Shadingtable out of range\n");
-    }
-    if ((level<0) || (level>=64))
-    {
-        Error ("translucent level out of range\n");
-    }
-#endif
 
     seelevel=colormap+(((level+64)>>2)<<8);
     oldlevel=shadingtable;
@@ -265,10 +235,6 @@ void ScaleMaskedPost (byte * src, byte * buf)
         {
             dc_source=src-offset;
             R_DrawColumn (buf);
-#if (DEVELOPMENT == 1)
-//         if (dc_firstsource<src)
-//            SoftError("dc_firstsource=%p src=%p\n",dc_firstsource,src);
-#endif
         }
         src+=length;
         offset=*(src++);
