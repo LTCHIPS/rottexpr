@@ -1854,14 +1854,13 @@ void CheckCriticalStatics(void)
 */
 
 void DoSprites(void)
-{   int index,i;
+{   int index;
     statobj_t *temp,*tempnext;
 
 
 #if (0)
     Debug("\n");
 #endif
-    i=0;
     for(temp = firstactivestat; temp;)
     {   tempnext = temp->nextactive;
 
