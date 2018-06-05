@@ -110,9 +110,6 @@ int               angletodir[ANGLES];
 objtype           *new;
 
 void              *actorat[MAPSIZE][MAPSIZE];
-#if (DEVELOPMENT == 1)
-FILE *            williamdebug;
-#endif
 exit_t            playstate;
 
 void              T_SlideDownScreen(objtype*);
@@ -9875,9 +9872,6 @@ void T_NME_Attack(objtype*ob)
 
     if (!CheckLine(ob,PLAYER[0],SIGHT))
     {   //ob->temp3 = 0;
-        //#if ((DEVELOPMENT == 1))
-        //Debug("\nCheckLine failed in NME Attack");
-        //#endif
         NewState(ob,&s_NMEchase);
         NewState((objtype*)(ob->target),&s_NMEwheels2);
         if (!ob->temp2)
@@ -10087,10 +10081,6 @@ void T_GenericMove(objtype*ob)
             //ob->y = ob->drawy = ob->targettiley;
             //ob->tilex = ob->x >> TILESHIFT;
             //ob->tiley = ob->y >> TILESHIFT;
-            //#if ((DEVELOPMENT == 1))
-            //	Debug("\nfollower %d being moved to targetx %4x and targety %4x",
-            //	  ob-SNAKEHEAD,ob->x,ob->y);
-            // #endif
             ob->targettilex = ob->temp1;
             ob->targettiley = ob->temp2;
 #if (0)
