@@ -324,9 +324,6 @@ void Error (char *error, ...)
 
 
     SetTextMode ();
-#if defined (ANSIESC)
-    DisplayTextSplash (&ROTT_ERR, 7);
-#endif
     memset (msgbuf, 0, 300);
 
     va_start (argptr, error);
@@ -359,11 +356,6 @@ void Error (char *error, ...)
         px++;                //SPACE
         GetToken (true);
     }
-
-#ifdef ANSIESC
-    for (i = 0; i < 8; i++)
-        printf ("\n");
-#endif
 
     if (player!=NULL)
     {
@@ -1415,11 +1407,7 @@ void UL_DisplayMemoryError ( int memneeded )
 
 void UL_printf (byte *str)
 {
-#ifdef ANSIESC
-    printf ("\x1b[%d;%dH%s",py,px,str);
-#else
     printf ("%s ",str);	// Hackish but works - DDOI
-#endif
 }
 
 /*
@@ -1432,19 +1420,6 @@ void UL_printf (byte *str)
 
 void UL_ColorBox (int x, int y, int w, int h, int color)
 {
-#if defined (ANSIESC)
-    int i,j;
-
-
-    for (j=0; j<h; j++)
-    {
-        for (i=0; i<w; i++)
-        {
-            printf ("\x1b[%d;%dH",y+j,x+i);
-            put_dos2ansi(color);
-        }
-    }
-#endif
 }
 
 //******************************************************************************
