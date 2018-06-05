@@ -142,34 +142,13 @@ struct dosdate_t
 
 void _dos_getdate(struct dosdate_t *date);
 
-
-#if (SOFTERROR==1)
-
 void  SoftwareError (char *error, ...) __attribute__((format(printf,1,2)));
-#define SoftError  SoftwareError
-
-#else
-void  SoftwareError (char *error, ...) __attribute__((format(printf,1,2)));
-//#define SoftError  SoftwareError
 
 #define SoftError  if (1) {} else SoftwareError
-
-//#define SoftError
-
-#endif
-
-#if (DEBUG==1)
-
-void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
-#define Debug  DebugError
-
-#else
 
 void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
 #define Debug  DebugError
 //#define Debug
-
-#endif
 
 void Square (void);
 
