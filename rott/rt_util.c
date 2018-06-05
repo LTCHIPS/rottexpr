@@ -417,8 +417,6 @@ void SoftwareError (char *error, ...)
 //#endif
 
 
-//#if (DEBUG == 1)
-
 /*
 =================
 =
@@ -436,8 +434,6 @@ void DebugError (char *error, ...)
     vfprintf (debugout, error, argptr);
     va_end (argptr);
 }
-
-//#endif
 
 /*
 =================
@@ -498,13 +494,6 @@ void OpenMapDebug ( void )
 */
 void StartupSoftError ( void )
 {
-#if (DEBUG == 1)
-    if (DebugStarted==false)
-    {
-        debugout = fopen(DEBUGFILE,"wt+");
-        DebugStarted=true;
-    }
-#endif
 #if (SOFTERROR == 1)
     if (SoftErrorStarted==false)
         OpenSoftError();
