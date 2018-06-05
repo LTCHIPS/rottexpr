@@ -145,10 +145,6 @@ void InitCharacter(void);
 void ShutDown ( void );
 void UpdateGameObjects ( void );
 
-#if (WHEREAMI==1)
-extern int programlocation;
-#endif
-
 extern  int polltime;
 extern  int oldpolltime;
 extern  volatile int oldtime;
