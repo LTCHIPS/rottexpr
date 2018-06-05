@@ -582,8 +582,7 @@ int SafeOpenAppend (char *_filename)
     filename[sizeof (filename) - 1] = '\0';
     FixFilePath(filename);
 
-    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_APPEND
-                  , S_IREAD | S_IWRITE);
+    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_APPEND );
 
     if (handle == -1)
         Error ("Error opening for append %s: %s",filename,strerror(errno));
@@ -599,8 +598,7 @@ int SafeOpenWrite (char *_filename)
     filename[sizeof (filename) - 1] = '\0';
     FixFilePath(filename);
 
-    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-                  , S_IREAD | S_IWRITE);
+    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC );
 
     if (handle == -1)
         Error ("Error opening %s: %s",filename,strerror(errno));
