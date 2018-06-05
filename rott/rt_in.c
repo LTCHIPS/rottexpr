@@ -560,7 +560,6 @@ void INL_GetJoyDelta (word joy, int *dx, int *dy)
 {
     word        x, y;
     JoystickDef *def;
-    static longword lasttime;
 
     IN_GetJoyAbs (joy, &x, &y);
     def = JoyDefs + joy;
@@ -611,7 +610,6 @@ void INL_GetJoyDelta (word joy, int *dx, int *dy)
     else
         *dy = 0;
 
-    lasttime = GetTicCount();
 }
 
 
@@ -998,8 +996,6 @@ void IN_Startup (void)
 
     if ((checkcyberman || checkassassin) && (swiftstatus = SWIFT_Initialize ()))
     {
-        int dynamic;
-
         if (checkcyberman)
         {
             CybermanPresent = swiftstatus;
@@ -1010,8 +1006,6 @@ void IN_Startup (void)
             AssassinPresent = checkassassin & swiftstatus;
             assassinenabled = true;
         }
-
-        dynamic = SWIFT_GetDynamicDeviceData ();
 
         SWIFT_TactileFeedback (40, 20, 20);
 
