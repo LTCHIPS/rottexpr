@@ -84,10 +84,6 @@ static unsigned char egargb[48]= { 0x00,0x00,0x00,
 
 extern const byte * ROTT_ERR;
 
-#if (DEVELOPMENT == 1)
-int TotalStaticMemory=0;
-#endif
-
 #define SWAP(a,b) \
    {              \
    a=(a)^(b);     \
