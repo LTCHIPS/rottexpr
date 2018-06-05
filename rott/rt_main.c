@@ -264,15 +264,12 @@ int main (int argc, char *argv[])
 //      }
     if (standalone==false)
     {
-        int status1 = 0;
         int status2 = 0;
-        int status3 = 0;
 
         if ( !NoSound && !IS8250 )
         {
             if (!quiet)
                 printf( "MU_Startup: " );
-            status1 = MU_Startup(false);
             if (!quiet)
                 printf( "%s\n", MUSIC_ErrorString( MUSIC_Error ) );
         }
@@ -301,7 +298,6 @@ int main (int argc, char *argv[])
             {
                 if (!quiet)
                     printf( "SD_Startup: " );
-                status3 = SD_Startup(false);
                 if (!quiet)
                     printf( "%s\n", FX_ErrorString( FX_Error ) );
             }
@@ -1060,7 +1056,6 @@ extern boolean doRescaling;
 void GameLoop (void)
 {
     boolean done   = false;
-    boolean loadit = false;
     int NextLevel;
 
     wami(1);
@@ -1328,7 +1323,7 @@ void GameLoop (void)
             break;
 
         case ex_died:
-            loadit = done = false;
+            done = false;
 //		   SetTextMode (  ); //12345678
             Died ();
             StopWind();
@@ -1636,7 +1631,6 @@ void QuitGame ( void )
 #if (DEVELOPMENT == 1)
     int temp;
 #else
-    byte *txtscn;
 #endif
 
     MU_FadeOut(200);
@@ -1685,14 +1679,6 @@ void QuitGame ( void )
     printf("LIGHTRATE =%ld\n",GetLightRateTile());
     printf("\nCENTERY=%ld\n",centery);
 #else
-#if (SHAREWARE==0)
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("regend"), PU_CACHE, CvtNull, 1);
-#else
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("shareend"), PU_CACHE, CvtNull, 1);
-#endif
-#if defined (ANSIESC)
-        DisplayTextSplash (txtscn, 25);
-#endif
 
 #if (DEBUG == 1)
         px = ERRORVERSIONCOL;
