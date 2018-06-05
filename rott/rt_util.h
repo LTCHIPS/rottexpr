@@ -152,29 +152,7 @@ void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
 
 void Square (void);
 
-#ifdef __WATCOMC__
-#pragma aux Square=\
-   "mov edx,03c4h",  \
-   "mov eax,0100h",  \
-	"out dx,ax",      \
-   "mov eax,0e3h",    \
-   "mov edx,03c2h",  \
-   "out dx,ax",      \
-   "mov eax,0300h",  \
-   "mov edx,03c4h",  \
-   "out dx,ax"      \
-   modify exact [eax edx]
-#endif
-
-
 #define my_outp(a,b)
-
-#ifdef __WATCOMC__
-#pragma aux my_outp =  \
-        "out dx,al",                     \
-        parm    [edx] [eax] \
-        modify exact []
-#endif
 
 #define OUTP                              my_outp
 
