@@ -31,12 +31,5 @@ void DrawRow(int count, byte * dest, byte * src);
 void DrawRotRow(int count, byte * dest, byte * src);
 void DrawMaskedRotRow(int count, byte * dest, byte * src);
 
-#if (defined __WATCOMC__)
-#pragma aux DrawSkyPost parm [EDI] [ESI] [ECX] modify exact [eax ecx edx edi esi ebx]
-#pragma aux DrawRow parm [ECX] [EDI] [ESI] modify exact [eax ebx ecx edx esi edi]
-#pragma aux DrawRotRow parm [ECX] [EDI] [ESI] modify exact [eax ebx ecx edx esi edi]
-#pragma aux DrawMaskedRotRow parm [ECX] [EDI] [ESI] modify exact [eax ebx ecx edx esi edi]
-#endif
-
 #endif
 
