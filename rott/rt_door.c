@@ -3897,19 +3897,6 @@ void LoadPushWalls(byte * bufptr, int sz)
             tilemap[pw->tilex][pw->tiley] = 0;
             if (pw->state!=pw_moving)
             {
-#if 0
-                if (pw->dir==nodir)
-                {
-                    if (tilemap[pw->tilex+1][pw->tiley]==0)
-                        pw->dir=east;
-                    else if (tilemap[pw->tilex-1][pw->tiley]==0)
-                        pw->dir=west;
-                    else if (tilemap[pw->tilex][pw->tiley+1]==0)
-                        pw->dir=south;
-                    else
-                        pw->dir=north;
-                }
-#endif
                 ConnectPushWall(i);
             }
         }

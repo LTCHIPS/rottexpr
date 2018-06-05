@@ -312,21 +312,6 @@ int main (int argc, char *argv[])
     }
     I_StartupTimer();
     I_StartupKeyboard();
-#if 0
-#if (SHAREWARE == 1)
-    if ((!SOUNDSETUP) && (standalone==false))
-    {
-        byte * txtscn;
-        int i;
-
-        for (i=0; i<20; i++)
-            printf("\n");
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("rotts10"), PU_CACHE);
-        memcpy ((byte *)0xB8000, txtscn, 4000);
-        I_Delay (600);
-    }
-#endif
-#endif
     locplayerstate = &PLAYERSTATE[consoleplayer];
 
     if (standalone==true)
@@ -2183,13 +2168,6 @@ void PollKeyboard
         autopressed = false;
     }
 
-#if 0
-    if ( modemgame == false )
-    {
-        CheckDevelopmentKeys();
-    }
-#endif
-
     if ( ( MSG.messageon == false ) && ( !quitactive ) )
     {
         if ( ( Keyboard[ buttonscan[ bt_message ] ] ) && ( BATTLEMODE ) )
@@ -2338,14 +2316,12 @@ void PollKeyboard
             }
         }
 
-//#if 0
         if ( ( Keyboard[ sc_F12 ] ) && ( !BATTLEMODE ) )
         {
             Keyboard[ sc_F12 ] = false;
             LastScan = 0;
             DoBossKey();
         }
-//#endif
 
         // Gamma correction
         if ( Keyboard[ sc_F11 ] )
@@ -2368,23 +2344,6 @@ void PollKeyboard
                 IN_UpdateKeyboard();
             }
         }
-#if 0
-        if ( Keyboard[ sc_M ] )
-        {
-            char str[ 50 ] = "Mouse Y-Rotation Input Scale ";
-            char str2[ 10 ];
-
-            if ( Keyboard[ sc_RShift ] )
-                mouse_ry_input_scale += 50;
-            else
-                mouse_ry_input_scale -= 50;
-
-            itoa(mouse_ry_input_scale,str2,10);
-            strcat( str, str2 );
-            AddMessage( str, MSG_SYSTEM );
-
-        }
-#endif
         // Increase volume
         if ( Keyboard[ sc_CloseBracket ] )
         {
@@ -2478,225 +2437,6 @@ void PollKeyboard
     }
 #endif
 }
-
-
-//******************************************************************************
-//
-// CheckDevelopmentKeys ()
-//
-//******************************************************************************
-#if 0
-void CheckDevelopmentKeys
-(
-    void
-)
-
-{
-    // Lower wall height
-    if ( Keyboard[ sc_5 ] )
-    {
-        if ( levelheight > 1 )
-        {
-            levelheight--;
-        }
-
-        while( Keyboard[ sc_5 ] )
-        {
-            IN_UpdateKeyboard ();
-        }
-
-        maxheight = ( levelheight << 6 ) - 32;
-        nominalheight = maxheight - 32;
-    }
-
-    // Raise wall height
-    if ( Keyboard[ sc_6 ] )
-    {
-        levelheight++;
-
-        while( Keyboard[ sc_6 ] )
-        {
-            IN_UpdateKeyboard();
-        }
-
-        maxheight = ( levelheight << 6 ) - 32;
-        nominalheight = maxheight - 32;
-    }
-
-    if ( Keyboard[ sc_8 ] )
-    {
-        char str[ 50 ] = "You are now player ";
-        char str2[ 10 ];
-
-        locplayerstate->player++;
-        if ( locplayerstate->player == 5 )
-        {
-            locplayerstate->player = 0;
-        }
-
-        while( Keyboard[ sc_8 ] )
-        {
-            IN_UpdateKeyboard ();
-        }
-
-        itoa( locplayerstate->player, str2, 10 );
-        strcat( str, str2 );
-        AddMessage( str, MSG_SYSTEM );
-    }
-
-#if 0
-    // Cycle forward through wall textures
-    if (Keyboard[sc_W] && (modemgame==false))
-    {   int i,j;
-
-        for(i=0; i<128; i++)
-            for(j=0; j<128; j++)
-            {   if (IsWall(i,j))
-                {   if (tilemap[i][j] ==
-                            (W_GetNumForName("WALLSTOP")-W_GetNumForName("WALLSTRT")-1))
-                        tilemap[i][j] = 1;
-                    else
-                        tilemap[i][j] ++;
-                }
-            }
-        while(Keyboard[sc_W])
-            IN_UpdateKeyboard ();
-
-    }
-
-
-
-    if (Keyboard[sc_Q] && (modemgame==false))
-    {   int i,j;
-
-        for(i=0; i<128; i++)
-            for(j=0; j<128; j++)
-            {   if (IsWall(i,j))
-                {   if (tilemap[i][j] == 1)
-                        tilemap[i][j] = 74;
-                    else
-                        tilemap[i][j] --;
-                }
-            }
-        while(Keyboard[sc_Q])
-            IN_UpdateKeyboard ();
-
-    }
-
-#endif
-    // Step through cieling/skies
-    if ( Keyboard[ sc_K ] )
-    {
-        if ( sky > 0 )
-        {
-            MAPSPOT( 1, 0, 0 )++;
-            if ( MAPSPOT( 1, 0, 0 ) > 239 )
-            {
-                MAPSPOT( 1, 0, 0 ) = 234;
-            }
-        }
-        else
-        {
-            MAPSPOT( 1, 0, 0 )++;
-            if ( MAPSPOT( 1, 0, 0 ) > 198 + 15 )
-            {
-                MAPSPOT( 1, 0, 0 ) = 198;
-            }
-        }
-
-        SetPlaneViewSize();
-
-        while( Keyboard[ sc_K ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Step through floors
-    if ( Keyboard[ sc_L ] )
-    {
-        MAPSPOT( 0, 0, 0 )++;
-        if ( MAPSPOT( 0, 0, 0 ) > 180 + 15 )
-        {
-            MAPSPOT( 0, 0, 0 ) = 180;
-            SetPlaneViewSize();
-
-            while( Keyboard[ sc_L ] )
-            {
-                IN_UpdateKeyboard();
-            }
-        }
-    }
-
-    // Increase darkness level
-    if ( Keyboard[ sc_M ] )
-    {
-        if ( darknesslevel < 7 )
-        {
-            darknesslevel++;
-        }
-
-        SetLightLevels( darknesslevel );
-
-        while( Keyboard[ sc_M ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Decrease darkness level
-    if ( Keyboard[ sc_N ] )
-    {
-        if ( darknesslevel > 0 )
-        {
-            darknesslevel--;
-        }
-
-        SetLightLevels( darknesslevel );
-
-        while( Keyboard[ sc_N ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Increase light rate
-    if ( Keyboard[ sc_B ] )
-    {
-        SetLightRate( GetLightRate() + 1 );
-        myprintf( "normalshade = %ld\n", normalshade );
-
-        while( Keyboard[ sc_B ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Decrease light rate
-    if ( Keyboard[ sc_V ] )
-    {
-        SetLightRate( GetLightRate() - 1 );
-        myprintf( "normalshade = %ld\n", normalshade );
-
-        while( Keyboard[ sc_V ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Toggle light diminishing on/off
-    if ( Keyboard[ sc_T ] )
-    {
-        fulllight ^= 1;
-
-        while( Keyboard[ sc_T ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-}
-#endif
-
 
 #if SAVE_SCREEN
 

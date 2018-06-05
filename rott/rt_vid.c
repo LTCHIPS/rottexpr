@@ -804,56 +804,6 @@ void SwitchPalette (byte * newpal, int steps)
     VL_FadeIn(0,255,newpal,steps>>1);
 }
 
-
-#if 0
-
-/*
-=================
-=
-= VL_TestPaletteSet
-=
-= Sets the palette with outsb, then reads it in and compares
-= If it compares ok, fastpalette is set to true.
-=
-=================
-*/
-
-void VL_TestPaletteSet (void)
-{
-    int   i;
-
-    for (i=0; i<768; i++)
-        palette1[0][i] = i;
-
-    fastpalette = true;
-    VL_SetPalette (&palette1[0][0]);
-    VL_GetPalette (&palette2[0][0]);
-    if (_fmemcmp (&palette1[0][0],&palette2[0][0],768))
-        fastpalette = false;
-}
-
-
-/*
-==================
-=
-= VL_ColorBorder
-=
-==================
-*/
-
-void VL_ColorBorder (int color)
-{
-    _AH=0x10;
-    _AL=1;
-    _BH=color;
-    geninterrupt (0x10);
-    bordercolor = color;
-}
-
-
-#endif
-
-
 //==========================================================================
 
 //****************************************************************************

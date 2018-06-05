@@ -577,14 +577,6 @@ void ScaleTransparentShape (visobj_t * sprite)
         frac=0;
     x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 
-#if 0
-    for (; x1<=x2 ; x1++, frac += dc_iscale)
-    {
-        if (posts[x1].wallheight>sprite->viewheight)
-            continue;
-        ScaleTransparentPost(((p->collumnofs[frac>>SFRACBITS])+shape),(byte *)bufferofs+(x1>>2),sprite->h2);
-    }
-#endif
     startx=x1;
     startfrac=frac;
 
@@ -1012,71 +1004,6 @@ void DrawScreenSizedSprite (int lump)
         }
     }
 }
-
-#if 0
-byte *shape;
-int      frac;
-patch_t *p;
-int      x1,x2;
-int      tx;
-int      xdc_invscale;
-int      xdc_iscale;
-byte *   buf;
-byte *   b;
-int      plane;
-int      startx,startfrac;
-
-whereami=39;
-SetPlayerLightLevel();
-buf=(byte *)bufferofs;
-shape=W_CacheLumpNum(lump,PU_CACHE);
-p=(patch_t *)shape;
-dc_invscale=(viewheight<<16)/200;
-xdc_invscale=(viewwidth<<16)/320;
-
-tx=-p->leftoffset;
-centeryclipped=viewheight>>1;
-//
-// calculate edges of the shape
-//
-x1 = (tx*xdc_invscale)>>SFRACBITS;
-if (x1 >= viewwidth)
-    return;               // off the right side
-tx+=p->width;
-x2 = ((tx*xdc_invscale)>>SFRACBITS) - 1 ;
-if (x2 < 0)
-    return;         // off the left side
-
-dc_iscale=(200*65536)/viewheight;
-xdc_iscale=(320*65536)/viewwidth;
-dc_texturemid=(((p->height>>1)+p->topoffset)<<SFRACBITS)+(SFRACUNIT>>1);
-sprtopoffset=(centeryclipped<<16) - FixedMul(dc_texturemid,dc_invscale);
-
-//
-// store information in a vissprite
-//
-if (x1<0)
-{
-    frac=xdc_iscale*(-x1);
-    x1=0;
-}
-else
-    frac=0;
-x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-
-startx=x1;
-startfrac=frac;
-for (plane=startx; plane<startx+4; plane++,startfrac+=xdc_iscale)
-{
-    frac=startfrac;
-    b=(byte *)bufferofs+(plane>>2);
-    for (x1=plane; x1<=x2 ; x1+=4, frac += xdc_iscale<<2,b++)
-        ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
-}
-}
-#endif
-
-
 
 //******************************************************************************
 //

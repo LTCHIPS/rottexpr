@@ -449,23 +449,6 @@ fixed SbFxConfigWarp(WarpRecord *warp, short value)
         return  accum;
     else
         return -accum;
-
-#if 0	/* Old technique */
-    if((absValue>=warp->pWarp[i].low) && (absValue<=warp->pWarp[i].high))
-        if(warp->pWarp[i].shift>=0)
-            value=accum+((absValue-warp->pWarp[i].low)<<warp->pWarp[i].shift);
-        else
-            value=accum+((absValue-warp->pWarp[i].low)>>abs(warp->pWarp[i].shift));
-    else if(warp->pWarp[i].shift>=0)
-        accum+=(warp->pWarp[i].high-warp->pWarp[i].low)<<warp->pWarp[i].shift;
-    else
-        accum+=(warp->pWarp[i].high-warp->pWarp[i].low)>>abs(warp->pWarp[i].shift);
-
-    if(absValue>warp->pWarp[warp->nWarp-1].high)
-        value=accum;
-
-    return sign*value;
-#endif
 }
 
 

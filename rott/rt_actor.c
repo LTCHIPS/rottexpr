@@ -1745,12 +1745,6 @@ void SpawnStand (classtype which, int tilex, int tiley, int dir, int ambush)
         if (ambush)
             new->flags |= FL_AMBUSH;
 
-
-#if 0
-        if (gamestate.Product == ROTT_SUPERCD)
-            ConsiderAlternateActor(new,which);
-#endif
-
         StandardEnemyInit(new,dir);
 
         if (which == b_darkmonkobj)
@@ -1793,12 +1787,6 @@ void SpawnStand (classtype which, int tilex, int tiley, int dir, int ambush)
 void SpawnPatrol (classtype which, int tilex, int tiley, int dir)
 {   statetype *temp;
     int path=PATH;
-#if 0
-    if (gamestate.Product == ROTT_SUPERCD)
-        char *altstartlabel;
-#endif
-
-
 
 #if (SHAREWARE==1)
     switch(which)
@@ -1830,12 +1818,6 @@ void SpawnPatrol (classtype which, int tilex, int tiley, int dir)
 
         if (!loadedgame)
             gamestate.killtotal++;
-
-
-#if 0
-        if (gamestate.Product == ROTT_SUPERCD)
-            ConsiderAlternateActor(new,which);
-#endif
 
         StandardEnemyInit(new,dir);
 
@@ -3270,14 +3252,6 @@ void T_Explosion(objtype* ob)
             check->flags &= ~FL_SHOOTABLE;
             return;
         }
-#if 0
-        dist = FindDistance(dx,dy);
-        scalefactor = (blastradius-dist)>>4;
-        if (scalefactor > 0xffff)
-            scalefactor = 0xffff;
-        pdamage = FixedMul(damage,scalefactor);
-#endif
-//#if 0
         //magdx = abs(dx);
         //magdy = abs(dy);
 
@@ -3295,7 +3269,6 @@ void T_Explosion(objtype* ob)
             scalefactor = 0x12000;
         pdamage = FixedMul(damage,scalefactor);
         SoftError("\ndamage: %d, scalefactor: %x\n",pdamage,scalefactor);
-//#endif
         impulse = FixedMul(EXPLOSION_IMPULSE,scalefactor);
         if (check->obclass == playerobj)
         {
@@ -3852,14 +3825,6 @@ void BeginEnemyFatality(objtype *ob,objtype *attacker)
 
     ob->flags |= FL_DYING;
     ob->soundhandle = -1;
-
-#if 0
-    if ((ob->obclass == blitzguardobj) &&
-            (ob->state->condition & SF_DOWN)
-       )
-
-        SD_Play(PlayerSnds[locplayerstate->player]);
-#endif
 
     if (Vicious_Annihilation(ob,attacker))
         return;
@@ -9654,16 +9619,6 @@ findplayer:
             prevdir = ((prevdir+2) & 0xf);
 
         }
-#if 0
-        SoftError("\n straight dir: %d\n queue dirs ",tdir);
-        for(count = 0; count < MISCVARS->NMEqueuesize; count++)
-        {
-            SoftError("\n dir %d: %d",MISCVARS->NMEqueuesize-count,
-                      ((ob->temp1 >> (4*count)) &0xf)
-                     );
-
-        }
-#endif
     }
     else             // else goto next queue dir;
     {
@@ -10083,10 +10038,6 @@ void T_GenericMove(objtype*ob)
             //ob->tiley = ob->y >> TILESHIFT;
             ob->targettilex = ob->temp1;
             ob->targettiley = ob->temp2;
-#if (0)
-            Debug("\nfollower %d's new targetx %4x, targety %4x",
-                  ob-SNAKEHEAD,ob->temp1,ob->temp2);
-#endif
             ob->angle = atan2_appx(dx,dy);
             ob->dir = angletodir[ob->angle];
             ParseMomentum(ob,ob->angle);
@@ -13270,9 +13221,6 @@ boolean CheckLine (void *from, void *to, int condition)
 
     if ((yzangle>MAXYZANGLE) && (yzangle<FINEANGLES-MAXYZANGLE))
     {
-#if (0)
-        Debug("\nfailed from yzangle");
-#endif
         return false;
     }
 
@@ -13373,16 +13321,10 @@ boolean CheckLine (void *from, void *to, int condition)
                     {
                         if ( maskobjlist[value&0x3ff]->flags & MW_SHOOTABLE )
                         {
-#if (0)
-                            SoftError("\nfailed from shootable mask");
-#endif
                             return false;
                         }
                         else if ( maskobjlist[value&0x3ff]->flags & MW_WEAPONBLOCKING )
                         {
-#if (0)
-                            SoftError("\nfailed from block mask");
-#endif
                             return false;
                         }
                     }
@@ -13394,13 +13336,6 @@ boolean CheckLine (void *from, void *to, int condition)
             }
             else
             {
-#if (0)
-                SoftError("\n obx %d, oby %d, origx %d, origy %d"
-                          "\n xydist %d, vx %d, vy %d",ob->x,ob->y,orig->x,
-                          orig->y,xydist,vx,vy);
-
-                SoftError("\nfailed from normal wall");
-#endif
                 return false;
             }
         }
@@ -13413,9 +13348,6 @@ boolean CheckLine (void *from, void *to, int condition)
 //             FindDistance(orig->x-tempactor->x,orig->y-tempactor->y) )
 //             ==true) )
             {
-#if (0)
-                SoftError("\nfailed from actor");
-#endif
                 return false;
             }
         }
@@ -13428,17 +13360,11 @@ boolean CheckLine (void *from, void *to, int condition)
                  ==true) )
 
         {
-#if (0)
-            SoftError("\nfailed from sprite");
-#endif
             return false;
         }
 
         if (tempactor && (tempactor->which == PWALL))
         {
-#if (0)
-            SoftError("\nfailed from pushwall");
-#endif
             return false;
         }
         index=(cnt>=0);

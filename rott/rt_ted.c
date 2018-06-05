@@ -1947,13 +1947,6 @@ void SetupWalls( void )
             if (tile <= 32)
             {
                 index = tile;
-#if 0
-                if (tile==12)
-                {
-                    if (MAPSPOT(i,j,2)==0)
-                        MAPSPOT(i,j,2)=21;
-                }
-#endif
             }
             else
                 index = tile-3;
@@ -2749,18 +2742,6 @@ void SetupMaskedWalls( void )
                         Error ("Illegal Maskedwall platform value at x=%d y=%d\n",i,j);
                         break;
                     }
-#if 0
-                    if (IsPlatform(i+1,j))
-                    {
-                        if ( (IsPlatform(i,j+1)) || (IsPlatform(i,j-1)) )
-                            SpawnStatic(i,j,83,MAPSPOT(i,j,2));
-                    }
-                    else if (IsPlatform(i-1,j))
-                    {
-                        if ( (IsPlatform(i,j+1)) || (IsPlatform(i,j-1)) )
-                            SpawnStatic(i,j,83,MAPSPOT(i,j,2));
-                    }
-#endif
                 }
                 else
                     Error("You have what appears to be a platform ontop\n a wall at x=%d y=%d\n",i,j);
@@ -3614,15 +3595,6 @@ void SetupInanimateActors (void)
             case 193:
                 SpawnSpring(i,j);
                 break;
-
-#if 0
-            case 460:
-//               if ( gamestate.Product != ROTT_SHAREWARE )
-            {
-                SpawnNewObj(i,j,&s_wind,inertobj);
-            }
-            break;
-#endif
 
             case 462:
             case 463:
@@ -4855,39 +4827,11 @@ void DoLowMemoryConversionBackgroundPlane (void)
                 *map = 29;
                 break;
 
-#if 0
-            case 37:
-            case 38:
-            case 39:
-                *map = 36;
-                break;
-
-            case 41:
-            case 42:
-            case 43:
-                *map = 40;
-                break;
-#endif
-
             case 50:
             case 51:
             case 52:
                 *map = 49;
                 break;
-
-#if 0
-            case 55:
-            case 56:
-            case 57:
-                *map = 54;
-                break;
-
-            case 59:
-            case 60:
-            case 61:
-                *map = 58;
-                break;
-#endif
 
             case 66:
             case 67:
@@ -4961,18 +4905,6 @@ void DoLowMemoryConversionBackgroundPlane (void)
             case 233:
                 *map = 44;
                 break;
-
-#if 0
-            //Skys
-            case 234:
-            case 235:
-            case 236:
-            case 237:
-            case 238:
-            case 239:
-                *map=(*(&(mapplanes[0][MAPSIZE*(0)+(0)]))) + 18;
-                break;
-#endif
             }
         }
     }
@@ -4988,26 +4920,6 @@ void DoLowMemoryConversionBackgroundPlane (void)
 */
 void DoLowMemoryConversionIconPlane (void)
 {
-#if 0
-    int i,j;
-    word * map;
-
-
-    for (j=0; j<mapheight; j++)
-    {
-        for(i=0; i<mapwidth; i++)
-        {
-            map=&(mapplanes[2][MAPSIZE*(j)+(i)]);
-            switch (*map)
-            {
-            case 13:
-                *(&(mapplanes[0][MAPSIZE*(j)+(i)]))=21;
-                *map=0;
-                break;
-            }
-        }
-    }
-#endif
 }
 
 
@@ -5332,28 +5244,6 @@ void DoRegisterConversionForegroundPlane (void)
 {
 //   int i,j;
 //   word * map;
-
-
-#if 0
-    for (j=0; j<mapheight; j++)
-    {
-        for(i=0; i<mapwidth; i++)
-        {
-            map=&MAPSPOT(i,j,1);
-            switch (*map)
-            {
-            //sprites
-            case 42:
-            case 43:
-            case 63:
-            case 64:
-                *map = 43;
-                break;
-
-            }
-        }
-    }
-#endif
 }
 
 /*
@@ -5446,24 +5336,6 @@ void SetupGameLevel (void)
 {
     int crud;
     int i;
-
-#if 0
-    mapwidth = mapheight = 128;
-
-    InsaneDump();
-    /*
-    for(i=0;i<11;i++)
-      {GetEpisode(i);
-       LoadROTTMap(i);
-       MapDebug("\n//================================//");
-       MapDebug("\n//   SHAREWARE LEVEL %d            //",i);
-       MapDebug("\n//================================//\n\n");
-
-       PrintTileStats();
-      }
-    */
-    Error("okay");
-#endif
 
     insetupgame=true;
 

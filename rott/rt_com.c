@@ -238,14 +238,6 @@ boolean ReadPacket (void)
 
 //      SoftError( "ReadPacket: time=%ld size=%ld src=%ld type=%d\n",GetTicCount(), rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
 
-#if 0
-        rottcom->command=CMD_OUTQUEBUFFERSIZE;
-        int386(rottcom->intnum,&comregs,&comregs);
-        SoftError( "outque size=%ld\n",*((short *)&(rottcom->data[0])));
-        rottcom->command=CMD_INQUEBUFFERSIZE;
-        int386(rottcom->intnum,&comregs,&comregs);
-        SoftError( "inque size=%ld\n",*((short *)&(rottcom->data[0])));
-#endif
         return true;
     }
     else // Not ready yet....
@@ -301,15 +293,6 @@ void WritePacket (void * buffer, int len, int destination)
     // Send It !
 #ifdef PLATFORM_UNIX
     WriteUDPPacket();
-#endif
-
-#if 0
-    rottcom->command=CMD_OUTQUEBUFFERSIZE;
-    int386(rottcom->intnum,&comregs,&comregs);
-    SoftError( "outque size=%ld\n",*((short *)&(rottcom->data[0])));
-    rottcom->command=CMD_INQUEBUFFERSIZE;
-    int386(rottcom->intnum,&comregs,&comregs);
-    SoftError( "inque size=%ld\n",*((short *)&(rottcom->data[0])));
 #endif
 }
 

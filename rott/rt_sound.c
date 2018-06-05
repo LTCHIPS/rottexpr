@@ -68,10 +68,6 @@ int fxnums[ 11 ] = {
     -1, -1, -1, -1, -1, -1, SoundScape, -1, -1, -1, -1
 };
 
-#if 0
-void MU_SetupGUSInitFile( void );
-#endif
-
 int MUSIC_GetPosition( void ) {
     songposition pos;
 
@@ -123,27 +119,6 @@ void SD_MakeCacheable( unsigned long sndnum )
     else
         W_CacheLumpNum(SoundNumber(sndnum),PU_CACHE, CvtNull, 1);
 }
-
-#if 0
-//***************************************************************************
-//
-// SD_PrintActive
-//
-//***************************************************************************
-void SD_PrintActive ( void )
-{
-    int i;
-
-    myprintf("Active Sounds\n");
-    for (i=0; i<MAXSOUNDS; i++)
-    {
-        if (sounds[i].count>0)
-        {
-            myprintf("sound active #%ld\n",i);
-        }
-    }
-}
-#endif
 
 //***************************************************************************
 //
