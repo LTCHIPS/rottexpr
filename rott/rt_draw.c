@@ -1054,21 +1054,9 @@ void DrawScaleds (void)
         else if (statptr->flags&FL_COLORED)
         {
             visptr->shapesize=0;
-#if (DEVELOPMENT == 1)
-            if ((statptr->hitpoints>=0) &&
-                    (statptr->hitpoints<MAXPLAYERCOLORS))
-            {
-#endif
                 SetColorLightLevel(statptr->x,statptr->y,visptr,
                                    0,statptr->hitpoints,
                                    (statptr->flags&FL_FULLLIGHT));
-#if (DEVELOPMENT == 1)
-            }
-            else
-            {
-                Error("Illegal color map for sprite type %d\n",statptr->itemnumber);
-            }
-#endif
         }
         else
         {
@@ -1172,21 +1160,9 @@ void DrawScaleds (void)
                     playertype *pstate;
 
                     M_LINKSTATE(obj,pstate);
-#if (DEVELOPMENT == 1)
-                    if ((pstate->uniformcolor>=0) &&
-                            (pstate->uniformcolor<MAXPLAYERCOLORS))
-                    {
-#endif
                         SetColorLightLevel(obj->x,obj->y,visptr,
                                            obj->dir,pstate->uniformcolor,
                                            (obj->flags&FL_FULLLIGHT) );
-#if (DEVELOPMENT == 1)
-                    }
-                    else
-                    {
-                        Error("Illegal color map for players\n");
-                    }
-#endif
                 }
                 else
                     SetSpriteLightLevel(obj->x,obj->y,visptr,obj->dir,(obj->flags&FL_FULLLIGHT));
@@ -1532,9 +1508,6 @@ void CalcTics (void)
     oldtime=GetTicCount();
     return;
 #else
-#if (DEVELOPMENT == 1)
-    int i;
-#endif
     volatile int tc;
 
     whereami=9;
@@ -1570,34 +1543,6 @@ void CalcTics (void)
         }
     }
     oldtime=tc;
-#if (DEVELOPMENT == 1)
-    if (graphicsmode==true)
-    {
-        int drawntics;
-
-        VGAWRITEMAP(1);
-        drawntics=tics;
-        if (drawntics>MAXDRAWNTICS)
-            drawntics=MAXDRAWNTICS;
-        for (i=0; i<drawntics; i++)
-            *((byte *)displayofs+screenofs+(SCREENBWIDE*3)+i)=egacolor[15];
-    }
-    /*
-          if (drawtime>MAXDRAWNTICS)
-             drawtime=MAXDRAWNTICS;
-          for (i=0;i<drawtime;i++)
-             *((byte *)displayofs+screenofs+(SCREENBWIDE*5)+i)=egacolor[2];
-          if (walltime>MAXDRAWNTICS)
-             walltime=MAXDRAWNTICS;
-          for (i=0;i<walltime;i++)
-             *((byte *)displayofs+screenofs+(SCREENBWIDE*7)+i)=egacolor[14];
-          if (actortime>MAXDRAWNTICS)
-             actortime=MAXDRAWNTICS;
-          for (i=0;i<actortime;i++)
-             *((byte *)displayofs+screenofs+(SCREENBWIDE*9)+i)=egacolor[4];
-          }
-    */
-#endif
 #endif
 
 }
@@ -2667,22 +2612,6 @@ void      ThreeDRefresh (void)
 
     whereami=21;
     tempptr=player;
-#if (DEVELOPMENT == 1)
-    if (Keyboard[sc_9])
-    {
-        while (Keyboard[sc_9])
-        {
-            IN_UpdateKeyboard();
-        }
-        playerview++;
-        if (playerview>numplayers)
-            playerview=1;
-    }
-    if (playerview!=0)
-    {
-        player=PLAYER[playerview-1];
-    }
-#endif
 
 //
 // Erase old messages
