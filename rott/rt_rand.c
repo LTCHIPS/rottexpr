@@ -69,9 +69,7 @@ void  InitializeRNG ( void )
 void  SetRNGindex ( int i )
 {
     rndindex=i;
-//#if (DEVELOPMENT == 1)
     SoftError("RNG index set at %d\n",i);
-//#endif
 }
 
 //****************************************************************************
