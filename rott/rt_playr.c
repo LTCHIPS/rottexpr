@@ -60,11 +60,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #define FLYINGZMOM  350000
 
-
-#if (DEVELOPMENT == 1)
-#include "rt_str.h"
-#endif
-
 extern boolean usejump;
 
 
