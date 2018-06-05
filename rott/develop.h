@@ -23,8 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define NOMEMCHECK
 #define WEAPONCHEAT  1
 #define SYNCCHECK    1
-#define BATTLECHECK 0 // This should be turned off for release, on for beta
-#define BATTLEINFO  0 // This should be turned off for release
 
 #define DELUXE   0
 #define LOWCOST  0
