@@ -80,8 +80,4 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float sca
 void  WaitVBL( void );
 void  TurnOffTextCursor ( void );
 
-#define VGAMAPMASK(a)
-#define VGAREADMAP(a)
-#define VGAWRITEMAP(a)
-
 #endif

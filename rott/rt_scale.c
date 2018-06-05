@@ -487,7 +487,6 @@ void ScaleShape (visobj_t * sprite)
         {
             {
                 frac=startfrac;
-//   VGAWRITEMAP(plane&3);
                 for (x1=startx; x1<=x2; x1+=2, frac += (dc_iscale<<1))
                 {
                     if (
@@ -583,8 +582,6 @@ void ScaleTransparentShape (visobj_t * sprite)
     {
         if (posts[x1].wallheight>sprite->viewheight)
             continue;
-        VGAWRITEMAP(x1&3);
-        VGAREADMAP(x1&3);
         ScaleTransparentPost(((p->collumnofs[frac>>SFRACBITS])+shape),(byte *)bufferofs+(x1>>2),sprite->h2);
     }
 #endif
@@ -744,7 +741,6 @@ void ScaleWeapon (int xoff, int y, int shapenum)
     {
         frac=startfrac;
         b=(byte *)bufferofs+startx;
-        VGAWRITEMAP(plane&3);
         for (x1=startx; x1<=x2 ; x1++, frac += dc_iscale,b++)
             ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
     }
@@ -1074,7 +1070,6 @@ for (plane=startx; plane<startx+4; plane++,startfrac+=xdc_iscale)
 {
     frac=startfrac;
     b=(byte *)bufferofs+(plane>>2);
-    VGAWRITEMAP(plane&3);
     for (x1=plane; x1<=x2 ; x1+=4, frac += xdc_iscale<<2,b++)
         ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
 }

@@ -103,7 +103,6 @@ void VW_DrawClippedString (int x, int y, const char *string)
             if ((x>=0) && (x<iGLOBAL_SCREENWIDTH))
             {
                 y=oy;
-                VGAWRITEMAP(x&3);
                 height = ht;
                 while (height--)
                 {

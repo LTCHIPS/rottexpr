@@ -1889,8 +1889,6 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -2091,8 +2089,6 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -2565,8 +2561,6 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
     
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         for (y = 0; y < height; y++)
@@ -2696,8 +2690,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
 
     for (plane = 0; plane<4; plane++)
     {
-        VGAMAPMASK (mask);
-
         screen1 = dest1;
         screen2 = dest2;
         screen3 = dest3;

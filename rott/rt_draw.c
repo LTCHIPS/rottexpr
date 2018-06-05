@@ -1883,7 +1883,6 @@ void   DrawWalls (void)
     if (doublestep>1)
     {
         {
-            VGAMAPMASK((1<<plane)+(1<<(plane+1)));
             buf=(byte *)(bufferofs);
             for (post=&posts[plane]; post<&posts[viewwidth]; post+=2,buf+=2)
             {
@@ -1898,7 +1897,6 @@ void   DrawWalls (void)
     else
     {
         {
-            VGAWRITEMAP(plane);
             buf=(byte *)(bufferofs);
             for (post=&posts[plane]; post<&posts[viewwidth]; post++,buf++)
             {
@@ -2577,7 +2575,6 @@ void DrawPlayerLocation ( void )
     CurrentFont=tinyfont;
 
     whereami=20;
-    VGAMAPMASK(15);
     for (i=0; i<18; i++)
         memset((byte *)bufferofs+(ylookup[i+PLY])+PLX,0,6);
     px=PLX;
@@ -3371,7 +3368,6 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         {
             mr_yfrac=xct;
             mr_xfrac=xst;
-            VGAWRITEMAP(plane);
             for (y=0; y<Yr; y++,mr_xfrac+=c,mr_yfrac-=s)
                 DrawRotRow(Xr,screen+ylookup[y],RotatedImage);
         }
@@ -3381,7 +3377,6 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         {
             mr_yfrac=xct;
             mr_xfrac=xst;
-            VGAWRITEMAP(plane);
             for (y=0; y<Yr; y++,mr_xfrac+=c,mr_yfrac-=s)
                 DrawMaskedRotRow(Xr,screen+ylookup[y],RotatedImage);
         }
@@ -3406,7 +3401,6 @@ void DrawScaledPost ( int height, byte * src, int offset, int x)
     dc_texturemid=(((p->origsize>>1)+p->topoffset)<<SFRACBITS)+(SFRACUNIT>>1);
     sprtopoffset=centeryfrac - FixedMul(dc_texturemid,dc_invscale);
     shadingtable=colormap+(1<<12);
-    VGAWRITEMAP(x&3);
     ScaleMaskedPost(((p->collumnofs[offset])+src), (byte *)bufferofs+x);
 }
 
@@ -3964,7 +3958,6 @@ void DoIntro (void)
         currentmag=mag>>16;
         for (x=0; x<320; x++,shape+=200)
         {
-            VGAWRITEMAP(x&3);
             src=shape;
             offset=(t+(x<<OSCXSHIFT))&(FINEANGLES-1);
             yoffset=FixedMul(currentmag,sintable[offset]);
@@ -4050,7 +4043,6 @@ void DoZIntro (void)
         srcoffset=0;
         for (x=0; x<320;)
         {
-            VGAWRITEMAP(x&3);
 
             offset=(t+(FixedMul(x,ZOSCXSTEP)))&(FINEANGLES-1);
             zoffset=FixedMul(currentmag,sintable[offset]);
@@ -4205,7 +4197,6 @@ void DrawBackground ( byte * bkgnd )
 
     size=linewidth*200;
     {
-        VGAWRITEMAP(plane);
         memcpy((byte *)bufferofs,bkgnd,size);
         bkgnd+=size;
     }
@@ -4225,7 +4216,6 @@ void PrepareBackground ( byte * bkgnd )
 
     size=linewidth*200;
     {
-        VGAREADMAP(plane);
         memcpy(bkgnd,(byte *)bufferofs,size);
         bkgnd+=size;
     }
@@ -4497,7 +4487,6 @@ fadeworld:
     tmp=sky;
     for (x=0; x<256; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4506,7 +4495,6 @@ fadeworld:
     tmp=sky;
     for (x=256; x<320; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4569,7 +4557,6 @@ fadeworld:
     tmp=sky;
     for (x=0; x<256; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4578,7 +4565,6 @@ fadeworld:
     tmp=sky;
     for (x=256; x<320; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -6457,7 +6443,6 @@ void DrawParticles (void)
 
     VL_ClearBuffer (bufferofs, 0);
     {
-        VGAWRITEMAP(plane);
         for (i=0; i<numparticles; i++)
         {
             part=&Particle[i];
@@ -6502,7 +6487,6 @@ int CountParticles (void)
 
     count=0;
     {
-        VGAREADMAP(plane);
         for (a=0; a<200; a++)
         {
             for (b=0; b<320; b++)
@@ -6523,7 +6507,6 @@ void AssignParticles (void)
 
     part=&Particle[0];
     {
-        VGAREADMAP(plane);
         for (a=0; a<200; a++)
         {
             for (b=0; b<320; b++)

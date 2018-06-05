@@ -193,8 +193,6 @@ void DrawTiledRegion
     plane = 4;
     while( plane > 0 )
     {
-        VGAMAPMASK( mask );
-
         origdest = start+(4-plane);
 
         sourcey     = offy;
@@ -1074,7 +1072,6 @@ void DrawXYPic (int x, int y, int shapenum)
 
     for (plane=x; plane<x+4; plane++)
     {
-        VGAWRITEMAP((plane&3));
         for (yy = 0; yy < p->height; yy++)
         {
             buf=buffer+ylookup[yy];

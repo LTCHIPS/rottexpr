@@ -355,8 +355,6 @@ void DrawCinematicBackground ( backevent * back )
         buf=(byte *)bufferofs+ylookup[back->yoffset];
         offset=(back->currentoffset>>FRACTIONBITS)+plane;
 
-        VGAWRITEMAP(plane);
-
         for (i=0; i<iGLOBAL_SCREENWIDTH; i++,offset++,buf++)
         {
             if (offset>=back->backdropwidth)
@@ -399,8 +397,6 @@ void DrawCinematicMultiBackground ( backevent * back )
     {
         buf=(byte *)bufferofs+ylookup[back->yoffset];
         offset=(back->currentoffset>>FRACTIONBITS)+plane;
-
-        VGAWRITEMAP(plane);
 
         for (i=0; i<iGLOBAL_SCREENWIDTH; i++,offset++,buf++)
         {
@@ -446,8 +442,6 @@ void DrawCinematicBackdrop ( backevent * back )
     {
         buf=(byte *)bufferofs;
         offset=(back->currentoffset>>FRACTIONBITS)+plane;
-
-        VGAWRITEMAP(plane);
 
         for (i=0; i<iGLOBAL_SCREENWIDTH; i++,offset++,buf++)
         {
@@ -543,7 +537,6 @@ void DrawCinematicSprite ( spriteevent * sprite )
 
     for (; x1<=x2 ; x1++, frac += cin_iscale)
     {
-        VGAWRITEMAP(x1&3);
         ScaleFilmPost(((p->collumnofs[frac>>FRACTIONBITS])+shape),buf+x1);
     }
 }
@@ -849,7 +842,6 @@ void ProfileDisplay ( void )
 
     {
         buf=(byte *)bufferofs;
-        VGAWRITEMAP(plane);
 
         for (i=0; i<width; i++,buf++)
         {
@@ -886,8 +878,6 @@ void DrawPostPic ( int lumpnum )
         buf=(byte *)bufferofs;
 
         src=&(pic->data) + (plane*pic->height);
-
-        VGAWRITEMAP(plane);
 
         for (i=0; i<width; i++,src+=pic->height,buf++)
         {

@@ -236,7 +236,6 @@ void   DrawPlanePosts (void)
 
     shadingtable=colormap+(16<<8);
     {
-        VGAWRITEMAP(plane);
         buf=(char *)(bufferofs);
 
         for (i=0; i<viewwidth; i++,buf++)
