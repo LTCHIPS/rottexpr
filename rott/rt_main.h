@@ -160,10 +160,6 @@ void SaveScreen (boolean saveLBM);
 void SetupWads( void );
 
 extern boolean SCREENSHOTS;
-extern boolean MEMORYTEST;
-extern boolean MODEMTEST;
-extern boolean STATICMEMORYTEST;
-extern boolean STATICMEMORYPREVIEWTEST;
 extern boolean COMPUTELEVELSIZE;
 extern boolean MONOPRESENT;
 extern boolean MAPSTATS;
