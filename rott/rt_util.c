@@ -394,8 +394,6 @@ void Error (char *error, ...)
     exit (1);
 }
 
-//#if (SOFTERROR==1)
-
 /*
 =================
 =
@@ -413,9 +411,6 @@ void SoftwareError (char *error, ...)
     vfprintf (errout, error, argptr);
     va_end (argptr);
 }
-
-//#endif
-
 
 /*
 =================
@@ -494,10 +489,6 @@ void OpenMapDebug ( void )
 */
 void StartupSoftError ( void )
 {
-#if (SOFTERROR == 1)
-    if (SoftErrorStarted==false)
-        OpenSoftError();
-#endif
 }
 
 /*
