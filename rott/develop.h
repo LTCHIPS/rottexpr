@@ -43,7 +43,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // okay?
 
 #define TEDLAUNCH   0
-#define SOFTERROR   0
 #define WHEREAMI    0
 
 
