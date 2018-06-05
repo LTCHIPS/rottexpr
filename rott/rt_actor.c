@@ -854,16 +854,6 @@ void MakeActive(objtype *ob)
         lastactive->nextactive = ob;
     }
     lastactive = ob;
-
-#if ((DEVELOPMENT == 1))
-#if ((LOADSAVETEST == 1))
-    if (!lastactive)
-        Debug("\nlastactive = NULL !");
-    else
-        Debug("\nlastactive = %8x",lastactive);
-
-#endif
-#endif
 }
 
 
