@@ -34,12 +34,4 @@ void R_DrawWallColumn (byte * buf);
 void  DrawMenuPost (int height, byte * src, byte * buf); // IN rt_dr_a.asm
 void  DrawMapPost (int height, byte * src, byte * buf); // IN rt_dr_a.asm
 
-#if defined(__WATCOMC__)
-#pragma aux DrawPost parm [ECX] [ESI] [EDI] modify exact [eax ebx ecx edx esi edi]
-#pragma aux DrawHeightPost parm [ECX] [ESI] [EDI] modify exact [eax ebx ecx edx edi]
-#pragma aux R_DrawWallColumn parm [EDI] modify exact [eax ebx ecx edx esi edi]
-#pragma aux DrawMenuPost parm [ECX] [ESI] [EDI] modify exact [eax ebx ecx edx edi]
-#pragma aux DrawMapPost parm [ECX] [ESI] [EDI] modify exact [eax ebx ecx edx edi]
-#endif
-
 #endif
