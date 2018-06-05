@@ -5134,10 +5134,6 @@ void FXVolume
 )
 
 {
-    int oldvolume;
-
-    oldvolume = FXvolume;
-
     SliderMenu( &FXvolume, 254, 0, 33, 81, 225, 8, "block3", FX_SetVolume,
                 "Sound Volume", "Low", "High" );
 
