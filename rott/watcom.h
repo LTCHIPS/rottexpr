@@ -23,37 +23,5 @@ fixed FixedMul(fixed a, fixed b);
 fixed FixedDiv2(fixed a, fixed b);
 fixed FixedScale(fixed orig, fixed factor, fixed divisor);
 fixed FixedMulShift(fixed a, fixed b, fixed shift);
-#ifdef __WATCOMC__
-#pragma aux FixedMul =  \
-        "imul ebx",                     \
-        "add  eax, 8000h"        \
-        "adc  edx,0h"            \
-        "shrd eax,edx,16"       \
-        parm    [eax] [ebx] \
-        value   [eax]           \
-        modify exact [eax edx]
-
-#pragma aux FixedMulShift =  \
-        "imul ebx",                     \
-        "shrd eax,edx,cl"       \
-        parm    [eax] [ebx] [ecx]\
-        value   [eax]           \
-        modify exact [eax edx]
-
-#pragma aux FixedDiv2 = \
-        "cdq",                          \
-        "shld edx,eax,16",      \
-        "sal eax,16",           \
-        "idiv ebx"                      \
-        parm    [eax] [ebx] \
-        value   [eax]           \
-        modify exact [eax edx]
-#pragma aux FixedScale = \
-        "imul ebx",                     \
-        "idiv ecx"                      \
-        parm    [eax] [ebx] [ecx]\
-        value   [eax]           \
-        modify exact [eax edx]
-#endif
 
 #endif
