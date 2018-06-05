@@ -936,7 +936,6 @@ void DrawScaleds (void)
 
     int   i,numvisible;
     int   gx,gy;
-    unsigned short int  *tilespot;
     byte   *visspot;
     boolean result;
     statobj_t *statptr;
@@ -1132,7 +1131,6 @@ void DrawScaleds (void)
                 (visptr->shapenum >= shapestop))
             Error("actor shapenum %d out of range (%d-%d)",visptr->shapenum,shapestart,shapestop);
         visspot = &spotvis[obj->tilex][obj->tiley];
-        tilespot = &tilemap[obj->tilex][obj->tiley];
 
         //
         // could be in any of the nine surrounding tiles
@@ -2379,7 +2377,6 @@ void InterpolateWall (visobj_t * plane)
     int dh;
     int dx;
     int height;
-    byte * buf;
 
     whereami=17;
     dx=(plane->x2-plane->x1+1);
@@ -2393,7 +2390,6 @@ void InterpolateWall (visobj_t * plane)
     bot=d2*dx;
     botinc=d1-d2;
     height=plane->h1<<DHEIGHTFRACTION;
-    buf=(byte *)bufferofs;
     if (plane->x1>=viewwidth)
         return;
     for (i=plane->x1; i<=plane->x2; i++)
@@ -4321,8 +4317,6 @@ void WarpString (
     int dy;
     int cx;
     int cy;
-    int starttime;
-
 
     LastScan = 0;
 
@@ -4331,7 +4325,6 @@ void WarpString (
     dy=((endy-y)<<16)/time;
     cx=x<<16;
     cy=y<<16;
-    starttime=time;
 
     CalcTics();
 
