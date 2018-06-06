@@ -192,7 +192,9 @@ int main (int argc, char *argv[])
     FixFilePath(BATTMAPS);
     gamestate.Product = ROTT_SHAREWARE;
 #else
+    
     BATTMAPS = strdup(SITELICENSEBATTLELEVELS);
+
     FixFilePath(BATTMAPS);
     if (!access(BATTMAPS, R_OK))
     {
