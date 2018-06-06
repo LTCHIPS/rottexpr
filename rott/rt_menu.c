@@ -4943,33 +4943,6 @@ void ReadAnyControl (ControlInfo *ci)
                 ci->button2=ci->button3=false;
         }
     }
-
-
-#if 0
-    if (SpaceBallPresent && spaceballenabled)
-    {
-        SP_Get(&packet);
-
-        if (packet.button)
-        {
-            if (packet.button & SP_BTN_1)
-                ci->button0 = true;
-
-            if (packet.button & SP_BTN_2)
-                ci->button1 = true;
-        }
-
-        if (packet.ty >  MENU_AMT)
-            ci->dir = dir_North;
-        else if (packet.ty < -MENU_AMT)
-            ci->dir = dir_South;
-
-        if (packet.tx < (-MENU_AMT* 6))
-            ci->dir = dir_West;
-        else if (packet.tx > (MENU_AMT * 6))
-            ci->dir = dir_East;
-    }
-#endif
 }
 
 
@@ -5134,10 +5107,6 @@ void FXVolume
 )
 
 {
-    int oldvolume;
-
-    oldvolume = FXvolume;
-
     SliderMenu( &FXvolume, 254, 0, 33, 81, 225, 8, "block3", FX_SetVolume,
                 "Sound Volume", "Low", "High" );
 

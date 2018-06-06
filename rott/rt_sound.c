@@ -68,10 +68,6 @@ int fxnums[ 11 ] = {
     -1, -1, -1, -1, -1, -1, SoundScape, -1, -1, -1, -1
 };
 
-#if 0
-void MU_SetupGUSInitFile( void );
-#endif
-
 int MUSIC_GetPosition( void ) {
     songposition pos;
 
@@ -123,27 +119,6 @@ void SD_MakeCacheable( unsigned long sndnum )
     else
         W_CacheLumpNum(SoundNumber(sndnum),PU_CACHE, CvtNull, 1);
 }
-
-#if 0
-//***************************************************************************
-//
-// SD_PrintActive
-//
-//***************************************************************************
-void SD_PrintActive ( void )
-{
-    int i;
-
-    myprintf("Active Sounds\n");
-    for (i=0; i<MAXSOUNDS; i++)
-    {
-        if (sounds[i].count>0)
-        {
-            myprintf("sound active #%ld\n",i);
-        }
-    }
-}
-#endif
 
 //***************************************************************************
 //
@@ -314,12 +289,6 @@ int SD_PlayIt ( int sndnum, int angle, int distance, int pitch )
     int voice;
     byte * snd;
 
-#if (DEVELOPMENT == 1)
-#if (SOUNDTEST == 1)
-    SoftError("SOUND =%d \n",sndnum);
-#endif
-#endif
-
     if (!(sounds[sndnum].flags & SD_WRITE))
     {
         if (sounds[sndnum].count)
@@ -353,17 +322,6 @@ int SD_PlayIt ( int sndnum, int angle, int distance, int pitch )
 
     if ( voice < FX_Ok )
     {
-#if (DEVELOPMENT == 1)
-        /*
-              if (MV_ErrorCode == MV_InvalidVOCFile)
-                 {
-                 Error("SD_PlayIt: Invalid VOC File snd=%p sndnum=%ld lump=%ld\n",snd,sndnum,SoundNumber(sndnum));
-                 }
-        */
-        NumBadSounds++;
-        SoftError("SD_PlayIt: Error/Warning %s\n",FX_ErrorString( FX_Error ));
-        SoftError("BadSoundNumber %ld time %ld\n",NumBadSounds,GetTicCount());
-#endif
         SD_MakeCacheable( sndnum );
 
         return 0;
@@ -565,14 +523,6 @@ void SD_SetSoundPitch ( int sndnum, int pitch )
 
     if (!FX_SoundActive(sndnum))
         return;
-
-    status=FX_SetPitch( sndnum, pitch );
-    if (status != FX_Ok)
-    {
-#if (DEVELOPMENT == 1)
-        SoftError("SD_SetSoundPitch : %s\n",FX_ErrorString( status ));
-#endif
-    }
 }
 
 //***************************************************************************
@@ -611,15 +561,6 @@ void SD_PanRTP ( int handle, int x, int y )
     {
         angle = 0;
     }
-
-    status = FX_Pan3D ( handle, angle, distance );
-
-    if (status != FX_Ok)
-    {
-#if (DEVELOPMENT == 1)
-        SoftError("SD_PanPositionedSound: %s\n",FX_ErrorString( status ));
-#endif
-    }
 }
 
 //***************************************************************************
@@ -637,15 +578,6 @@ void SD_SetPan ( int handle, int vol, int left, int right )
 
     if (!FX_SoundActive(handle))
         return;
-
-    status=FX_SetPan( handle, vol, left, right );
-
-    if (status != FX_Ok)
-    {
-#if (DEVELOPMENT == 1)
-        SoftError("SD_SetPan: %s\n",FX_ErrorString( status ));
-#endif
-    }
 }
 
 //***************************************************************************
@@ -684,15 +616,6 @@ void SD_PanPositionedSound ( int handle, int px, int py, int x, int y )
     {
         angle = 0;
     }
-
-    status=FX_Pan3D( handle, angle, distance );
-
-    if (status != FX_Ok)
-    {
-#if (DEVELOPMENT == 1)
-        SoftError("SD_PanPositionedSound: %s\n",FX_ErrorString( status ));
-#endif
-    }
 }
 
 
@@ -708,15 +631,6 @@ void SD_StopSound ( int handle )
 
     if (SD_Started==false)
         return;
-
-    status=FX_StopSound( handle);
-
-    if (status != FX_Ok)
-    {
-#if (DEVELOPMENT == 1)
-        SoftError("SD_StopSound: %s\n",FX_ErrorString( status ));
-#endif
-    }
 }
 
 //***************************************************************************
@@ -731,15 +645,6 @@ void  SD_StopAllSounds ( void )
 
     if (SD_Started==false)
         return;
-
-    status=FX_StopAllSounds();
-
-    if (status != FX_Ok)
-    {
-#if (DEVELOPMENT == 1)
-        SoftError("SD_StopAllSounds: %s\n",FX_ErrorString( status ));
-#endif
-    }
 }
 
 //***************************************************************************
@@ -1174,9 +1079,6 @@ void MU_FadeOut ( int time )
         return;
     if (!MUSIC_SongPlaying())
     {
-#if (DEVELOPMENT == 1)
-        SoftError("Called FadeOut with no song playing\n");
-#endif
         return;
     }
     MUSIC_FadeVolume(0,time);

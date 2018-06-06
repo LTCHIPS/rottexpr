@@ -35,16 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 typedef struct memblock_s
 {
-#if (MEMORYCORRUPTIONTEST==1)
-    int     pretag;
-#endif
     int     size;   // including the header and possibly tiny fragments
     void    **user; // NULL if a free block
     int     tag;    // purgelevel
     struct memblock_s   *next, *prev;
-#if (MEMORYCORRUPTIONTEST==1)
-    int     posttag;
-#endif
 } memblock_t;
 
 typedef struct

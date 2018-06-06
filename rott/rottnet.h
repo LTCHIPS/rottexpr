@@ -41,10 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define  MAXPACKETSIZE 2048
 #define	MAXCOMBUFFERSIZE 2048
 
-#if __WATCOMC__
-#pragma pack (1)
-#endif
-
 typedef struct
 {
     short	intnum;			// ROTT executes an int to send commands
@@ -66,30 +62,11 @@ typedef struct
     char	data[MAXPACKETSIZE];
 } rottcom_t;
 
-#if __WATCOMC__
-#pragma pack (4)
-#endif
-
 #define  MODEM_GAME   0
 #define	NETWORK_GAME 1
 
 #define	ROTTLAUNCHER ("ROTT.EXE")
 
-#if defined(DOS) && (__WATCOMC__ == 0)
-
-extern   rottcom_t   rottcom;
-extern   boolean     pause;
-
-void ShutdownROTTCOM ( void );
-int  CheckParm (char *check);
-void LaunchROTT (void);
-void NetISR (void);
-long GetVector (void);
-
-#else
-
 extern   rottcom_t   * rottcom;
-
-#endif
 
 #endif

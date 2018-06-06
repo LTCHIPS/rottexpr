@@ -133,22 +133,6 @@ const char ShiftedScanChars[128] =    // Shifted Scan code names with single cha
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-#if 0
-const char ScanChars[128] =    // Scan code names with single chars
-{
-    '?','?','1','2','3','4','5','6','7','8','9','0','-','+','?','?',
-    'Q','W','E','R','T','Y','U','I','O','P','[',']','|','?','A','S',
-    'D','F','G','H','J','K','L',';','\'','?','?','?','Z','X','C','V',
-    'B','N','M',',','.','/','?','?','?',' ','?','?','?','?','?','?',
-    '?','?','?','?','?','?','?','?','?','?','-','?','5','?','+','?',
-    '?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?',
-    '?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?',
-    '?','?','?','?','?','?','?','?','?','?','?','?','?','?','?','?'
-};
-#endif
-
-
-
 //****************************************************************************
 //
 // LOCALS
@@ -228,13 +212,6 @@ static int sdl_mouse_motion_filter(SDL_Event const *event)
             mouse_y = event->motion.y;
         } /* else */
     } /* else */
-
-#if 0
-    if (mouse_x < 0) mouse_x = 0;
-    if (mouse_x > surface->w) mouse_x = surface->w;
-    if (mouse_y < 0) mouse_y = 0;
-    if (mouse_y > surface->h) mouse_y = surface->h;
-#endif
 
     /* set static vars... */
     sdl_mouse_delta_x += mouse_relative_x;
@@ -560,7 +537,6 @@ void INL_GetJoyDelta (word joy, int *dx, int *dy)
 {
     word        x, y;
     JoystickDef *def;
-    static longword lasttime;
 
     IN_GetJoyAbs (joy, &x, &y);
     def = JoyDefs + joy;
@@ -611,7 +587,6 @@ void INL_GetJoyDelta (word joy, int *dx, int *dy)
     else
         *dy = 0;
 
-    lasttime = GetTicCount();
 }
 
 
@@ -632,32 +607,6 @@ word INL_GetJoyButtons (word joy)
 
     return result;
 }
-
-#if 0
-//******************************************************************************
-//
-// IN_GetJoyButtonsDB () - Returns the de-bounced button status of the
-//                         specified joystick
-//
-//******************************************************************************
-
-word IN_GetJoyButtonsDB (word joy)
-{
-    longword lasttime;
-    word result1,result2;
-
-    do
-    {
-        result1 = INL_GetJoyButtons (joy);
-        lasttime = GetTicCount();
-        while (GetTicCount() == lasttime)
-            ;
-        result2 = INL_GetJoyButtons (joy);
-    } while (result1 != result2);
-
-    return(result1);
-}
-#endif
 
 //******************************************************************************
 //
@@ -998,8 +947,6 @@ void IN_Startup (void)
 
     if ((checkcyberman || checkassassin) && (swiftstatus = SWIFT_Initialize ()))
     {
-        int dynamic;
-
         if (checkcyberman)
         {
             CybermanPresent = swiftstatus;
@@ -1010,8 +957,6 @@ void IN_Startup (void)
             AssassinPresent = checkassassin & swiftstatus;
             assassinenabled = true;
         }
-
-        dynamic = SWIFT_GetDynamicDeviceData ();
 
         SWIFT_TactileFeedback (40, 20, 20);
 
@@ -1030,28 +975,6 @@ void ClearScanCodes()
 {
     ClearHashTable(scancodes);
 }
-
-
-#if 0
-//******************************************************************************
-//
-// IN_Default() - Sets up default conditions for the Input Mgr
-//
-//******************************************************************************
-
-void IN_Default (boolean gotit, ControlType in)
-{
-    if
-    (
-        (!gotit)
-        ||    ((in == ctrl_Joystick1) && !JoysPresent[0])
-        ||    ((in == ctrl_Joystick2) && !JoysPresent[1])
-        ||    ((in == ctrl_Mouse) && !MousePresent)
-    )
-        in = ctrl_Keyboard1;
-    IN_SetControlType (0, in);
-}
-#endif
 
 //******************************************************************************
 //
@@ -1120,16 +1043,6 @@ void IN_ReadControl (int player, ControlInfo *info)
     case ctrl_Keyboard:
         def = &KbdDefs;
 
-#if 0
-        if (Keyboard[def->upleft])
-            mx = motion_Left,my = motion_Up;
-        else if (Keyboard[def->upright])
-            mx = motion_Right,my = motion_Up;
-        else if (Keyboard[def->downleft])
-            mx = motion_Left,my = motion_Down;
-        else if (Keyboard[def->downright])
-            mx = motion_Right,my = motion_Down;
-#endif
         if (Keyboard[sc_UpArrow])
             my = motion_Up;
         else if (Keyboard[sc_DownArrow])
@@ -1147,21 +1060,6 @@ void IN_ReadControl (int player, ControlInfo *info)
         realdelta = false;
         break;
 
-#if 0
-    case ctrl_Joystick1:
-    case ctrl_Joystick2:
-        INL_GetJoyDelta (type - ctrl_Joystick, &dx, &dy);
-        buttons = INL_GetJoyButtons (type - ctrl_Joystick);
-        realdelta = true;
-        break;
-
-    case ctrl_Mouse:
-        INL_GetMouseDelta (&dx,&dy);
-        buttons = IN_GetMouseButtons ();
-        realdelta = true;
-        break;
-
-#endif
     default:
         ;
     }
@@ -1463,56 +1361,6 @@ void IN_ClearKeyboardQueue (void)
 //   I_SendKeyboardData(0xf6);
 //   I_SendKeyboardData(0xf4);
 }
-
-
-#if 0
-//******************************************************************************
-//
-// IN_DumpKeyboardQueue ()
-//
-//******************************************************************************
-
-void IN_DumpKeyboardQueue (void)
-{
-    int head = Keyhead;
-    int tail = Keytail;
-    int key;
-
-    if (tail != head)
-    {
-        SoftError( "START DUMP\n");
-
-        while (head != tail)
-        {
-            if (KeyboardQueue[head] & 0x80)        // Up event
-            {
-                key = KeyboardQueue[head] & 0x7F;   // AND off high bit
-
-//            if (keysdown[key])
-//            {
-//               SoftError( "%s - was put in next refresh\n",
-//                                 IN_GetScanName (key));
-//            }
-//            else
-//            {
-                if (Keyboard[key] == 0)
-                    SoftError( "%s %ld - was lost\n", IN_GetScanName (key), key);
-                else
-                    SoftError( "%s %ld - up\n", IN_GetScanName (key), key);
-//            }
-            }
-            else                                      // Down event
-                SoftError( "%s %ld - down\n", IN_GetScanName (KeyboardQueue[head]), KeyboardQueue[head]);
-
-            head = (head+1)&(KEYQMAX-1);
-        }        // while
-
-        SoftError( "END DUMP\n");
-
-    }           // if
-}
-#endif
-
 
 //******************************************************************************
 //

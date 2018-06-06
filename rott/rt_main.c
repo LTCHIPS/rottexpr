@@ -106,15 +106,7 @@ boolean newlevel = false;
 boolean infopause;
 boolean quiet = false;
 
-#if (DEVELOPMENT == 1)
-boolean DebugOk = true;
-#else
 boolean DebugOk = false;
-#endif
-
-#if (WHEREAMI==1)
-int programlocation=-1;
-#endif
 
 #if SAVE_SCREEN
 static char savename[13] = "ROTT0000.LBM";
@@ -264,15 +256,12 @@ int main (int argc, char *argv[])
 //      }
     if (standalone==false)
     {
-        int status1 = 0;
         int status2 = 0;
-        int status3 = 0;
 
         if ( !NoSound && !IS8250 )
         {
             if (!quiet)
                 printf( "MU_Startup: " );
-            status1 = MU_Startup(false);
             if (!quiet)
                 printf( "%s\n", MUSIC_ErrorString( MUSIC_Error ) );
         }
@@ -301,7 +290,6 @@ int main (int argc, char *argv[])
             {
                 if (!quiet)
                     printf( "SD_Startup: " );
-                status3 = SD_Startup(false);
                 if (!quiet)
                     printf( "%s\n", FX_ErrorString( FX_Error ) );
             }
@@ -324,21 +312,6 @@ int main (int argc, char *argv[])
     }
     I_StartupTimer();
     I_StartupKeyboard();
-#if 0
-#if (SHAREWARE == 1)
-    if ((!SOUNDSETUP) && (standalone==false))
-    {
-        byte * txtscn;
-        int i;
-
-        for (i=0; i<20; i++)
-            printf("\n");
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("rotts10"), PU_CACHE);
-        memcpy ((byte *)0xB8000, txtscn, 4000);
-        I_Delay (600);
-    }
-#endif
-#endif
     locplayerstate = &PLAYERSTATE[consoleplayer];
 
     if (standalone==true)
@@ -423,9 +396,6 @@ void DrawRottTitle ( void )
     {
         SetTextMode();
         TurnOffTextCursor ();
-#ifdef ANSIESC
-            printf("\n\n\n");
-#endif
             strcpy (title,"Rise of the Triad Startup  Version ");
             strcat (title,itoa(ROTTMAJORVERSION,&buf[0],10));
             strcat (title,".");
@@ -435,9 +405,7 @@ void DrawRottTitle ( void )
 #else
             strcat (title,"DFISH");
 #endif
-#ifndef ANSIESC
             strcat (title,"\n");
-#endif
 
             px=(80-strlen(title))>>1;
             py=0;
@@ -467,9 +435,7 @@ void DrawRottTitle ( void )
             py=1;
 
             UL_printf(title);
-#ifndef ANSIESC
             printf ("\n");
-#endif
 
             UL_ColorBox (0, 0, 80, 2, 0x1e);
     }
@@ -1059,11 +1025,7 @@ extern boolean doRescaling;
 
 void GameLoop (void)
 {
-    boolean done   = false;
-    boolean loadit = false;
     int NextLevel;
-
-    wami(1);
 
     while (1)
     {
@@ -1328,7 +1290,6 @@ void GameLoop (void)
             break;
 
         case ex_died:
-            loadit = done = false;
 //		   SetTextMode (  ); //12345678
             Died ();
             StopWind();
@@ -1560,7 +1521,6 @@ void GameLoop (void)
             ;
         }
     }
-    waminot();
 }
 
 boolean CheckForQuickLoad  (void )
@@ -1623,22 +1583,8 @@ void ShutDown ( void )
 
 //===========================================================================
 
-#if (DEVELOPMENT == 1)
-extern int totallevelsize;
-#endif
-
 void QuitGame ( void )
 {
-#if (DEBUG == 1)
-    char buf[5];
-#endif
-
-#if (DEVELOPMENT == 1)
-    int temp;
-#else
-    byte *txtscn;
-#endif
-
     MU_FadeOut(200);
     while (MU_FadeActive())
     {
@@ -1650,64 +1596,6 @@ void QuitGame ( void )
     PrintMapStats();
     PrintTileStats();
     SetTextMode();
-
-#if (DEVELOPMENT == 1)
-    printf("Clean Exit\n");
-    if (gamestate.TimeCount)
-    {
-        temp=(gamestate.frame*VBLCOUNTER*100)/gamestate.TimeCount;
-        printf("fps  = %2ld.%2ld\n",temp/100,temp%100);
-    }
-    printf("argc=%ld\n",_argc);
-    for (k=0; k<_argc; k++) printf("%s\n",_argv[k]);
-    switch( _heapchk() )
-    {
-    case _HEAPOK:
-        printf( "OK - heap is good\n" );
-        break;
-    case _HEAPEMPTY:
-        printf( "OK - heap is empty\n" );
-        break;
-    case _HEAPBADBEGIN:
-        printf( "ERROR - heap is damaged\n" );
-        break;
-    case _HEAPBADNODE:
-        printf( "ERROR - bad node in heap\n" );
-        break;
-    }
-    printf("\nLight Characteristics\n");
-    printf("---------------------\n");
-    if (fog)
-        printf("FOG is ON\n");
-    else
-        printf("FOG is OFF\n");
-    printf("LIGHTLEVEL=%ld\n",GetLightLevelTile());
-    printf("LIGHTRATE =%ld\n",GetLightRateTile());
-    printf("\nCENTERY=%ld\n",centery);
-#else
-#if (SHAREWARE==0)
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("regend"), PU_CACHE, CvtNull, 1);
-#else
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("shareend"), PU_CACHE, CvtNull, 1);
-#endif
-#if defined (ANSIESC)
-        DisplayTextSplash (txtscn, 25);
-#endif
-
-#if (DEBUG == 1)
-        px = ERRORVERSIONCOL;
-        py = ERRORVERSIONROW;
-#if (BETA == 1)
-        UL_printf ("�");
-#else
-        UL_printf (itoa(ROTTMAJORVERSION,&buf[0],10));
-#endif
-        // Skip the dot
-        px++;
-
-        UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
-#endif
-#endif
 
     ClearScanCodes();
     
@@ -1766,12 +1654,9 @@ void UpdateGameObjects ( void )
     objtype * ob,*temp;
     battle_status BattleStatus;
 
-    wami(2);
-
     if (controlupdatestarted==0)
     {
         return;
-        waminot();
     }
 
     atime=GetFastTics();
@@ -1809,12 +1694,6 @@ void UpdateGameObjects ( void )
         {
             temp = ob->nextactive;
             DoActor (ob);
-#if (DEVELOPMENT == 1)
-            if ((ob->x<=0) || (ob->y<=0))
-                Error("object xy below zero obj->x=%ld obj->y=%ld obj->obclass=%ld\n",ob->x,ob->y,ob->obclass);
-            if ((ob->angle<0) || (ob->angle>=FINEANGLES))
-                Error("object angle below zero obj->angle=%ld obj->obclass=%ld\n",ob->angle,ob->obclass);
-#endif
             ob = temp;
         }
 
@@ -1876,9 +1755,6 @@ void UpdateGameObjects ( void )
             FX_SetReverb( min( numareatiles[ player->areanumber ] >> 1, 90 ) );
         }
     }
-
-    waminot();
-
 }
 
 extern boolean doRescaling;
@@ -1938,9 +1814,6 @@ void PlayLoop
 
     boolean canquit = true;
     int     quittime = 0;
-
-    wami(3);
-
 
     if ( (loadedgame == false) && (timelimitenabled == false) )
     {
@@ -2035,10 +1908,6 @@ fromloadedgame:
         AnimateWalls();
 
         UpdateClientControls();
-
-#if (DEVELOPMENT == 1)
-        Z_CheckHeap();
-#endif
 
         if ( AutoDetailOn == true )
         {
@@ -2177,7 +2046,6 @@ fromloadedgame:
             }
         }
     }
-    waminot();
 }
 
 //******************************************************************************
@@ -2190,7 +2058,6 @@ void CheckRemoteRidicule ( int scancode )
 {
     int num=-1;
 
-    wami(4);
     switch (scancode)
     {
     case sc_F1:
@@ -2235,7 +2102,6 @@ void CheckRemoteRidicule ( int scancode )
         AddRemoteRidiculeCommand ( consoleplayer, MSG_DIRECTED_TO_ALL, num );
         LastScan=0;
     }
-    waminot();
 }
 
 //******************************************************************************
@@ -2263,8 +2129,6 @@ void PollKeyboard
 
 {
     static char autopressed = false;
-
-    wami(5);
 
     if (demoplayback==true)
     {
@@ -2303,13 +2167,6 @@ void PollKeyboard
     {
         autopressed = false;
     }
-
-#if 0
-    if ( modemgame == false )
-    {
-        CheckDevelopmentKeys();
-    }
-#endif
 
     if ( ( MSG.messageon == false ) && ( !quitactive ) )
     {
@@ -2459,14 +2316,12 @@ void PollKeyboard
             }
         }
 
-//#if 0
         if ( ( Keyboard[ sc_F12 ] ) && ( !BATTLEMODE ) )
         {
             Keyboard[ sc_F12 ] = false;
             LastScan = 0;
             DoBossKey();
         }
-//#endif
 
         // Gamma correction
         if ( Keyboard[ sc_F11 ] )
@@ -2489,23 +2344,6 @@ void PollKeyboard
                 IN_UpdateKeyboard();
             }
         }
-#if 0
-        if ( Keyboard[ sc_M ] )
-        {
-            char str[ 50 ] = "Mouse Y-Rotation Input Scale ";
-            char str2[ 10 ];
-
-            if ( Keyboard[ sc_RShift ] )
-                mouse_ry_input_scale += 50;
-            else
-                mouse_ry_input_scale -= 50;
-
-            itoa(mouse_ry_input_scale,str2,10);
-            strcat( str, str2 );
-            AddMessage( str, MSG_SYSTEM );
-
-        }
-#endif
         // Increase volume
         if ( Keyboard[ sc_CloseBracket ] )
         {
@@ -2577,16 +2415,6 @@ void PollKeyboard
         }
 
 #if SAVE_SCREEN
-#if (DEVELOPMENT == 1)
-        if ( Keyboard[ sc_CapsLock ] && Keyboard[ sc_C ] )
-        {
-            SaveScreen( true );
-        }
-        else if ( Keyboard[ sc_CapsLock ] && Keyboard[ sc_X ] )
-        {
-            SaveScreen( false );
-        }
-#endif
         else if ( Keyboard[ sc_Alt] && Keyboard[ sc_C ] )
         {
             SaveScreen( false );
@@ -2608,244 +2436,7 @@ void PollKeyboard
             Keystate[0x45] = 0;
     }
 #endif
-    waminot();
 }
-
-
-//******************************************************************************
-//
-// CheckDevelopmentKeys ()
-//
-//******************************************************************************
-#if 0
-void CheckDevelopmentKeys
-(
-    void
-)
-
-{
-#if (DEBUG == 1)
-    if ( Keyboard[ sc_CapsLock ] && Keyboard[ sc_T ] )
-    {
-        if ( warp == true )
-        {
-            player->x     = warpx;
-            player->y     = warpy;
-            player->angle = warpa;
-            locplayerstate->anglefrac = warpa << ANGLEBITS;
-            player->momentumx = 0;
-            player->momentumy = 0;
-            player->momentumz = 0;
-        }
-        return;
-    }
-#endif
-
-    // Lower wall height
-    if ( Keyboard[ sc_5 ] )
-    {
-        if ( levelheight > 1 )
-        {
-            levelheight--;
-        }
-
-        while( Keyboard[ sc_5 ] )
-        {
-            IN_UpdateKeyboard ();
-        }
-
-        maxheight = ( levelheight << 6 ) - 32;
-        nominalheight = maxheight - 32;
-    }
-
-    // Raise wall height
-    if ( Keyboard[ sc_6 ] )
-    {
-        levelheight++;
-
-        while( Keyboard[ sc_6 ] )
-        {
-            IN_UpdateKeyboard();
-        }
-
-        maxheight = ( levelheight << 6 ) - 32;
-        nominalheight = maxheight - 32;
-    }
-
-    if ( Keyboard[ sc_8 ] )
-    {
-        char str[ 50 ] = "You are now player ";
-        char str2[ 10 ];
-
-        locplayerstate->player++;
-        if ( locplayerstate->player == 5 )
-        {
-            locplayerstate->player = 0;
-        }
-
-        while( Keyboard[ sc_8 ] )
-        {
-            IN_UpdateKeyboard ();
-        }
-
-        itoa( locplayerstate->player, str2, 10 );
-        strcat( str, str2 );
-        AddMessage( str, MSG_SYSTEM );
-    }
-
-#if 0
-    // Cycle forward through wall textures
-    if (Keyboard[sc_W] && (modemgame==false))
-    {   int i,j;
-
-        for(i=0; i<128; i++)
-            for(j=0; j<128; j++)
-            {   if (IsWall(i,j))
-                {   if (tilemap[i][j] ==
-                            (W_GetNumForName("WALLSTOP")-W_GetNumForName("WALLSTRT")-1))
-                        tilemap[i][j] = 1;
-                    else
-                        tilemap[i][j] ++;
-                }
-            }
-        while(Keyboard[sc_W])
-            IN_UpdateKeyboard ();
-
-    }
-
-
-
-    if (Keyboard[sc_Q] && (modemgame==false))
-    {   int i,j;
-
-        for(i=0; i<128; i++)
-            for(j=0; j<128; j++)
-            {   if (IsWall(i,j))
-                {   if (tilemap[i][j] == 1)
-                        tilemap[i][j] = 74;
-                    else
-                        tilemap[i][j] --;
-                }
-            }
-        while(Keyboard[sc_Q])
-            IN_UpdateKeyboard ();
-
-    }
-
-#endif
-    // Step through cieling/skies
-    if ( Keyboard[ sc_K ] )
-    {
-        if ( sky > 0 )
-        {
-            MAPSPOT( 1, 0, 0 )++;
-            if ( MAPSPOT( 1, 0, 0 ) > 239 )
-            {
-                MAPSPOT( 1, 0, 0 ) = 234;
-            }
-        }
-        else
-        {
-            MAPSPOT( 1, 0, 0 )++;
-            if ( MAPSPOT( 1, 0, 0 ) > 198 + 15 )
-            {
-                MAPSPOT( 1, 0, 0 ) = 198;
-            }
-        }
-
-        SetPlaneViewSize();
-
-        while( Keyboard[ sc_K ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Step through floors
-    if ( Keyboard[ sc_L ] )
-    {
-        MAPSPOT( 0, 0, 0 )++;
-        if ( MAPSPOT( 0, 0, 0 ) > 180 + 15 )
-        {
-            MAPSPOT( 0, 0, 0 ) = 180;
-            SetPlaneViewSize();
-
-            while( Keyboard[ sc_L ] )
-            {
-                IN_UpdateKeyboard();
-            }
-        }
-    }
-
-    // Increase darkness level
-    if ( Keyboard[ sc_M ] )
-    {
-        if ( darknesslevel < 7 )
-        {
-            darknesslevel++;
-        }
-
-        SetLightLevels( darknesslevel );
-
-        while( Keyboard[ sc_M ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Decrease darkness level
-    if ( Keyboard[ sc_N ] )
-    {
-        if ( darknesslevel > 0 )
-        {
-            darknesslevel--;
-        }
-
-        SetLightLevels( darknesslevel );
-
-        while( Keyboard[ sc_N ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Increase light rate
-    if ( Keyboard[ sc_B ] )
-    {
-        SetLightRate( GetLightRate() + 1 );
-        myprintf( "normalshade = %ld\n", normalshade );
-
-        while( Keyboard[ sc_B ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Decrease light rate
-    if ( Keyboard[ sc_V ] )
-    {
-        SetLightRate( GetLightRate() - 1 );
-        myprintf( "normalshade = %ld\n", normalshade );
-
-        while( Keyboard[ sc_V ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Toggle light diminishing on/off
-    if ( Keyboard[ sc_T ] )
-    {
-        fulllight ^= 1;
-
-        while( Keyboard[ sc_T ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-}
-#endif
-
 
 #if SAVE_SCREEN
 
@@ -3031,23 +2622,12 @@ void GetFileName (boolean saveLBM)
 
 boolean inhmenu;
 
-#if (BETA == 1)
-#define SSX (160-(46*2))
-#define SSY (17)
-#endif
 void SaveScreen (boolean saveLBM)
 {
     byte *buffer;
     byte * screen;
     boolean oldHUD;
     char filename[ 128 ];
-
-#if (BETA == 1)
-    unsigned tmp;
-    char buf[30];
-    int i;
-#endif
-
 
     oldHUD=HUD;
     HUD=false;
@@ -3064,39 +2644,6 @@ void SaveScreen (boolean saveLBM)
     //buffer = (byte *) SafeMalloc (65000);
     buffer = (byte *) SafeMalloc ((iGLOBAL_SCREENHEIGHT*iGLOBAL_SCREENWIDTH)+4000);
 
-#if (BETA == 1)
-    if (SCREENSHOTS == false)
-    {
-        if (screen!=(byte *)bufferofs)
-        {
-            tmp=bufferofs;
-            bufferofs=displayofs;
-        }
-        CurrentFont=tinyfont;
-
-        VGAMAPMASK(15);
-        for (i=-1; i<6; i++)
-            memset((byte *)bufferofs+(ylookup[i+SSY])+(SSX>>2),0,46);
-        px=SSX;
-        py=SSY;
-        VW_DrawPropString(" Rise of the Triad (c) 1995 Apogee  Version ");
-        VW_DrawPropString(itoa(ROTTMAJORVERSION,&buf[0],10));
-        VW_DrawPropString(".");
-        VW_DrawPropString(itoa(ROTTMINORVERSION,&buf[0],10));
-        px=SSX+13;
-        py=SSY+8;
-        VW_DrawPropString(" Episode ");
-        VW_DrawPropString(itoa(gamestate.episode,&buf[0],10));
-        VW_DrawPropString(" Area ");
-        VW_DrawPropString(itoa(GetLevel(gamestate.episode, gamestate.mapon),&buf[0],10));
-
-        if (screen!=(byte *)bufferofs)
-            bufferofs=tmp;
-    }
-#endif
-
-
-
     GetFileName (saveLBM);
     GetPathFromEnvironment( filename, ApogeePath, savename );
     //
@@ -3106,21 +2653,13 @@ void SaveScreen (boolean saveLBM)
     if (saveLBM)
     {
         WriteLBMfile (filename, buffer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-#if (DEVELOPMENT == 1)
-        while (Keyboard[sc_CapsLock] && Keyboard[sc_C])
-#else
         while (Keyboard[sc_Alt] && Keyboard[sc_V])
-#endif
             IN_UpdateKeyboard ();
     }
     else
     {
         WritePCX (filename, buffer);
-#if (DEVELOPMENT == 1)
-        while (Keyboard[sc_CapsLock] && Keyboard[sc_X])
-#else
         while (Keyboard[sc_Alt] && Keyboard[sc_C])
-#endif
             IN_UpdateKeyboard ();
     }
 

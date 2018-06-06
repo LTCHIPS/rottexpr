@@ -169,38 +169,8 @@ void ScaleTransparentPost (byte * src, byte * buf, int level)
     int  bottomscreen;
     byte * oldlevel;
     byte * seelevel;
-#if (DEVELOPMENT == 1)
-    boolean found=false;
-    int  i;
-#endif
 
     whereami=25;
-#if (DEVELOPMENT == 1)
-    if ((shadingtable>=colormap) && (shadingtable<=(colormap+(31*256))))
-    {
-        found=true;
-    }
-    else if ((shadingtable>=redmap) && (shadingtable<=(redmap+(31*256))))
-    {
-        found=true;
-    }
-    else
-    {
-        for (i=0; i<MAXPLAYERCOLORS; i++)
-        {
-            if ((shadingtable>=playermaps[i]) || (shadingtable<=(playermaps[i]+(31*256))))
-                found=true;
-        }
-    }
-    if (found==false)
-    {
-        Error ("Shadingtable out of range\n");
-    }
-    if ((level<0) || (level>=64))
-    {
-        Error ("translucent level out of range\n");
-    }
-#endif
 
     seelevel=colormap+(((level+64)>>2)<<8);
     oldlevel=shadingtable;
@@ -265,10 +235,6 @@ void ScaleMaskedPost (byte * src, byte * buf)
         {
             dc_source=src-offset;
             R_DrawColumn (buf);
-#if (DEVELOPMENT == 1)
-//         if (dc_firstsource<src)
-//            SoftError("dc_firstsource=%p src=%p\n",dc_firstsource,src);
-#endif
         }
         src+=length;
         offset=*(src++);
@@ -521,7 +487,6 @@ void ScaleShape (visobj_t * sprite)
         {
             {
                 frac=startfrac;
-//   VGAWRITEMAP(plane&3);
                 for (x1=startx; x1<=x2; x1+=2, frac += (dc_iscale<<1))
                 {
                     if (
@@ -612,16 +577,6 @@ void ScaleTransparentShape (visobj_t * sprite)
         frac=0;
     x2 = x2 >= viewwidth ? viewwidth-1 : x2;
 
-#if 0
-    for (; x1<=x2 ; x1++, frac += dc_iscale)
-    {
-        if (posts[x1].wallheight>sprite->viewheight)
-            continue;
-        VGAWRITEMAP(x1&3);
-        VGAREADMAP(x1&3);
-        ScaleTransparentPost(((p->collumnofs[frac>>SFRACBITS])+shape),(byte *)bufferofs+(x1>>2),sprite->h2);
-    }
-#endif
     startx=x1;
     startfrac=frac;
 
@@ -778,7 +733,6 @@ void ScaleWeapon (int xoff, int y, int shapenum)
     {
         frac=startfrac;
         b=(byte *)bufferofs+startx;
-        VGAWRITEMAP(plane&3);
         for (x1=startx; x1<=x2 ; x1++, frac += dc_iscale,b++)
             ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
     }
@@ -1050,72 +1004,6 @@ void DrawScreenSizedSprite (int lump)
         }
     }
 }
-
-#if 0
-byte *shape;
-int      frac;
-patch_t *p;
-int      x1,x2;
-int      tx;
-int      xdc_invscale;
-int      xdc_iscale;
-byte *   buf;
-byte *   b;
-int      plane;
-int      startx,startfrac;
-
-whereami=39;
-SetPlayerLightLevel();
-buf=(byte *)bufferofs;
-shape=W_CacheLumpNum(lump,PU_CACHE);
-p=(patch_t *)shape;
-dc_invscale=(viewheight<<16)/200;
-xdc_invscale=(viewwidth<<16)/320;
-
-tx=-p->leftoffset;
-centeryclipped=viewheight>>1;
-//
-// calculate edges of the shape
-//
-x1 = (tx*xdc_invscale)>>SFRACBITS;
-if (x1 >= viewwidth)
-    return;               // off the right side
-tx+=p->width;
-x2 = ((tx*xdc_invscale)>>SFRACBITS) - 1 ;
-if (x2 < 0)
-    return;         // off the left side
-
-dc_iscale=(200*65536)/viewheight;
-xdc_iscale=(320*65536)/viewwidth;
-dc_texturemid=(((p->height>>1)+p->topoffset)<<SFRACBITS)+(SFRACUNIT>>1);
-sprtopoffset=(centeryclipped<<16) - FixedMul(dc_texturemid,dc_invscale);
-
-//
-// store information in a vissprite
-//
-if (x1<0)
-{
-    frac=xdc_iscale*(-x1);
-    x1=0;
-}
-else
-    frac=0;
-x2 = x2 >= viewwidth ? viewwidth-1 : x2;
-
-startx=x1;
-startfrac=frac;
-for (plane=startx; plane<startx+4; plane++,startfrac+=xdc_iscale)
-{
-    frac=startfrac;
-    b=(byte *)bufferofs+(plane>>2);
-    VGAWRITEMAP(plane&3);
-    for (x1=plane; x1<=x2 ; x1+=4, frac += xdc_iscale<<2,b++)
-        ScaleClippedPost(((p->collumnofs[frac>>SFRACBITS])+shape),b);
-}
-}
-#endif
-
-
 
 //******************************************************************************
 //

@@ -84,10 +84,6 @@ static unsigned char egargb[48]= { 0x00,0x00,0x00,
 
 extern const byte * ROTT_ERR;
 
-#if (DEVELOPMENT == 1)
-int TotalStaticMemory=0;
-#endif
-
 #define SWAP(a,b) \
    {              \
    a=(a)^(b);     \
@@ -328,9 +324,6 @@ void Error (char *error, ...)
 
 
     SetTextMode ();
-#if defined (ANSIESC)
-    DisplayTextSplash (&ROTT_ERR, 7);
-#endif
     memset (msgbuf, 0, 300);
 
     va_start (argptr, error);
@@ -364,11 +357,6 @@ void Error (char *error, ...)
         GetToken (true);
     }
 
-#ifdef ANSIESC
-    for (i = 0; i < 8; i++)
-        printf ("\n");
-#endif
-
     if (player!=NULL)
     {
         printf ("Player X     = %lx\n", (long int)player->x);
@@ -394,8 +382,6 @@ void Error (char *error, ...)
     exit (1);
 }
 
-//#if (SOFTERROR==1)
-
 /*
 =================
 =
@@ -414,11 +400,6 @@ void SoftwareError (char *error, ...)
     va_end (argptr);
 }
 
-//#endif
-
-
-//#if (DEBUG == 1)
-
 /*
 =================
 =
@@ -436,8 +417,6 @@ void DebugError (char *error, ...)
     vfprintf (debugout, error, argptr);
     va_end (argptr);
 }
-
-//#endif
 
 /*
 =================
@@ -498,17 +477,6 @@ void OpenMapDebug ( void )
 */
 void StartupSoftError ( void )
 {
-#if (DEBUG == 1)
-    if (DebugStarted==false)
-    {
-        debugout = fopen(DEBUGFILE,"wt+");
-        DebugStarted=true;
-    }
-#endif
-#if (SOFTERROR == 1)
-    if (SoftErrorStarted==false)
-        OpenSoftError();
-#endif
 }
 
 /*
@@ -1439,11 +1407,7 @@ void UL_DisplayMemoryError ( int memneeded )
 
 void UL_printf (byte *str)
 {
-#ifdef ANSIESC
-    printf ("\x1b[%d;%dH%s",py,px,str);
-#else
     printf ("%s ",str);	// Hackish but works - DDOI
-#endif
 }
 
 /*
@@ -1456,19 +1420,6 @@ void UL_printf (byte *str)
 
 void UL_ColorBox (int x, int y, int w, int h, int color)
 {
-#if defined (ANSIESC)
-    int i,j;
-
-
-    for (j=0; j<h; j++)
-    {
-        for (i=0; i<w; i++)
-        {
-            printf ("\x1b[%d;%dH",y+j,x+i);
-            put_dos2ansi(color);
-        }
-    }
-#endif
 }
 
 //******************************************************************************

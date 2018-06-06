@@ -31,11 +31,4 @@ void R_DrawSolidColumn (int color, byte * buf);
 void R_TransColumn (byte * buf);
 void R_DrawClippedColumn (byte * buf);
 
-#if defined(__WATCOMC__)
-#pragma aux R_DrawColumn parm [EDI] modify exact [eax ebx ecx edx esi edi]
-#pragma aux R_DrawSolidColumn parm [EBX] [EDI]  modify exact [eax ecx edi]
-#pragma aux R_TransColumn parm [EDI] modify exact [eax ebx esi edi]
-#pragma aux R_DrawClippedColumn parm [EDI] modify exact [eax ebx ecx edx esi edi]
-#endif
-
 #endif

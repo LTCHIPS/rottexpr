@@ -236,7 +236,6 @@ void   DrawPlanePosts (void)
 
     shadingtable=colormap+(16<<8);
     {
-        VGAWRITEMAP(plane);
         buf=(char *)(bufferofs);
 
         for (i=0; i<viewwidth; i++,buf++)
@@ -866,7 +865,6 @@ void DrawTMenuBufPic (int x, int y, int shapenum)
     int plane;
     int pixel;
     byte *shape;
-    byte *src;
     pic_t *p;
 
     if (MenuBufStarted==false)
@@ -884,7 +882,6 @@ void DrawTMenuBufPic (int x, int y, int shapenum)
 
     buffer = (byte*)menubuf+(x*TEXTUREHEIGHT)+y;
 
-    src=(byte *)&p->data;
     for (plane=0; plane<4; plane++,buffer+=TEXTUREHEIGHT)
     {
         for (yy = 0; yy < p->height; yy++)

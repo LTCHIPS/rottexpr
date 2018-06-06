@@ -21,20 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _develop_public
 
 #define NOMEMCHECK
-#define DEBUG 0
-#define DEVELOPMENT 0
-#define BETA 0
-#define SOUNDTEST 0
-#define PRECACHETEST 0
-#define ELEVATORTEST 0
-#define TEAMTEST     0
-#define LOADSAVETEST 0
 #define WEAPONCHEAT  1
-#define MEMORYCORRUPTIONTEST  0
 #define SYNCCHECK    1
-#define DATACORRUPTIONTEST    0
-#define BATTLECHECK 0 // This should be turned off for release, on for beta
-#define BATTLEINFO  0 // This should be turned off for release
 
 #define DELUXE   0
 #define LOWCOST  0
@@ -51,32 +39,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // okay?
 
 #define TEDLAUNCH   0
-#define SOFTERROR   0
-#define RANDOMTEST  0
-#define WHEREAMI    0
-
-
-
-
-#if (WHEREAMI==1)
-
-#define wami(val)      \
-   {                   \
-   programlocation=val;\
-   }
-
-#define waminot()
-/*
-   {                  \
-   programlocation=-1;\
-   }
-*/
-
-#else
-
-#define wami(val)
-#define waminot()
-
-#endif
 
 #endif

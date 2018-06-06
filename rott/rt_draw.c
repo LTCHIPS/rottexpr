@@ -638,59 +638,6 @@ int       CalcHeight (void)
     return (heightnumerator/nx);
 }
 
-
-
-#if 0
-//==========================================================================
-
-//******************************************************************************
-//
-// NextPlaneptr
-//
-//******************************************************************************
-
-void NextPlaneptr ( void )
-{
-    if (planeptr < &planelist[MAXPLANES-1]) // don't let it overflo'
-        planeptr++;
-}
-
-//******************************************************************************
-//
-// RestPlaneptr
-//
-//******************************************************************************
-
-void ResetPlaneptr ( void )
-{
-    planeptr = &planelist[0];
-}
-
-//******************************************************************************
-//
-// NextVisptr
-//
-//******************************************************************************
-
-void NextVisptr ( void )
-{
-    if (visptr < &vislist[MAXVISIBLE-1]) // don't let it overflo'
-        visptr++;
-}
-
-//******************************************************************************
-//
-// ResetVisptr
-//
-//******************************************************************************
-
-void ResetVisptr ( void )
-{
-    visptr = &vislist[0];
-}
-
-#endif
-
 //==========================================================================
 
 
@@ -757,9 +704,6 @@ int   CalcRotate (objtype *ob)
 
     if ((ob->obclass >= p_bazookaobj) || (ob->obclass == missileobj))
     {   angle = viewangle - ob->angle;
-#if (0)
-        Debug("\nviewangle: %d, angle: %d",viewangle,angle);
-#endif
     }
     else if ((ob->obclass > wallopobj) && (ob->obclass != b_darksnakeobj))
         angle =  (viewangle-ANG180)- ob->angle;
@@ -785,98 +729,12 @@ int   CalcRotate (objtype *ob)
 
     if (ob->state->rotate == 16)
     {   rotation = angle/(ANGLES/16);
-#if (0)
-        Debug("\nrotation: %d", rotation);
-#endif
         return rotation;
     }
     rotation = angle/(ANGLES/8);
     return rotation;
 
 }
-
-
-
-#if 0
-/*
-=====================
-=
-= DrawMaskedWalls
-=
-=====================
-*/
-
-void DrawMaskedWalls (void)
-{
-
-
-    int   i,numvisible;
-    int   gx,gy;
-    unsigned short int  *tilespot;
-    byte   *visspot;
-    boolean result;
-    statobj_t *statptr;
-    objtype   *obj;
-    maskedwallobj_t* tmwall;
-
-    whereami=6;
-
-//
-// place maskwall objects
-//
-    for(tmwall=FIRSTMASKEDWALL; tmwall; tmwall=tmwall->next)
-    {
-        if (spotvis[tmwall->tilex][tmwall->tiley])
-        {
-            mapseen[tmwall->tilex][tmwall->tiley]=1;
-            if (tmwall->vertical)
-            {
-                gx=(tmwall->tilex<<16)+0x8000;
-                gy=(tmwall->tiley<<16);
-                visptr->texturestart=0;
-                visptr->textureend=0;
-                if (viewx<gx)
-                    result=TransformPlane(gx,gy,gx,gy+0xffff,visptr);
-                else
-                    result=TransformPlane(gx,gy+0xffff,gx,gy,visptr);
-                visptr->shapenum=tmwall->bottomtexture;
-                visptr->altshapenum=tmwall->midtexture;
-                visptr->viewx=tmwall->toptexture;
-                visptr->shapesize=2;
-            }
-            else
-            {
-                gx=(tmwall->tilex<<16);
-                gy=(tmwall->tiley<<16)+0x8000;
-                visptr->texturestart=0;
-                visptr->textureend=0;
-                if (viewy<gy)
-                    result=TransformPlane(gx+0xffff,gy,gx,gy,visptr);
-                else
-                    result=TransformPlane(gx,gy,gx+0xffff,gy,visptr);
-                visptr->shapenum=tmwall->bottomtexture;
-                visptr->altshapenum=tmwall->midtexture;
-                visptr->viewx=tmwall->toptexture;
-                visptr->shapesize=2;
-            }
-            if ((tmwall->flags&MW_TOPFLIPPING) &&
-                    (nonbobpheight>64)
-               )
-            {
-                visptr->viewx++;
-            }
-            else if ((tmwall->flags&MW_BOTTOMFLIPPING) &&
-                     (nonbobpheight>maxheight-32)
-                    )
-            {
-                visptr->shapenum++;
-            }
-            if ((visptr < &vislist[MAXVISIBLE-1]) && (result==true)) // don't let it overflo'
-                visptr++;
-        }
-    }
-}
-#endif
 
 /*
 ======================
@@ -936,7 +794,6 @@ void DrawScaleds (void)
 
     int   i,numvisible;
     int   gx,gy;
-    unsigned short int  *tilespot;
     byte   *visspot;
     boolean result;
     statobj_t *statptr;
@@ -1055,21 +912,9 @@ void DrawScaleds (void)
         else if (statptr->flags&FL_COLORED)
         {
             visptr->shapesize=0;
-#if (DEVELOPMENT == 1)
-            if ((statptr->hitpoints>=0) &&
-                    (statptr->hitpoints<MAXPLAYERCOLORS))
-            {
-#endif
                 SetColorLightLevel(statptr->x,statptr->y,visptr,
                                    0,statptr->hitpoints,
                                    (statptr->flags&FL_FULLLIGHT));
-#if (DEVELOPMENT == 1)
-            }
-            else
-            {
-                Error("Illegal color map for sprite type %d\n",statptr->itemnumber);
-            }
-#endif
         }
         else
         {
@@ -1132,7 +977,6 @@ void DrawScaleds (void)
                 (visptr->shapenum >= shapestop))
             Error("actor shapenum %d out of range (%d-%d)",visptr->shapenum,shapestart,shapestop);
         visspot = &spotvis[obj->tilex][obj->tiley];
-        tilespot = &tilemap[obj->tilex][obj->tiley];
 
         //
         // could be in any of the nine surrounding tiles
@@ -1174,21 +1018,9 @@ void DrawScaleds (void)
                     playertype *pstate;
 
                     M_LINKSTATE(obj,pstate);
-#if (DEVELOPMENT == 1)
-                    if ((pstate->uniformcolor>=0) &&
-                            (pstate->uniformcolor<MAXPLAYERCOLORS))
-                    {
-#endif
                         SetColorLightLevel(obj->x,obj->y,visptr,
                                            obj->dir,pstate->uniformcolor,
                                            (obj->flags&FL_FULLLIGHT) );
-#if (DEVELOPMENT == 1)
-                    }
-                    else
-                    {
-                        Error("Illegal color map for players\n");
-                    }
-#endif
                 }
                 else
                     SetSpriteLightLevel(obj->x,obj->y,visptr,obj->dir,(obj->flags&FL_FULLLIGHT));
@@ -1534,9 +1366,6 @@ void CalcTics (void)
     oldtime=GetTicCount();
     return;
 #else
-#if (DEVELOPMENT == 1)
-    int i;
-#endif
     volatile int tc;
 
     whereami=9;
@@ -1572,34 +1401,6 @@ void CalcTics (void)
         }
     }
     oldtime=tc;
-#if (DEVELOPMENT == 1)
-    if (graphicsmode==true)
-    {
-        int drawntics;
-
-        VGAWRITEMAP(1);
-        drawntics=tics;
-        if (drawntics>MAXDRAWNTICS)
-            drawntics=MAXDRAWNTICS;
-        for (i=0; i<drawntics; i++)
-            *((byte *)displayofs+screenofs+(SCREENBWIDE*3)+i)=egacolor[15];
-    }
-    /*
-          if (drawtime>MAXDRAWNTICS)
-             drawtime=MAXDRAWNTICS;
-          for (i=0;i<drawtime;i++)
-             *((byte *)displayofs+screenofs+(SCREENBWIDE*5)+i)=egacolor[2];
-          if (walltime>MAXDRAWNTICS)
-             walltime=MAXDRAWNTICS;
-          for (i=0;i<walltime;i++)
-             *((byte *)displayofs+screenofs+(SCREENBWIDE*7)+i)=egacolor[14];
-          if (actortime>MAXDRAWNTICS)
-             actortime=MAXDRAWNTICS;
-          for (i=0;i<actortime;i++)
-             *((byte *)displayofs+screenofs+(SCREENBWIDE*9)+i)=egacolor[4];
-          }
-    */
-#endif
 #endif
 
 }
@@ -1940,7 +1741,6 @@ void   DrawWalls (void)
     if (doublestep>1)
     {
         {
-            VGAMAPMASK((1<<plane)+(1<<(plane+1)));
             buf=(byte *)(bufferofs);
             for (post=&posts[plane]; post<&posts[viewwidth]; post+=2,buf+=2)
             {
@@ -1955,7 +1755,6 @@ void   DrawWalls (void)
     else
     {
         {
-            VGAWRITEMAP(plane);
             buf=(byte *)(bufferofs);
             for (post=&posts[plane]; post<&posts[viewwidth]; post++,buf++)
             {
@@ -2379,7 +2178,6 @@ void InterpolateWall (visobj_t * plane)
     int dh;
     int dx;
     int height;
-    byte * buf;
 
     whereami=17;
     dx=(plane->x2-plane->x1+1);
@@ -2393,7 +2191,6 @@ void InterpolateWall (visobj_t * plane)
     bot=d2*dx;
     botinc=d1-d2;
     height=plane->h1<<DHEIGHTFRACTION;
-    buf=(byte *)bufferofs;
     if (plane->x1>=viewwidth)
         return;
     for (i=plane->x1; i<=plane->x2; i++)
@@ -2636,7 +2433,6 @@ void DrawPlayerLocation ( void )
     CurrentFont=tinyfont;
 
     whereami=20;
-    VGAMAPMASK(15);
     for (i=0; i<18; i++)
         memset((byte *)bufferofs+(ylookup[i+PLY])+PLX,0,6);
     px=PLX;
@@ -2671,22 +2467,6 @@ void      ThreeDRefresh (void)
 
     whereami=21;
     tempptr=player;
-#if (DEVELOPMENT == 1)
-    if (Keyboard[sc_9])
-    {
-        while (Keyboard[sc_9])
-        {
-            IN_UpdateKeyboard();
-        }
-        playerview++;
-        if (playerview>numplayers)
-            playerview=1;
-    }
-    if (playerview!=0)
-    {
-        player=PLAYER[playerview-1];
-    }
-#endif
 
 //
 // Erase old messages
@@ -3446,7 +3226,6 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         {
             mr_yfrac=xct;
             mr_xfrac=xst;
-            VGAWRITEMAP(plane);
             for (y=0; y<Yr; y++,mr_xfrac+=c,mr_yfrac-=s)
                 DrawRotRow(Xr,screen+ylookup[y],RotatedImage);
         }
@@ -3456,7 +3235,6 @@ void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, i
         {
             mr_yfrac=xct;
             mr_xfrac=xst;
-            VGAWRITEMAP(plane);
             for (y=0; y<Yr; y++,mr_xfrac+=c,mr_yfrac-=s)
                 DrawMaskedRotRow(Xr,screen+ylookup[y],RotatedImage);
         }
@@ -3481,7 +3259,6 @@ void DrawScaledPost ( int height, byte * src, int offset, int x)
     dc_texturemid=(((p->origsize>>1)+p->topoffset)<<SFRACBITS)+(SFRACUNIT>>1);
     sprtopoffset=centeryfrac - FixedMul(dc_texturemid,dc_invscale);
     shadingtable=colormap+(1<<12);
-    VGAWRITEMAP(x&3);
     ScaleMaskedPost(((p->collumnofs[offset])+src), (byte *)bufferofs+x);
 }
 
@@ -3911,266 +3688,6 @@ void UpdateScreenSaver ( void )
 
     FlipPage();
 }
-#if 0
-
-//******************************************************************************
-//
-// DoLaserShoot
-//
-//******************************************************************************
-void DoLaserShoot (char * name)
-{
-
-    int sourcex;
-    int lastx;
-    int sourceheight;
-    int destheight;
-    int sourcestep;
-    int xstep;
-    int hstep;
-    int midx;
-    int startx;
-    int dx;
-    int f;
-    int s;
-    int height;
-    int x;
-    int sx;
-    int size;
-    patch_t *p;
-    byte * shape;
-
-    DrawWorld();
-    midx=160;
-    shape=W_CacheLumpName(name,PU_CACHE);
-    p=(patch_t *)shape;
-    size=p->origsize;
-
-    startx=midx-(size>>1)-(p->leftoffset);
-
-    sourcex=0;
-    lastx=startx+p->width;
-    sourcestep=(320*65536)/p->width;
-    sourceheight=p->origsize<<3;
-    destheight=p->origsize;
-    CalcTics();
-    CalcTics();
-
-
-    for (x=startx; x<lastx; x+=tics,sourcex+=(sourcestep*tics))
-    {
-        for (f=startx; f<=x; f++)
-            DrawScaledPost(destheight,shape,f-startx,f);
-        height=sourceheight<<16;
-        if (x<=midx)
-        {
-            dx=x-(sourcex>>16);
-            xstep=1;
-        }
-        else
-        {
-            dx=(sourcex>>16)-x;
-            xstep=-1;
-        }
-        sx=sourcex>>16;
-        if (dx)
-            hstep=((-destheight+sourceheight)<<16)/dx;
-        else
-            hstep=0;
-        for (s=0; s<dx; s++,height-=hstep,sx+=xstep)
-            DrawScaledPost(height>>16,shape,x-startx,sx);
-        FlipPage();
-        CalcTics();
-        DrawWorld();
-        break;
-    }
-
-    // Write out one more time so that the rest of the screen is clear
-
-    for (f=startx; f<lastx; f++)
-        DrawScaledPost(destheight,shape,f-startx,f);
-    FlipPage();
-}
-
-//******************************************************************************
-//
-// DoIntro
-//
-//******************************************************************************
-
-#define MAXMAG (80)
-#define OSCTIME (5*VBLCOUNTER)
-#define OSCXSHIFT (4)
-#define OSCTSHIFT (4)
-
-void DoIntro (void)
-{
-    byte * shape;
-    byte * origshape;
-    int mag;
-    int currentmag;
-    int magstep;
-    int time;
-    int x;
-    int t;
-
-    shadingtable=colormap+(1<<12);
-
-    origshape=W_CacheLumpName("ap_wrld",PU_CACHE);
-
-    mag=MAXMAG<<16;
-    magstep = (MAXMAG<<16)/OSCTIME;
-    time = OSCTIME;
-    t=0;
-
-    CalcTics();
-
-    while (time>0)
-    {
-        int yoffset;
-        int ylow;
-        int yhigh;
-        int offset;
-        int postheight;
-        byte * src;
-
-        shape=origshape;
-        VL_ClearBuffer (bufferofs, 0);
-        currentmag=mag>>16;
-        for (x=0; x<320; x++,shape+=200)
-        {
-            VGAWRITEMAP(x&3);
-            src=shape;
-            offset=(t+(x<<OSCXSHIFT))&(FINEANGLES-1);
-            yoffset=FixedMul(currentmag,sintable[offset]);
-            ylow=yoffset;
-            if (ylow<0)
-            {
-                src-=ylow;
-                ylow=0;
-            }
-            if (ylow>199)
-                ylow=199;
-            yhigh=yoffset+200;
-            if (yhigh>199)
-            {
-                yhigh=199;
-            }
-            if (yhigh<0)
-                yhigh=0;
-            postheight=yhigh-ylow+1;
-            if (postheight>0)
-                DrawSkyPost((byte *)bufferofs + x + ylookup[ylow],src,postheight);
-        }
-        FlipPage();
-        CalcTics();
-        mag  -= (magstep * tics);
-        time -= tics;
-        t    += (tics<<OSCTSHIFT);
-        if (mag<0) mag = 0;
-    }
-}
-
-
-//******************************************************************************
-//
-// DoZIntro
-//
-//******************************************************************************
-
-#define ZMAXMAG (199)
-#define ZOSCTIME (3*VBLCOUNTER)
-#define ZOSCXSHIFT (2)
-#define ZOSCXSTEP ( (FINEANGLES<<(ZOSCXSHIFT+16))/320 )
-#define ZOSCTSHIFT (2)
-
-void DoZIntro (void)
-{
-    byte * shape;
-    int mag;
-    int currentmag;
-    int magstep;
-    int time;
-    int x;
-    int t;
-
-    SetViewSize (MAXVIEWSIZES-1);
-
-    shadingtable=colormap+(1<<12);
-
-    shape=W_CacheLumpName("ap_wrld",PU_CACHE);
-
-    mag=ZMAXMAG<<16;
-    magstep = (ZMAXMAG<<16)/ZOSCTIME;
-    time = ZOSCTIME;
-    t=0;
-
-    CalcTics();
-
-
-    while (time>0)
-    {
-        int zoffset;
-        int hoffset;
-        int offset;
-        int srcoffset;
-        int bottomscreen;
-        int src;
-//      int i;
-
-
-        VL_ClearBuffer (bufferofs, 0);
-        currentmag=mag>>16;
-
-        srcoffset=0;
-        for (x=0; x<320;)
-        {
-            VGAWRITEMAP(x&3);
-
-            offset=(t+(FixedMul(x,ZOSCXSTEP)))&(FINEANGLES-1);
-            zoffset=FixedMul(currentmag,sintable[offset]);
-//         hoffset=FixedMulShift(currentmag,sintable[offset],17);
-            hoffset=0;
-            dc_texturemid=((100+hoffset)<<SFRACBITS)+(SFRACUNIT>>1);
-
-            dc_invscale=((200+zoffset)<<16)/200;
-            dc_iscale=0xffffffffu/(unsigned)dc_invscale;
-
-            srcoffset+=dc_invscale;
-            sprtopoffset=centeryfrac -  FixedMul(dc_texturemid,dc_invscale);
-            bottomscreen = sprtopoffset + (dc_invscale*200);
-            dc_yl = (sprtopoffset+SFRACUNIT-1)>>SFRACBITS;
-            dc_yh = ((bottomscreen-1)>>SFRACBITS);
-            if (dc_yh >= viewheight)
-                dc_yh = viewheight-1;
-            if (dc_yl < 0)
-                dc_yl = 0;
-            if (dc_yl <= dc_yh)
-            {
-                src=srcoffset>>16;
-                if (src>319)
-                    src=319;
-                if (src<0)
-                    src=0;
-                dc_source=shape+(src * 200);
-//            if (RandomNumber("hello",0)<128)
-                R_DrawColumn ((byte *)bufferofs+x);
-            }
-//         srcoffset+=0x10000;
-            x++;
-            if ((LastScan) || IN_GetMouseButtons())
-                return;
-        }
-        FlipPage();
-        CalcTics();
-        mag  -= (magstep * tics);
-//      mag  += FixedMulShift((magstep * tics),sintable[time&(FINEANGLES-1)],19);
-        time -= tics;
-        t    += (tics<<ZOSCTSHIFT);
-        if (mag<0) mag = 0;
-    }
-}
-#endif
 
 
 
@@ -4280,7 +3797,6 @@ void DrawBackground ( byte * bkgnd )
 
     size=linewidth*200;
     {
-        VGAWRITEMAP(plane);
         memcpy((byte *)bufferofs,bkgnd,size);
         bkgnd+=size;
     }
@@ -4300,7 +3816,6 @@ void PrepareBackground ( byte * bkgnd )
 
     size=linewidth*200;
     {
-        VGAREADMAP(plane);
         memcpy(bkgnd,(byte *)bufferofs,size);
         bkgnd+=size;
     }
@@ -4321,8 +3836,6 @@ void WarpString (
     int dy;
     int cx;
     int cy;
-    int starttime;
-
 
     LastScan = 0;
 
@@ -4331,7 +3844,6 @@ void WarpString (
     dy=((endy-y)<<16)/time;
     cx=x<<16;
     cy=y<<16;
-    starttime=time;
 
     CalcTics();
 
@@ -4575,7 +4087,6 @@ fadeworld:
     tmp=sky;
     for (x=0; x<256; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4584,7 +4095,6 @@ fadeworld:
     tmp=sky;
     for (x=256; x<320; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4647,7 +4157,6 @@ fadeworld:
     tmp=sky;
     for (x=0; x<256; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4656,7 +4165,6 @@ fadeworld:
     tmp=sky;
     for (x=256; x<320; x++)
     {
-        VGAWRITEMAP(x&3);
         for (y=0; y<200; y++)
         {
             *((byte *)bufferofs+ylookup[y]+x)=*tmp++;
@@ -4833,18 +4341,6 @@ ExplosionInfoType ExplosionInfo[NUMEXPLOSIONTYPES]=
     {"EXP1\0",20},
     {"GREXP1\0",25},
     {"PART1\0",12},
-#if 0
-    {"GUTS1\0",12},
-    {"ORGAN1\0",12},
-    {"RIB1\0",12},
-    {"GPINK1\0",12},
-    {"GHEAD1\0",12},
-    {"GARM1\0",12},
-    {"GLEG1\0",12},
-    {"GHUM1\0",12},
-    {"GHIP1\0",12},
-    {"GLIMB1\0",12},
-#endif
 };
 
 
@@ -6195,35 +5691,6 @@ void DrawMaskedRotRow(int count, byte * dest, byte * src)
 
 void DrawSkyPost (byte * buf, byte * src, int height)
 {
-#if 0
-// bna fix for missing sky by high res eg 800x600
-// when sky is >400 (max skyheight) then reverse mouintain to missing spot
-// there should be 200 line of mouintain (400+200) = 600 height lines
-// not the best solution but what it works
-
-    if (iGLOBAL_SCREENWIDTH > 320) {
-        // bna section start
-        //int n = 0;
-        int orgh = 0;//height;
-        if (height > 400) {
-            orgh=height;
-        }
-
-        while (height--) {
-            if ((orgh > 0)&&( height<(orgh-400))) {
-                src-=2;
-                *buf = shadingtable[*src];
-            } else {
-
-                *buf = shadingtable[*src];
-            }
-            buf += linewidth;
-            src++;
-        }
-        // bna section end
-    }
-    else
-#endif
     {
         int i = 0;
         const byte *orig_src = src;
@@ -6281,394 +5748,4 @@ void RefreshClear (void)
         VL_Bar(0, base, iGLOBAL_SCREENHEIGHT, start, FLOORCOLOR);
     }
 }
-
-#if 0
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-typedef struct {
-    int   x;
-    int   y;
-    int   angle;
-    int   speed;
-    int   color;
-    int   endx;
-    int   endy;
-    int   plane;
-    int   time;
-} ParticleType;
-
-#define NUMPARTICLES 300
-#define PARTICLETHINKTIME 5
-#define Fix(a)        (a &= (FINEANGLES-1))
-ParticleType * Particle;
-int numparticles;
-
-//******************************************************************************
-//
-// InitializeParticles
-//
-//******************************************************************************
-
-void InitializeParticles (void)
-{
-    int i;
-    ParticleType * part;
-
-    Particle=(ParticleType *)SafeMalloc ( sizeof(ParticleType) * numparticles );
-    memset ( Particle, 0, sizeof(ParticleType) * numparticles );
-
-    for (i=0; i<numparticles; i++)
-    {
-        part=&Particle[i];
-        part->x=((RandomNumber("hello",0)*RandomNumber("hello",0))%viewwidth)<<16;
-        part->y=((RandomNumber("hello",0)*RandomNumber("hello",0))%viewheight)<<16;
-//      part->x=(((RandomNumber("hello",0)*RandomNumber("hello",0))%(viewwidth-40)+20)<<16);
-//      part->y=(((RandomNumber("hello",0)*RandomNumber("hello",0))%(viewheight-40)+20)<<16);
-        part->angle=(RandomNumber("hello",0)*RandomNumber("hello",0))%FINEANGLES;
-//      part->speed=(RandomNumber("hello",0)%2)<<16;
-        part->speed=(1<<16)-1;
-        part->color=RandomNumber("hello",0);
-        part->endx=-1;
-        part->endy=-1;
-        part->plane=(part->x>>16)&3;
-        part->time=(RandomNumber("",0)%PARTICLETHINKTIME)+1;
-//      part->color=255;
-    }
-}
-
-//******************************************************************************
-//
-// ShutdownParticles
-//
-//******************************************************************************
-
-void ShutdownParticles (void)
-{
-    SafeFree(Particle);
-}
-
-
-void AdjustParticleAngle(int maxadjust, int *currangle,int targetangle)
-{
-    int dangle,i,magangle;
-
-    for(i=0; i<maxadjust; i++)
-    {
-        dangle = *currangle - targetangle;
-
-        if (dangle)
-        {
-            magangle = abs(dangle);
-            if (magangle > (ANGLES/2))
-            {
-                if (dangle > 0)
-                    (*currangle) ++;
-                else
-                    (*currangle) --;
-            }
-            else
-            {
-                if (dangle > 0)
-                    (*currangle) --;
-                else
-                    (*currangle) ++;
-            }
-            Fix(*currangle);
-        }
-    }
-}
-
-//******************************************************************************
-//
-// UpdateParticles
-//
-//******************************************************************************
-
-//#define MAXADJUST (FINEANGLES/40)
-#define MAXADJUST (FINEANGLES/20)
-void UpdateParticles (int type)
-{
-    int i;
-    int dx,dy;
-    ParticleType * target;
-    ParticleType * part;
-
-    if (type==0)
-    {
-        for (i=0; i<numparticles-1; i++)
-        {
-            int angle;
-
-            part=&Particle[i];
-//         target=&Particle[numparticles-1];
-//         target=&Particle[i+1];
-            target=&Particle[(RandomNumber("",0)*RandomNumber("",0))%numparticles];
-            part->x+=-FixedMul (part->speed, costable[part->angle]);
-            part->y+= FixedMul (part->speed, sintable[part->angle]);
-            part->plane=(part->x>>16)&3;
-
-            dx = part->x - target->x;
-            dy = target->y - part->y;
-            if (dx && dy)
-            {
-                angle = atan2_appx(dx,dy);
-                AdjustParticleAngle(MAXADJUST,&(part->angle),angle);
-            }
-        }
-        part=&Particle[numparticles-1];
-        part->x+=-FixedMul (part->speed, costable[part->angle]);
-        part->y+= FixedMul (part->speed, sintable[part->angle]);
-        part->plane=(part->x>>16)&3;
-
-        dx=part->x>>16;
-        dy=part->y>>16;
-
-        if ( (dx<20) || (dx>(viewwidth-20)) )
-        {
-            if ( part->angle < (FINEANGLES/2) )
-            {
-                part->angle=FINEANGLES/2-part->angle;
-                Fix(part->angle);
-            }
-            else
-            {
-                part->angle=FINEANGLES-part->angle;
-                Fix(part->angle);
-            }
-        }
-        if ( (dy<20) || (dy>(viewheight-20)) )
-        {
-            part->angle=FINEANGLES-part->angle;
-            Fix(part->angle);
-        }
-    }
-    else
-    {
-        for (i=0; i<numparticles; i++)
-        {
-            int angle;
-
-            part=&Particle[i];
-            if ((part->x>>16)!=part->endx)
-                part->x+=-FixedMul (part->speed, costable[part->angle]);
-            else
-                part->x=part->endx<<16;
-            if ((part->y>>16)!=part->endy)
-                part->y+= FixedMul (part->speed, sintable[part->angle]);
-            else
-                part->y=part->endy<<16;
-            part->plane=(part->x>>16)&3;
-
-            part->time--;
-            if (part->time==0)
-            {
-                part->time=PARTICLETHINKTIME;
-                dx = part->x - (part->endx<<16);
-                dy = (part->endy<<16) - part->y;
-                if (dx && dy)
-                {
-                    angle = atan2_appx(dx,dy);
-                    AdjustParticleAngle(MAXADJUST,&(part->angle),angle);
-                }
-            }
-        }
-    }
-}
-
-//******************************************************************************
-//
-// DrawParticles
-//
-//******************************************************************************
-
-void DrawParticles (void)
-{
-    int i;
-    int dx,dy;
-    int plane;
-    ParticleType * part;
-
-    VL_ClearBuffer (bufferofs, 0);
-    {
-        VGAWRITEMAP(plane);
-        for (i=0; i<numparticles; i++)
-        {
-            part=&Particle[i];
-            if (part->plane!=plane)
-                continue;
-            dx=part->x>>16;
-            dy=part->y>>16;
-            if (dx<0) dx=0;
-            if (dx>=viewwidth) dx=viewwidth-1;
-            if (dy<0) dy=0;
-            if (dy>=viewheight) dy=viewheight-1;
-            *( (byte *) bufferofs + dx + ylookup[dy] ) = part->color;
-        }
-    }
-}
-
-void DrawParticleTemplate (void)
-{
-    byte pal[768];
-
-    viewwidth=320;
-    viewheight=200;
-    memcpy(&pal[0],W_CacheLumpName("ap_pal",PU_CACHE),768);
-    VL_NormalizePalette(&pal[0]);
-    SwitchPalette(&pal[0],35);
-    VL_ClearBuffer (bufferofs, 255);
-    DrawNormalSprite (0, 0, W_GetNumForName("ap_titl"));
-}
-
-void DrawAlternateParticleTemplate (void)
-{
-    viewwidth=320;
-    viewheight=200;
-    VL_ClearBuffer (bufferofs, 255);
-    DrawNormalSprite (0, 0, W_GetNumForName("LIFE_C1"));
-}
-
-int CountParticles (void)
-{
-    int plane,a,b;
-    int count;
-
-    count=0;
-    {
-        VGAREADMAP(plane);
-        for (a=0; a<200; a++)
-        {
-            for (b=0; b<320; b++)
-            {
-                if (*((byte *)bufferofs+(a*linewidth)+b)!=255)
-                    count++;
-            }
-        }
-    }
-    return count;
-}
-
-void AssignParticles (void)
-{
-    int plane,a,b;
-    byte pixel;
-    ParticleType * part;
-
-    part=&Particle[0];
-    {
-        VGAREADMAP(plane);
-        for (a=0; a<200; a++)
-        {
-            for (b=0; b<320; b++)
-            {
-                pixel = *((byte *)bufferofs+(a*linewidth)+b);
-                if (pixel!=255)
-                {
-                    part->endx=b;
-                    part->endy=a;
-                    part->color=pixel;
-                    part++;
-                }
-            }
-        }
-    }
-}
-
-//******************************************************************************
-//
-// ParticleIntro
-//
-//******************************************************************************
-
-void ParticleIntro (void)
-{
-    int i,j;
-
-
-    SetViewSize (MAXVIEWSIZES-1);
-    numparticles=NUMPARTICLES;
-    DrawAlternateParticleTemplate ();
-//   DrawParticleTemplate ();
-    numparticles=CountParticles ();
-    InitializeParticles ();
-    AssignParticles();
-//   numparticles>>=1;
-
-    CalcTics();
-    CalcTics();
-    LastScan=0;
-    for (i=0; i<VBLCOUNTER*15; i+=tics)
-    {
-        DrawParticles();
-        FlipPage();
-        for (j=0; j<tics; j++)
-        {
-            UpdateParticles(0);
-        }
-        CalcTics();
-        if ((LastScan) || IN_GetMouseButtons())
-            break;;
-    }
-    LastScan=0;
-    for (i=0; i<VBLCOUNTER*15; i+=tics)
-    {
-        DrawParticles();
-        FlipPage();
-        for (j=0; j<tics; j++)
-        {
-            UpdateParticles(1);
-        }
-        CalcTics();
-        if ((LastScan) || IN_GetMouseButtons())
-            break;;
-    }
-    ShutdownParticles ();
-}
-
-#endif
 

@@ -24,9 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_util.h"
 #include <time.h>
 
-#if (DEVELOPMENT == 1)
-#include "rt_main.h"
-#endif
 //MED
 #include "memcheck.h"
 
@@ -72,9 +69,7 @@ void  InitializeRNG ( void )
 void  SetRNGindex ( int i )
 {
     rndindex=i;
-//#if (DEVELOPMENT == 1)
     SoftError("RNG index set at %d\n",i);
-//#endif
 }
 
 //****************************************************************************
@@ -89,19 +84,6 @@ int GetRNGindex ( void )
 }
 
 
-#if (RANDOMTEST==1)
-//****************************************************************************
-//
-// int GameRNG ( char * string, int val )
-//
-//****************************************************************************
-int   GameRNG ( char * string, int val )
-{
-    rndindex = (rndindex+1)&(SIZE_OF_RANDOM_TABLE-1);
-    SoftError("RNG - num=%3d called from=%s val=%d\n",RandomTable[rndindex],string,val);
-    return RandomTable[rndindex];
-}
-#else
 //****************************************************************************
 //
 // int GameRNG (void)
@@ -113,24 +95,9 @@ int   GameRNG ( void )
 
     return RandomTable[rndindex];
 }
-#endif
 
 
 
-#if (RANDOMTEST==1)
-//****************************************************************************
-//
-// int RNG ( char * string, int val )
-//
-//****************************************************************************
-
-int   RNG ( char * string, int val )
-{
-    sndindex = (sndindex+1)&(SIZE_OF_RANDOM_TABLE-1);
-//   SoftError("SRNG - num=%3ld called from=%s val=%ld\n",RandomTable[sndindex],string,val);
-    return RandomTable[sndindex];
-}
-#else
 //****************************************************************************
 //
 // int RNG (void)
@@ -143,5 +110,4 @@ int   RNG( void )
 
     return RandomTable[sndindex];
 }
-#endif
 

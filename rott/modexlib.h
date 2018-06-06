@@ -80,32 +80,4 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float sca
 void  WaitVBL( void );
 void  TurnOffTextCursor ( void );
 
-#ifdef __WATCOMC__
-#pragma aux VGAWRITEMAP =      \
-        "mov    eax,01H"       \
-        "mov    edx,03c5h"     \
-        "shl    eax,cl"        \
-        "out    dx,al"         \
-        parm    [ecx]          \
-        modify exact [eax edx]
-
-#pragma aux VGAMAPMASK =       \
-        "mov    edx,03c5h"     \
-        "out    dx,al"         \
-        parm    [eax]          \
-        modify exact [edx]
-
-#pragma aux VGAREADMAP =      \
-        "shl    eax,08H"      \
-        "mov    edx,03ceh"    \
-        "add    eax,04H"      \
-        "out    dx,ax"        \
-        parm    [eax]         \
-        modify exact [eax edx]
-#endif
-
-#define VGAMAPMASK(a)
-#define VGAREADMAP(a)
-#define VGAWRITEMAP(a)
-
 #endif
