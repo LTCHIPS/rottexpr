@@ -292,6 +292,7 @@ int main (int argc, char *argv[])
             {
                 if (!quiet)
                     printf( "SD_Startup: " );
+                SD_Startup(false);
                 if (!quiet)
                     printf( "%s\n", FX_ErrorString( FX_Error ) );
             }
