@@ -627,10 +627,14 @@ void SD_PanPositionedSound ( int handle, int px, int py, int x, int y )
 
 void SD_StopSound ( int handle )
 {
-    int status;
-
+    //int status;
+    
     if (SD_Started==false)
         return;
+    
+    FX_StopSound(handle);
+
+    
 }
 
 //***************************************************************************
