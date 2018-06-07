@@ -8,7 +8,7 @@ ARFLAGS ?= rcT
 
 CFLAGS ?= -std=c17 -g -Og
 CFLAGS += -Wall -Wextra -Wshadow -Wpedantic
-CFLAGS += $(shell sdl-config --cflags)
+CFLAGS += $(shell sdl2-config --cflags)
 
 OBJS :=
 OBJS += fx_man.o

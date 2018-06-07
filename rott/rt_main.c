@@ -264,6 +264,7 @@ int main (int argc, char *argv[])
         {
             if (!quiet)
                 printf( "MU_Startup: " );
+            MU_Startup(false);
             if (!quiet)
                 printf( "%s\n", MUSIC_ErrorString( MUSIC_Error ) );
         }
@@ -1088,7 +1089,9 @@ void GameLoop (void)
         case ex_titles:
 
             BATTLE_Shutdown();
+            SDL_SetRelativeMouseMode(SDL_FALSE);
             MU_StartSong(song_title);
+            SDL_SetRelativeMouseMode(SDL_TRUE);
             EnableScreenStretch();
             if ((NoWait==false)&&(!modemgame))
             {

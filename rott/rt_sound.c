@@ -906,7 +906,7 @@ int MU_Startup ( boolean bombonerror )
     /* Not DOS, no address config needed */
     status=MUSIC_Init( card, 0 );
 
-
+    
     if (status != MUSIC_Ok) {
         if (bombonerror)
         {
@@ -1094,13 +1094,20 @@ void MU_FadeOut ( int time )
 void MU_StartSong ( int songtype )
 {
     int songnum;
+    
+    //printf("%d \n", songtype);
 
     if (MU_Started==false)
         return;
 
     MU_StopSong();
 
+    //songtype++;
+    
     songnum = MU_GetNumForType ( songtype );
+    
+    //printf("%d : %d \n", songtype, songnum);
+    
     switch (songtype)
     {
     case song_level:

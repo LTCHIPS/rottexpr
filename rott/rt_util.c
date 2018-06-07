@@ -566,7 +566,7 @@ int SafeOpenWrite (char *_filename)
     filename[sizeof (filename) - 1] = '\0';
     FixFilePath(filename);
 
-    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR );
+    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
 
     
     //handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC );
