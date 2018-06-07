@@ -516,11 +516,12 @@ int SD_PlayPitchedSound ( int sndnum, int volume, int pitch )
 
 void SD_SetSoundPitch ( int sndnum, int pitch )
 {
-    int status;
 
     if (SD_Started==false)
         return;
 
+    FX_SetPitch( sndnum, pitch );
+    
     if (!FX_SoundActive(sndnum))
         return;
 }
