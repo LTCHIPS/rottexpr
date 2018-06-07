@@ -141,24 +141,6 @@ int MaxSpeedForCharacter(playertype *pstate);
 //****************************************************************************
 
 #define ComError SoftError
-#if 0
-void ComError (char *error, ...)
-{
-#if 0
-    va_list	argptr;
-#endif
-
-    SoftError(error);
-#if 0
-    if (standalone==true)
-    {
-        va_start (argptr, error);
-        vprintf (error, argptr);
-        va_end (argptr);
-    }
-#endif
-}
-#endif
 
 //****************************************************************************
 //
@@ -320,14 +302,6 @@ void InitializeGameCommands( void )
             server=consoleplayer^1;
         }
     }
-#if 0
-#if (DEVELOPMENT == 1)
-    if (IsServer)
-        ComError("I am the server\n");
-    ComError("consoleplayer=%ld\n",consoleplayer);
-    ComError("server=%ld mynumber=%ld\n",server,consoleplayer);
-#endif
-#endif
 }
 
 
@@ -446,9 +420,6 @@ void ShutdownGameCommands( void )
 void ShutdownClientControls ( void )
 {
     int i;
-#if (DEVELOPMENT == 1)
-    SoftError ("LARGEST time difference=%ld\n",largesttime);
-#endif
     controlupdatestarted=0;
     for (i=0; i<numplayers; i++)
     {
@@ -569,11 +540,6 @@ void StartupClientControls ( void )
         }
     }
 
-
-#if (DEVELOPMENT == 1)
-//   ComError("StartupClientControls: GetTicCount()=%ld oldtime=%ld controlupdatetime=%ld\n",GetTicCount(),oldtime,controlupdatetime);
-#endif
-
     if ((demoplayback==false) && (standalone==false))
     {
         if (modemgame==true)
@@ -613,19 +579,6 @@ void UpdateClientControls ( void )
     else
         InUCC = true;
 
-    wami(6);
-
-#if 0
-
-    delta=GetTicCount()-lastcontrolupdatetime;
-    if (delta>largesttime)
-    {
-        if (delta>10)
-            largesttime=delta;
-        largesttime=delta;
-    }
-
-#endif
     lastcontrolupdatetime=GetTicCount();
 
     if (standalone==false)
@@ -749,19 +702,15 @@ void UpdateClientControls ( void )
 // take out
     if (modemgame==true)
     {
-//#if (DEVELOPMENT == 1)
         if (PanicPressed==true)
         {
             Error("Game Aborted. Scroll Lock pressed\n");
         }
-//#endif
         if (Keyboard[sc_Insert] && Keyboard[sc_Q])
             Error("Game Aborted. Insert->Q pressed\n");
     }
 
     InUCC = false;
-
-    waminot();
 }
 
 //****************************************************************************
@@ -791,20 +740,15 @@ boolean PlayerInGame ( int p )
 //****************************************************************************
 void CheckForPacket ( void )
 {
-    wami(7);
     while (ReadPacket()==true)
     {
         if (badpacket==0)
         {
             ProcessPacket(&ROTTpacket[0], rottcom->remotenode);
-#if (DEVELOPMENT == 1)
-//         ComError("CheckForPacket: from=%ld\n",rottcom->remotenode);
-#endif
         }
         else
             RequestPacket (LastCommandTime[rottcom->remotenode]+controldivisor, rottcom->remotenode, controldivisor);
     }
-    waminot();
 }
 
 
@@ -971,8 +915,6 @@ void PrepareLocalPacket ( void )
 {
     MoveType * pkt;
 
-    wami(8);
-
     pkt=(MoveType *)NextLocalCommand();
 
     pkt->time=controlupdatetime;
@@ -989,12 +931,7 @@ void PrepareLocalPacket ( void )
     if (modemgame==true)
         SendPacket (pkt, server);
 
-#if (DEVELOPMENT == 1)
-//   ComError("packet sent: realtime=%ld time=%ld type=%ld dest=%ld\n",GetTicCount(),pkt->time,pkt->type,server);
-#endif
-
     controlupdatetime+=controldivisor;
-    waminot();
 }
 
 
@@ -1142,9 +1079,6 @@ void SendPacket (void * pkt, int dest)
         ComError("SendPacket:Problems\n");
     else
         WritePacket(pkt,GetPacketSize(pkt),dest);
-#if (DEVELOPMENT == 1)
-//   ComError( "SendPacket: time=%ld dest=%ld\n",((MoveType *)pkt)->time,dest);
-#endif
 }
 
 //****************************************************************************
@@ -1193,16 +1127,6 @@ void ResendLocalPackets (int time, int dest, int numpackets)
     MoveType * pkt;
 
     cmd = CommandAddress(time);
-
-#if 0
-    if (networkgame==false)
-    {
-        int nump;
-        nump=controlupdatetime-time;
-        if (nump>numpackets)
-            numpackets=nump;
-    }
-#endif
 
     if (controlupdatetime<=time)
         return;
@@ -1391,10 +1315,6 @@ void FixupPacket (void * pkt, int src)
     fix=(COM_FixupType *)pkt;
 
     ComError( "Fixup received at %d, time=%d numpackets=%d\n", GetTicCount(), fix->time, fix->numpackets);
-#if 0
-    if (networkgame==false)
-        FixingPackets=false;
-#endif
     time=fix->time;
     ptr=&(fix->data);
 
@@ -1567,64 +1487,6 @@ void SendSyncCheckPacket ( void )
 }
 #endif
 
-#if 0
-
-//****************************************************************************
-//
-// CheckForSyncTime
-//
-//****************************************************************************
-
-void CheckForSyncTime ( void )
-{
-    if ((modemgame==true) && (networkgame==false) && (consoleplayer==0))
-    {
-        if (controlupdatetime>=syncservertime)
-        {
-            SendSyncTimePacket();
-            syncservertime+=MODEMSYNCSERVERTIME;
-        }
-    }
-}
-#endif
-
-#if 0
-//****************************************************************************
-//
-// SendSyncTimePacket
-//
-//****************************************************************************
-
-void SendSyncTimePacket ( void )
-{
-    int i;
-    COM_SyncType sync;
-
-    return;
-
-    sync.type=COM_SYNCTIME;
-
-    if (networkgame==true)
-    {
-        for (i=0; i<numplayers; i++)
-        {
-            if ((PlayerStatus[i]!=player_ingame) || ( (i==consoleplayer) && (standalone==false) ) )
-                continue;
-            sync.synctime=GetTicCount()+GetTransitTime(i);
-            WritePacket ( &sync.type, GetPacketSize(&sync.type), i);
-        }
-    }
-    else
-    {
-        if (PlayerStatus[server]==player_ingame)
-        {
-            sync.synctime=GetTicCount()+GetTransitTime(server);
-            WritePacket ( &sync.type, GetPacketSize(&sync.type), server);
-        }
-    }
-}
-#endif
-
 //****************************************************************************
 //
 // ProcessSoundAndDeltaPacket
@@ -1686,17 +1548,6 @@ void SyncToServer( void )
 //      SoftError("diff=%ld\n",diff);
 //      if (abs(diff)>1)
 //         ISR_SetTime(GetTicCount()-diff);
-#if 0
-    diff = controlupdatetime-LastCommandTime[0];
-    if (diff>3)
-    {
-        ISR_SetTime(GetTicCount()-1);
-    }
-    else if (diff<-3)
-    {
-        ISR_SetTime(GetTicCount()+1);
-    }
-#endif
 //      }
 //   else
 //      {
@@ -1995,12 +1846,6 @@ void RequestPacket (int time, int dest, int numpackets)
     COM_RequestType request;
     int i;
 
-
-#if (DEVELOPMENT == 1)
-    if (modemgame==false)
-        Error("Called Request Packet outside of modem game\n");
-#endif
-
     request.type=COM_REQUEST;
     request.time=time;
     request.numpackets=numpackets/controldivisor;
@@ -2033,10 +1878,6 @@ void RequestPacket (int time, int dest, int numpackets)
     // send out the packet
 
     WritePacket (&request, GetPacketSize(&request), dest);
-
-#if (DEVELOPMENT == 1)
-//   ComError( "BADPKT, request sent at %ld lgt=%ld dest=%ld\n",GetTicCount(),time,dest);
-#endif
 }
 
 //****************************************************************************
@@ -2198,7 +2039,6 @@ void ProcessServer ( void )
     boolean exit;
     int i;
     int time;
-    int quittime;
 
     if (InProcessServer==true)
         return;
@@ -2209,7 +2049,6 @@ void ProcessServer ( void )
         goto exitProcessServer;
 
     time=GetTicCount();
-    quittime=GetTicCount()+SERVERTIMEOUT;
     exit=false;
 
     while (time>=serverupdatetime)
@@ -2250,10 +2089,6 @@ void ProcessServer ( void )
                 }
                 savetime=GetTicCount()+NETWORKTIMEOUT;
             }
-//         if (GetTicCount()>quittime)
-//            {
-//            Error("Server aborting after %ld seconds\n",SERVERTIMEOUT/VBLCOUNTER);
-//            }
             if ((standalone==false) && (done==false))
             {
                 exit=true;
@@ -2267,13 +2102,6 @@ void ProcessServer ( void )
         if (restartgame==true)
             break;
         SendFullServerPacket();
-#if 0
-        if (serverupdatetime>=syncservertime)
-        {
-            SendSyncTimePacket();
-            syncservertime+=NETSYNCSERVERTIME;
-        }
-#endif
     }
 exitProcessServer:
     InProcessServer=false;
@@ -2379,9 +2207,6 @@ void ServerLoop( void )
         while(1)
         {
             ProcessServer();
-#if (DEVELOPMENT == 1)
-            Z_CheckHeap();
-#endif
             CalcTics();
             if (restartgame==true)
                 break;
@@ -2598,21 +2423,6 @@ void ControlPlayerObj (objtype * ob)
         if (ob->flags&FL_PUSHED)
         {
             ob->flags&=~FL_PUSHED;
-#if 0
-            if (abs(ob->momentumx)>0)
-            {
-                if (abs(ob->momentumx+pstate->dmomx)>=abs(ob->momentumx))
-                {
-                    ob->momentumx += pstate->dmomx;
-                    ob->momentumy += pstate->dmomy;
-                }
-            }
-            else if (abs(ob->momentumy+pstate->dmomy)>=abs(ob->momentumy))
-            {
-                ob->momentumx += pstate->dmomx;
-                ob->momentumy += pstate->dmomy;
-            }
-#endif
             if (abs(ob->momentumx+pstate->dmomx)>=abs(ob->momentumx))
             {
                 ob->momentumx += pstate->dmomx;
@@ -2683,22 +2493,6 @@ void UpdatePlayerObj ( int player )
     if (demoplayback||demorecord) {
         SoftError("  dmx=%4x dmy=%4x da=%4x time=%5d\n",pstate->dmomx,pstate->dmomy,pstate->angle>>11,oldpolltime);
     }
-#if 0
-#if (DEVELOPMENT == 1)
-    if ((modemgame==true) || (demoplayback==true) || (demorecord==true))
-    {
-        ComError( "player#%2ld\n",player);
-        ComError( "momx = %6ld\n", PLAYER[player]->momentumx);
-        ComError( "momy = %6ld\n", PLAYER[player]->momentumy);
-        ComError( "   x = %6ld\n", PLAYER[player]->x);
-        ComError( "   y = %6ld\n", PLAYER[player]->y);
-        ComError( "   z = %6ld\n", PLAYER[player]->z);
-        ComError( "   a = %6ld\n", PLAYER[player]->angle);
-        if (pstate->buttonstate[bt_attack])
-            ComError( "FIRING\n");
-    }
-#endif
-#endif
 }
 
 

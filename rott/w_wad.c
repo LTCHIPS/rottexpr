@@ -19,6 +19,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 */
 // W_wad.c
 
+#include <alloca.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -46,11 +47,6 @@ void            **lumpcache;
 //=============
 
 static lumpinfo_t      *lumpinfo;              // location of each lump on disk
-
-
-#if (DATACORRUPTIONTEST == 1)
-static byte *lumpcheck;
-#endif
 
 /*
 ============================================================================
@@ -217,10 +213,6 @@ void W_InitMultipleFiles (char **filenames)
 
     if (!quiet)
         printf("W_Wad: Wad Manager Started NUMLUMPS=%ld\n",(long int)numlumps);
-#if (DATACORRUPTIONTEST == 1)
-    lumpcheck=SafeMalloc(numlumps);
-    memset(lumpcheck,255,numlumps);
-#endif
         W_CheckWADIntegrity ();
 }
 
@@ -440,57 +432,13 @@ void    *W_CacheLumpNum (int lump, int tag, converter_t converter, int numrec)
     if (!lumpcache[lump])
     {
         // read the lump in
-#if (PRECACHETEST == 1)
-        char str[9];
-        strncpy(&str[0],W_GetNameForNum(lump),8);
-        str[8]=0;
-        SoftError("Lump #%d, %s cached at %ld tics size=%ld tag=%ld\n",lump,str,ticcount,W_LumpLength (lump),tag);
-        if (W_LumpLength(lump)==0)
-            SoftError("Caching in zero length lump #%d, %s cached at %ld tics size=%ld tag=%ld\n",lump,str,ticcount,W_LumpLength (lump),tag);
-#endif
-
-#if (DATACORRUPTIONTEST == 1)
-        {
-            int length;
-
-            *(lumpcheck+lump)=CHECKPERIOD;
-            length=W_LumpLength(lump);
-            Z_Malloc (length+sizeof(word), tag, &lumpcache[lump]);
-            W_ReadLump (lump, lumpcache[lump]);
-            Debug("Invoking endian converter on %p, %i records.\n", lumpcache[lump], numrec);
-            converter(lumpcache[lump], numrec);
-
-            *( (word *) ((byte *)lumpcache[lump]+length) ) = CalculateCRC (lumpcache[lump], length);
-        }
-#else
         Z_Malloc (W_LumpLength (lump), tag, &lumpcache[lump]);
         W_ReadLump (lump, lumpcache[lump]);
         Debug("Invoking endian converter on %p, %i records\n", lumpcache[lump], numrec);
         converter(lumpcache[lump], numrec);
-#endif
     }
     else
     {
-#if (DATACORRUPTIONTEST == 1)
-
-        if (*(lumpcheck+lump)==255)
-            Error("Tried using lump%ld before reading it in\n",lump);
-        (*(lumpcheck+lump))--;
-        if (*(lumpcheck+lump)==0)
-        {
-            word storedcrc;
-            word crc;
-            int length;
-
-            *(lumpcheck+lump)=CHECKPERIOD;
-
-            length=W_LumpLength(lump);
-            storedcrc = *( (word *) ((byte *)lumpcache[lump]+length) );
-            crc = CalculateCRC (lumpcache[lump], length);
-            if (crc!=storedcrc)
-                Error("Data corruption lump=%ld\n",lump);
-        }
-#endif
         Z_ChangeTag (lumpcache[lump],tag);
     }
 

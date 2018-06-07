@@ -25,26 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 void  InitializeRNG ( void );
 int   GetRandomSeed ( void );
 
-
-#if RANDOMTEST
-
-int   GameRNG ( char * string, int val );
-#define GameRandomNumber(string,val)   GameRNG(string, val)
-
-int   RNG ( char * string, int val );
-#define RandomNumber(string,val)   RNG(string, val)
-
-#else
-
 int   GameRNG ( void );
 #define GameRandomNumber(string,val)   GameRNG()
 
 int   RNG ( void );
 #define RandomNumber(string,val)   RNG()
-
-#endif
-
-
 
 void  SetRNGindex ( int i );
 int   GetRNGindex ( void );

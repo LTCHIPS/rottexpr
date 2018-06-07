@@ -23,8 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //****************************************************************************
 
-#define _ROTT_
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -33,16 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _ROTT_
 #include "rt_def.h"
-#else
-#include "st_def.h"
-#endif
 
 #include "rt_cfg.h"
 #include "version.h"
-
-#ifdef _ROTT_
 
 #include "scriplib.h"
 #include "rt_playr.h"
@@ -62,16 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "isr.h"
 #include "fx_man.h"
 #include "develop.h"
-
-#else
-
-#include "st_def.h"
-#include "rt_cfg.h"
-#include "scriplib.h"
-#include "rt_sound.h"
-#include "st_util.h"
-
-#endif
 //MED
 #include "memcheck.h"
 
@@ -140,12 +122,6 @@ int     DefaultPlayerCharacter = 0;
 int     DefaultPlayerColor     = 0;
 byte    passwordstring[20];
 
-#ifndef _ROTT_
-
-int     fulllight        = 0;
-int     viewsize         = 7;
-
-#endif
 MacroList CommbatMacros[MAXMACROS];
 
 char ApogeePath[256];
@@ -158,8 +134,6 @@ char ApogeePath[256];
 
 static char SoundName[13]  = "sound.rot";
 
-#ifdef _ROTT_
-
 static char *ConfigName = "config.rot";
 static char *ScoresName = "scores.rot";
 static char *ROTT       = "rott.rot";
@@ -171,11 +145,6 @@ AlternateInformation RemoteSounds;
 AlternateInformation GameLevels;
 AlternateInformation BattleLevels;
 char CodeName[MAXCODENAMELENGTH];
-
-#endif
-
-
-#ifdef _ROTT_
 
 //******************************************************************************
 //
@@ -198,8 +167,6 @@ void ReadScores (void)
     else
         gamestate.violence = 0;
 }
-
-#endif
 
 //******************************************************************************
 //
@@ -328,9 +295,6 @@ void SetSoundDefaultValues
     NumBits     = 16;
     stereoreversed = false;
 }
-
-
-#ifdef _ROTT_
 
 extern char    pword[ 13 ];
 //******************************************************************************
@@ -930,7 +894,6 @@ void SetConfigDefaultValues (void)
     passwordstring[11]=0x23;
     passwordstring[12]=0x1c;
 }
-#endif
 
 //******************************************************************************
 //
@@ -971,8 +934,6 @@ void ReadConfig (void)
         Z_Free (scriptbuffer);
     }
 
-
-#ifdef _ROTT_
     ReadScores();
 
     GetPathFromEnvironment( filename, ApogeePath, ConfigName );
@@ -1002,7 +963,6 @@ void ReadConfig (void)
 
         Z_Free(scriptbuffer);
     }
-#endif
     ConfigLoaded = true;
 }
 
@@ -1110,8 +1070,6 @@ void WriteParameterHex (int file, const char * s1, int val)
 
 
 
-#ifdef _ROTT_
-
 //******************************************************************************
 //
 // WriteScores ()
@@ -1149,8 +1107,7 @@ void WriteBattleConfig
 
     // Write Battle File
     GetPathFromEnvironment( filename, ApogeePath, BattleName );
-    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
-                 S_IREAD | S_IWRITE );
+    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
 
     if ( file == -1 )
     {
@@ -1485,8 +1442,6 @@ void WriteBattleConfig
     close( file );
 }
 
-#endif
-
 //******************************************************************************
 //
 // WriteSoundConfig ()
@@ -1508,8 +1463,9 @@ void WriteSoundConfig
     }
 
     GetPathFromEnvironment( filename, ApogeePath, SoundName );
-    file = open ( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
-                  S_IREAD | S_IWRITE);
+    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
+
+    //file = open ( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC );
 
     if (file == -1)
         Error ("Error opening %s: %s", filename, strerror(errno));
@@ -1618,13 +1574,14 @@ void WriteConfig (void)
     WriteSoundConfig();
 
     // Write Config, Battle and Score files
-#ifdef _ROTT_
     WriteScores();
     WriteBattleConfig();
 
     GetPathFromEnvironment( filename, ApogeePath, ConfigName );
-    file = open( filename,O_RDWR | O_TEXT | O_CREAT | O_TRUNC
-                 , S_IREAD | S_IWRITE);
+    
+    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
+
+    //file = open( filename,O_RDWR | O_TEXT | O_CREAT | O_TRUNC );
 
     if (file == -1)
         Error ("Error opening %s: %s",filename,strerror(errno));
@@ -2009,11 +1966,8 @@ void WriteConfig (void)
     SafeWriteString(file,&passwordtemp[0]);
 
     close (file);
-#endif
     inconfig--;
 }
-
-#ifdef _ROTT_
 
 
 //****************************************************************************
@@ -2159,6 +2113,4 @@ void ReadSETUPFiles (void)
         unlink (filename);          // Delete ROTT.ROT
     }
 }
-
-#endif
 

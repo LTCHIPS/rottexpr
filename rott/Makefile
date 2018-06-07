@@ -14,15 +14,16 @@ ROTT ?= rott
 
 # Regular build flags and rules
 
-CC ?= gccs
+CC ?= gcc
 
-CFLAGS ?= -g -O2
-CFLAGS += -Wall -Wno-unused
+CFLAGS ?= -std=c17 -g -Og
+CFLAGS += -Wall -Wextra -Wshadow -Wpedantic
 CFLAGS += $(shell sdl2-config --cflags)
 CFLAGS += $(EXTRACFLAGS)
 
 CPPFLAGS += -DUSE_SDL=1
 CPPFLAGS += -DPLATFORM_UNIX=1
+CPPFLAGS += -D_GNU_SOURCE
 CPPFLAGS += $(EXTRACPPFLAGS)
 
 LDFLAGS += $(EXTRALDFLAGS)

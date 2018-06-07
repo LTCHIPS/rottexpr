@@ -110,9 +110,6 @@ int               angletodir[ANGLES];
 objtype           *new;
 
 void              *actorat[MAPSIZE][MAPSIZE];
-#if (DEVELOPMENT == 1)
-FILE *            williamdebug;
-#endif
 exit_t            playstate;
 
 void              T_SlideDownScreen(objtype*);
@@ -854,16 +851,6 @@ void MakeActive(objtype *ob)
         lastactive->nextactive = ob;
     }
     lastactive = ob;
-
-#if ((DEVELOPMENT == 1))
-#if ((LOADSAVETEST == 1))
-    if (!lastactive)
-        Debug("\nlastactive = NULL !");
-    else
-        Debug("\nlastactive = %8x",lastactive);
-
-#endif
-#endif
 }
 
 
@@ -1758,12 +1745,6 @@ void SpawnStand (classtype which, int tilex, int tiley, int dir, int ambush)
         if (ambush)
             new->flags |= FL_AMBUSH;
 
-
-#if 0
-        if (gamestate.Product == ROTT_SUPERCD)
-            ConsiderAlternateActor(new,which);
-#endif
-
         StandardEnemyInit(new,dir);
 
         if (which == b_darkmonkobj)
@@ -1806,12 +1787,6 @@ void SpawnStand (classtype which, int tilex, int tiley, int dir, int ambush)
 void SpawnPatrol (classtype which, int tilex, int tiley, int dir)
 {   statetype *temp;
     int path=PATH;
-#if 0
-    if (gamestate.Product == ROTT_SUPERCD)
-        char *altstartlabel;
-#endif
-
-
 
 #if (SHAREWARE==1)
     switch(which)
@@ -1843,12 +1818,6 @@ void SpawnPatrol (classtype which, int tilex, int tiley, int dir)
 
         if (!loadedgame)
             gamestate.killtotal++;
-
-
-#if 0
-        if (gamestate.Product == ROTT_SUPERCD)
-            ConsiderAlternateActor(new,which);
-#endif
 
         StandardEnemyInit(new,dir);
 
@@ -2240,7 +2209,6 @@ void T_Spring(objtype*ob)
 void T_Count(objtype*ob)
 {
     int index;
-    wall_t* tswitch;
     touchplatetype *temp;
     objtype* tempactor;
 
@@ -2318,16 +2286,6 @@ void T_Count(objtype*ob)
                 tempactor = (objtype*)(temp->whichobj);
                 tempactor->flags &= ~FL_ACTIVE;
             }
-
-        tswitch = (wall_t*)actorat[ob->temp1][ob->temp2];
-        /*
-        if (tswitch && (tswitch->which != ACTOR))
-           {
-           tilemap[ob->temp1][ob->temp2]--;
-           tswitch->flags &= ~FL_ON;
-           }
-        */
-
     }
 }
 
@@ -2789,7 +2747,7 @@ void MissileHitActor(objtype *owner, objtype *missile, objtype *victim,
 
 void MissileHit (objtype *ob,void *hitwhat)
 {
-    int damage=0, random,tcl=0,ocl,fireweapon=0,sound,hitmomx,hitmomy;
+    int damage=0, random,tcl=0,ocl,sound,hitmomx,hitmomy;
     objtype* tempactor=NULL,*owner;
 
 
@@ -2910,7 +2868,6 @@ void MissileHit (objtype *ob,void *hitwhat)
     case fireballobj:
         NewState(ob,&s_explosion1);
         damage = (random >> 3) + 10;
-        fireweapon = 1;
         break;
 
     case missileobj:
@@ -2932,7 +2889,6 @@ void MissileHit (objtype *ob,void *hitwhat)
         else if (M_ISWALL(tempactor) || (tempactor->which == DOOR))
             NewState(ob,&s_crossdone1);
         damage = EnvironmentDamage(ob);
-        fireweapon = 1;
         break;
 
 
@@ -3018,7 +2974,6 @@ void MissileHit (objtype *ob,void *hitwhat)
     case dmfballobj:
         NewState(ob,&s_explosion1);
         damage = (random >>3) + 20;
-        fireweapon = 1;
         break;
 
     case h_mineobj:
@@ -3111,7 +3066,7 @@ void T_Spears(objtype*ob)
 
 
 void T_CrushUp(objtype*ob)
-{   int dx, dy,dist,dz,i,playeron;
+{   int dx, dy,dist,dz,i;
 
 
     if ((!ob->ticcount) && (ob->state->condition & SF_SOUND) &&
@@ -3134,7 +3089,6 @@ void T_CrushUp(objtype*ob)
     ob->temp2 = maxheight - ob->temp1 + 32;
 
 
-    playeron = 0;
     for(i=0; i<numplayers; i++)
     {   dx = abs(PLAYER[i]->x - ob->x);
         dy = abs(PLAYER[i]->y - ob->y);
@@ -3143,7 +3097,6 @@ void T_CrushUp(objtype*ob)
         if ((dx < dist) && (dy < dist) && (dz < 65))
         {   ob->flags &= ~FL_BLOCK;
             //player->temp2 = 0;
-            playeron  = 1;
             if ((!ob->ticcount) && (ob->state->condition & SF_CRUSH) &&
                     (levelheight<2) && (!(ob->flags & FL_DYING)))
             {   DamageThing(PLAYER[i],EnvironmentDamage(ob));
@@ -3175,20 +3128,16 @@ void T_CrushUp(objtype*ob)
 
     }
 
-    //if (!playeron)
-    {   if (ob->state->condition & SF_BLOCK)
+        if (ob->state->condition & SF_BLOCK)
             ob->flags |= FL_BLOCK;
         else
             ob->flags &= ~FL_BLOCK;
-
-    }
-
 
 }
 
 
 void T_CrushDown(objtype*ob)
-{   int dx,dy,dz,i,playeron;
+{   int dx,dy,dz,i;
 
 
     if ((!ob->ticcount) && (ob->state->condition & SF_SOUND)&&
@@ -3196,7 +3145,6 @@ void T_CrushDown(objtype*ob)
         SD_PlaySoundRTP(BAS[ob->obclass].operate,ob->x,ob->y);
 
     ob->temp2 = ob->z;
-    playeron = 0;
     for(i=0; i<numplayers; i++)
     {   dx = abs(PLAYER[i]->x - ob->x);
         dy = abs(PLAYER[i]->y - ob->y);
@@ -3204,7 +3152,6 @@ void T_CrushDown(objtype*ob)
 
         if ((dx < STANDDIST) && (dy < STANDDIST) && (dz < 20))
         {   //PLAYER[i]->temp2 = 0;
-            playeron = 1;
             ob->flags &= ~FL_BLOCK;
             if ((!ob->ticcount) && (ob->state->condition & SF_CRUSH) &&
                     (!(ob->flags & FL_DYING)))
@@ -3225,14 +3172,10 @@ void T_CrushDown(objtype*ob)
         }
 
     }
-    //if (!playeron)
-    {   if (ob->state->condition & SF_BLOCK)
+        if (ob->state->condition & SF_BLOCK)
             ob->flags |= FL_BLOCK;
         else
             ob->flags &= ~FL_BLOCK;
-    }
-
-
 }
 
 
@@ -3309,14 +3252,6 @@ void T_Explosion(objtype* ob)
             check->flags &= ~FL_SHOOTABLE;
             return;
         }
-#if 0
-        dist = FindDistance(dx,dy);
-        scalefactor = (blastradius-dist)>>4;
-        if (scalefactor > 0xffff)
-            scalefactor = 0xffff;
-        pdamage = FixedMul(damage,scalefactor);
-#endif
-//#if 0
         //magdx = abs(dx);
         //magdy = abs(dy);
 
@@ -3334,7 +3269,6 @@ void T_Explosion(objtype* ob)
             scalefactor = 0x12000;
         pdamage = FixedMul(damage,scalefactor);
         SoftError("\ndamage: %d, scalefactor: %x\n",pdamage,scalefactor);
-//#endif
         impulse = FixedMul(EXPLOSION_IMPULSE,scalefactor);
         if (check->obclass == playerobj)
         {
@@ -3891,14 +3825,6 @@ void BeginEnemyFatality(objtype *ob,objtype *attacker)
 
     ob->flags |= FL_DYING;
     ob->soundhandle = -1;
-
-#if 0
-    if ((ob->obclass == blitzguardobj) &&
-            (ob->state->condition & SF_DOWN)
-       )
-
-        SD_Play(PlayerSnds[locplayerstate->player]);
-#endif
 
     if (Vicious_Annihilation(ob,attacker))
         return;
@@ -5966,10 +5892,8 @@ void ResolveRide(objtype *ob)
 
 void MoveActor(objtype*ob)
 {
-    int linked,oldarea,newarea,
+    int oldarea,newarea,
         tilex,tiley,oldtilex,oldtiley;
-
-    linked = 0;
 
     ResolveRide(ob);
 
@@ -6783,8 +6707,6 @@ movement_status CheckOtherActors(objtype*ob,int tryx,int tryy,int tryz)
     int dzt,dztp1,checkz;
     int x,y,dx,dy;
     int ocl,tcl;
-    int ISPLAYER = 0;
-    int hoffset;
 
     ocl = ob->obclass;
 
@@ -6817,15 +6739,6 @@ movement_status CheckOtherActors(objtype*ob,int tryx,int tryy,int tryz)
         else if (ocl == inertobj)
             radius -= 0x2000;
     }
-
-    else
-    {
-        ISPLAYER = 1;
-        if (ob->flags & FL_DOGMODE)
-            hoffset = 10;
-    }
-
-
 
     tilexlow = (int)((tryx-radius) >>TILESHIFT);
     tileylow = (int)((tryy-radius) >>TILESHIFT);
@@ -7015,7 +6928,7 @@ movement_status CheckRegularWalls(objtype *ob,int tryx,int tryy,int tryz)
 {
     int tilexlow,tilexhigh,tileylow,tileyhigh,x,y,radius;
     classtype ocl;
-    boolean WALLSTOP,ISPLAYER=false;
+    boolean ISPLAYER=false;
 
     ocl = ob->obclass;
     tryz=tryz;
@@ -7050,17 +6963,12 @@ movement_status CheckRegularWalls(objtype *ob,int tryx,int tryy,int tryz)
     tilexhigh = (int)((tryx+radius) >>TILESHIFT);
     tileyhigh = (int)((tryy+radius) >>TILESHIFT);
 
-
-    WALLSTOP = false;
-
     for (y=tileylow; y<=tileyhigh; y++)
         for (x=tilexlow; x<=tilexhigh; x++)
         {
             wall_t          *tempwall;
-            int             wall;
 
             tempwall = (wall_t*)actorat[x][y];
-            wall=tilemap[x][y];
             if (tempwall)
             {
                 if (tempwall->which==WALL)// && IsWindow(x,y)==false)
@@ -7083,7 +6991,6 @@ movement_status CheckRegularWalls(objtype *ob,int tryx,int tryy,int tryz)
                     }
 
                     //return false;
-                    WALLSTOP = true;
                     if ((ocl == inertobj) &&
                             (ob->dirchoosetime == GIBVALUE) &&
 
@@ -8763,7 +8670,7 @@ hiding_status HoleStatus(objtype*ob)
 
 void SelectTouchDir (objtype *ob)
 {
-    int dx,dy,noneleft,invisible;
+    int dx,dy;
     hiding_status hole;
 
 
@@ -8773,10 +8680,6 @@ void SelectTouchDir (objtype *ob)
 
     olddir=ob->dir;
     turnaround= opposite[olddir];
-
-
-    invisible = 0;
-    noneleft = 1;
 
     if (!MISCVARS->notouch)
     {
@@ -9716,16 +9619,6 @@ findplayer:
             prevdir = ((prevdir+2) & 0xf);
 
         }
-#if 0
-        SoftError("\n straight dir: %d\n queue dirs ",tdir);
-        for(count = 0; count < MISCVARS->NMEqueuesize; count++)
-        {
-            SoftError("\n dir %d: %d",MISCVARS->NMEqueuesize-count,
-                      ((ob->temp1 >> (4*count)) &0xf)
-                     );
-
-        }
-#endif
     }
     else             // else goto next queue dir;
     {
@@ -9934,9 +9827,6 @@ void T_NME_Attack(objtype*ob)
 
     if (!CheckLine(ob,PLAYER[0],SIGHT))
     {   //ob->temp3 = 0;
-        //#if ((DEVELOPMENT == 1))
-        //Debug("\nCheckLine failed in NME Attack");
-        //#endif
         NewState(ob,&s_NMEchase);
         NewState((objtype*)(ob->target),&s_NMEwheels2);
         if (!ob->temp2)
@@ -10146,16 +10036,8 @@ void T_GenericMove(objtype*ob)
             //ob->y = ob->drawy = ob->targettiley;
             //ob->tilex = ob->x >> TILESHIFT;
             //ob->tiley = ob->y >> TILESHIFT;
-            //#if ((DEVELOPMENT == 1))
-            //	Debug("\nfollower %d being moved to targetx %4x and targety %4x",
-            //	  ob-SNAKEHEAD,ob->x,ob->y);
-            // #endif
             ob->targettilex = ob->temp1;
             ob->targettiley = ob->temp2;
-#if (0)
-            Debug("\nfollower %d's new targetx %4x, targety %4x",
-                  ob-SNAKEHEAD,ob->temp1,ob->temp2);
-#endif
             ob->angle = atan2_appx(dx,dy);
             ob->dir = angletodir[ob->angle];
             ParseMomentum(ob,ob->angle);
@@ -12830,16 +12712,12 @@ void SelectChaseDir (objtype *ob)
     else
     	turnaround=nodir;
     */
-    dummy.which = ACTOR;
-    dummy.z = ob->z;
     if (ob->targettilex || ob->targettiley)
     {
         tx = ob->targettilex;
         ty = ob->targettiley;
         dx= tx - ob->x;
         dy= ob->y - ty;
-        dummy.x = tx;
-        dummy.y = ty;
         if ((abs(dx) < 0x2000) && (abs(dy) < 0x2000))
             ChasePlayer(ob);
     }
@@ -13343,9 +13221,6 @@ boolean CheckLine (void *from, void *to, int condition)
 
     if ((yzangle>MAXYZANGLE) && (yzangle<FINEANGLES-MAXYZANGLE))
     {
-#if (0)
-        Debug("\nfailed from yzangle");
-#endif
         return false;
     }
 
@@ -13446,16 +13321,10 @@ boolean CheckLine (void *from, void *to, int condition)
                     {
                         if ( maskobjlist[value&0x3ff]->flags & MW_SHOOTABLE )
                         {
-#if (0)
-                            SoftError("\nfailed from shootable mask");
-#endif
                             return false;
                         }
                         else if ( maskobjlist[value&0x3ff]->flags & MW_WEAPONBLOCKING )
                         {
-#if (0)
-                            SoftError("\nfailed from block mask");
-#endif
                             return false;
                         }
                     }
@@ -13467,13 +13336,6 @@ boolean CheckLine (void *from, void *to, int condition)
             }
             else
             {
-#if (0)
-                SoftError("\n obx %d, oby %d, origx %d, origy %d"
-                          "\n xydist %d, vx %d, vy %d",ob->x,ob->y,orig->x,
-                          orig->y,xydist,vx,vy);
-
-                SoftError("\nfailed from normal wall");
-#endif
                 return false;
             }
         }
@@ -13486,9 +13348,6 @@ boolean CheckLine (void *from, void *to, int condition)
 //             FindDistance(orig->x-tempactor->x,orig->y-tempactor->y) )
 //             ==true) )
             {
-#if (0)
-                SoftError("\nfailed from actor");
-#endif
                 return false;
             }
         }
@@ -13501,17 +13360,11 @@ boolean CheckLine (void *from, void *to, int condition)
                  ==true) )
 
         {
-#if (0)
-            SoftError("\nfailed from sprite");
-#endif
             return false;
         }
 
         if (tempactor && (tempactor->which == PWALL))
         {
-#if (0)
-            SoftError("\nfailed from pushwall");
-#endif
             return false;
         }
         index=(cnt>=0);

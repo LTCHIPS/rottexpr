@@ -542,11 +542,7 @@ void DisplayMessage   (int num,int position)
         break;
 
     default :
-#if ((DEVELOPMENT == 1))
-        Error( "DisplayMessage called with invalid priority number." );
-#else
         fontcolor = egacolor[ LIGHTGREEN ];
-#endif
     }
 
     DrawIString( PrintX, PrintY, Messages[ num ].text, Messages[ num ].flags );

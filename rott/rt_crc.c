@@ -63,35 +63,6 @@ static const unsigned short int crc16tab[256] =
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
 
-/* driver */
-#if 0
-main(argc,argv)
-int argc;
-char **argv;
-{
-    if(argc>2) perr("Usage:  crcfast [filename]");
-    if(argc==2) strcpy(filename,argv[1]);
-    else
-    {
-        printf("\nEnter filename:  ");
-        gets(filename);
-    }
-    if((fp=fopen(filename,"rb"))==NULL) perr("Can't open file");
-    num=0L;
-    crc16=crctt=0;
-    while((ch=fgetc(fp))!=EOF)
-    {
-        num++;
-        crc16=updatecrc(crc16,ch);
-//		crctt=updcrc(crctt,ch);
-    }
-    fclose(fp);
-    printf("\nNumber of bytes = %lu\nCRC16 = %04X\nCRCTT = %04X",
-           num,crc16,crctt);
-}
-
-#endif
-
 /* update crc reverse */
 int updatecrc(int crc, int c)
 {

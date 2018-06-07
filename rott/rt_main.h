@@ -145,10 +145,6 @@ void InitCharacter(void);
 void ShutDown ( void );
 void UpdateGameObjects ( void );
 
-#if (WHEREAMI==1)
-extern int programlocation;
-#endif
-
 extern  int polltime;
 extern  int oldpolltime;
 extern  volatile int oldtime;
@@ -160,10 +156,6 @@ void SaveScreen (boolean saveLBM);
 void SetupWads( void );
 
 extern boolean SCREENSHOTS;
-extern boolean MEMORYTEST;
-extern boolean MODEMTEST;
-extern boolean STATICMEMORYTEST;
-extern boolean STATICMEMORYPREVIEWTEST;
 extern boolean COMPUTELEVELSIZE;
 extern boolean MONOPRESENT;
 extern boolean MAPSTATS;
