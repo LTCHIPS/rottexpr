@@ -66,7 +66,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "modexlib.h"
 #include "rt_msg.h"
 #include "rt_net.h"
-#include "rt_spbal.h"
 #include "rt_scale.h"
 
 #include "rt_battl.h"
@@ -342,8 +341,6 @@ typedef enum
     JOYENABLE,
     USEPORT2,
     PADENABLE,
-    SPACEBALLENABLE,
-    CYBERMANENABLE,
     THRESSENS,
     MOUSESENS,
     CUSTOMIZE
@@ -418,22 +415,18 @@ CP_MenuNames CtlMenuNames[] =
     "JOYSTICK ENABLED",
     "USE JOYSTICK PORT 2",
     "GAMEPAD ENABLED",
-    "SPACEBALL ENABLED",
-    "CYBERMAN ENABLED",
     "ADJUST THRESHOLD",
     "MOUSE SENSITIVITY",
     "CUSTOMIZE CONTROLS"
 };
 
-CP_iteminfo CtlItems  = { CTL_X, MENU_Y, 9, -1, 36, CtlMenuNames, mn_largefont };
+CP_iteminfo CtlItems  = { CTL_X, MENU_Y, 7, -1, 36, CtlMenuNames, mn_largefont };
 CP_itemtype CtlMenu[] =
 {
     { CP_Inactive, "ctl_mic\0", 'M', NULL },
     { CP_Inactive, "ctl_jen\0", 'J', NULL },
     { CP_Inactive, "ctl_jp2\0", 'U', NULL },
     { CP_Inactive, "ctl_gpd\0", 'G', NULL },
-    { CP_Inactive, "spball\0",  'S', NULL },
-    { CP_Inactive, "cyberman\0",'C', NULL },
     { CP_Inactive, "ctl_thr\0", 'A', (menuptr)DoThreshold },
     { CP_Inactive, "ctl_mse\0", 'M', (menuptr)MouseSensitivity },
     { CP_Active,   "ctl_cus\0", 'C', (menuptr)CP_Custom }
@@ -1775,9 +1768,6 @@ void CleanUpControlPanel (void)
 
     if (mouseenabled)
         PollMouseMove ();    // Trying to kill movement
-
-    if (cybermanenabled)
-        PollCyberman ();
 
     RefreshPause = true;
 }
@@ -3807,16 +3797,6 @@ void CP_Control (void)
             }
             break;
 
-        case SPACEBALLENABLE:
-            spaceballenabled ^= 1;
-            DrawCtlButtons ();
-            break;
-
-        case CYBERMANENABLE:
-            cybermanenabled ^= 1;
-            DrawCtlButtons ();
-            break;
-
         case THRESSENS:
         case MOUSESENS:
         case CUSTOMIZE:
@@ -4744,12 +4724,6 @@ void DrawCtlButtons (void)
             mouseenabled = 0;
         }
 
-        if (SpaceBallPresent)
-            CtlMenu[SPACEBALLENABLE].active = CP_Active;
-
-        if (CybermanPresent)
-            CtlMenu[CYBERMANENABLE].active = CP_Active;
-
         for (x = 0; x < CtlItems.amount; x++)
         {
             if (CtlMenu[x].active)
@@ -4798,25 +4772,6 @@ void DrawCtlButtons (void)
         EraseMenuBufRegion (x, y, 16, 16);
         DrawMenuBufItem (x, y, button_off);
     }
-
-    y += 14;
-    if (spaceballenabled)
-        DrawMenuBufItem (x, y, button_on);
-    else
-    {
-        EraseMenuBufRegion (x, y, 16, 16);
-        DrawMenuBufItem (x, y, button_off);
-    }
-
-    y += 14;
-    if (cybermanenabled)
-        DrawMenuBufItem (x, y, button_on);
-    else
-    {
-        EraseMenuBufRegion (x, y, 16, 16);
-        DrawMenuBufItem (x, y, button_off);
-    }
-
 
     if ((CtlItems.curpos < 0) || (!CtlMenu[CtlItems.curpos].active))
         for (i = 0; i < CtlItems.amount; i++)

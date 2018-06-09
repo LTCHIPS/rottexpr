@@ -264,32 +264,6 @@ long filelength(int handle);
 #define  ANGLEBITS      16
 #define  ANGLEFRACMAX   (FINEANGLES<<ANGLEBITS)
 
-
-//***************************************************************************
-//
-//    SWIFT Constants
-//
-//***************************************************************************
-
-//
-// device type codes, returned in deviceType field (SWIFT_StaticData)
-//
-#define SWIFT_DEV_NONE		0
-#define SWIFT_DEV_CYBERMAN	1
-
-//
-// Dynamic device data
-//
-#define SDD_EXTERNAL_POWER_CONNECTED	1
-#define SDD_EXTERNAL_POWER_TOO_HIGH	   2
-
-#define AX(r) ((r).x.eax)
-#define BX(r) ((r).x.ebx)
-#define CX(r) ((r).x.ecx)
-#define DX(r) ((r).x.edx)
-#define SI(r) ((r).x.esi)
-#define DI(r) ((r).x.edi)
-
 //***************************************************************************
 //
 //    Global Types

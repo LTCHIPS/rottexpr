@@ -42,7 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_util.h"
 #include "rt_rand.h"
 #include "rt_menu.h"
-#include "rt_swift.h"
 #include "_rt_acto.h"
 #include "rt_cfg.h"
 #include "rt_floor.h"
@@ -10945,8 +10944,6 @@ void DamagePlayerActor(objtype *ob, int damage)
     if (ob==player)
     {
         damagecount += damage;
-        if (cybermanenabled)
-            SWIFT_TactileFeedback (10*damage, 15, 15);
         if ( SHOW_BOTTOM_STATUS_BAR() )
             DrawBarHealth (false);
     }
