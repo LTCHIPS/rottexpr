@@ -42,11 +42,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_game.h"
 #include "rt_rand.h"
 #include "z_zone.h"
-#include "rt_swift.h"
 #include "engine.h"
 #include "_rt_play.h"
 #include "rt_cfg.h"
-#include "rt_spbal.h"
 #include "rt_floor.h"
 #include "develop.h"
 #include "rt_msg.h"
@@ -149,11 +147,6 @@ int CY = 0;
 boolean vrenabled = false;
 int VX = 0;
 int VY = 0;
-
-int oldcyberx = 0;
-int oldcybery = 0;
-int CYBERDEADRANGE = 6000;
-boolean CYBERLOOKUP,CYBERLOOKDOWN;
 
 int leftmom = 0;
 int rightmom = 0;
@@ -274,8 +267,6 @@ statetype s_doglick = {true,SERIALDOG_W11,0,T_DogLick,SF_DOGSTATE,&s_doglick};
 #endif
 
 statetype s_tag = {false,CASSATT_S1,20,T_Tag,0,&s_player};
-
-static SWIFT_3DStatus SWIFTStatus;
 
 //
 // curent user input
@@ -2535,274 +2526,6 @@ void PollMove (void)
     }
 }
 
-
-//******************************************************************************
-//
-// PollCyberman ()
-//
-//******************************************************************************
-
-void PollCyberman (void)
-{
-    int i;
-    int mask;
-    int press;
-
-    SWIFT_Get3DStatus (&SWIFTStatus);
-
-    mask = 4;
-    for( i = 0; i < 3; i++, mask >>= 1 )
-    {
-        press = SWIFTStatus.buttons & mask;
-
-        if ( press )
-        {
-//         if ( ( buttonmouse[ i ] != bt_nobutton ) &&
-//            ( DoubleClickCount[ i ] != 2 ) )
-            if ( buttonmouse[ i ] != bt_nobutton )
-            {
-                buttonpoll[ buttonmouse[ i ] ] = true;
-            }
-        }
-
-        // Check double-click
-        if ( buttonmouse[ i + 3 ] != bt_nobutton )
-        {
-            if ( press )
-            {
-                // Was the button pressed last tic?
-                if ( !DoubleClickPressed[ i ] )
-                {
-                    // Yes, take note of it
-                    DoubleClickPressed[ i ] = true;
-
-                    // Is this the first click, or a really late click?
-                    if ( ( DoubleClickCount[ i ] == 0 ) ||
-                            ( GetTicCount() >= DoubleClickTimer[ i ] ) )
-                    {
-                        // Yes, now wait for a second click
-                        DoubleClickTimer[ i ] = GetTicCount() + DoubleClickSpeed;
-
-                        //( tics << 5 );
-                        DoubleClickCount[ i ] = 1;
-                    }
-                    else
-                    {
-                        // Second click
-                        buttonpoll[ buttonmouse[ i + 3 ] ] = true;
-                        DoubleClickTimer[ i ] = 0;
-                        DoubleClickCount[ i ] = 2;
-                    }
-                }
-                else
-                {
-                    // After second click, button remains pressed
-                    // until user releases it
-                    if ( DoubleClickCount[ i ] == 2 )
-                    {
-                        buttonpoll[ buttonmouse[ i + 3 ] ] = true;
-                    }
-                }
-            }
-            else
-            {
-                if ( DoubleClickCount[ i ] == 2 )
-                {
-                    DoubleClickCount[ i ] = 0;
-                }
-                DoubleClickPressed[ i ] = false;
-            }
-        }
-    }
-
-    if (SWIFTStatus.pitch > 0)
-        CYBERLOOKUP = true;
-    else if (SWIFTStatus.pitch < 0)
-        CYBERLOOKDOWN = true;
-
-    if ((abs (SWIFTStatus.x)) > CYBERDEADRANGE)
-    {
-        CX = -(SGN (SWIFTStatus.x) * (( (abs(SWIFTStatus.x)-CYBERDEADRANGE) ) << 10));
-        turnheldtime += tics;
-    }
-    else if (SWIFTStatus.x != oldcyberx)
-    {
-        turnheldtime += tics;
-        if (SWIFTStatus.x > oldcyberx)
-            CX = -(0xB8000);
-        else
-            CX = 0xB8000;
-
-        oldcyberx = SWIFTStatus.x;
-    }
-    else
-        CX = 0;
-
-    if ((abs (SWIFTStatus.y)) > CYBERDEADRANGE)
-    {
-        CY = SWIFTStatus.y >> 2;
-    }
-    else
-        CY = 0;
-}
-
-//******************************************************************************
-//
-// PollAssassin ()
-//
-//******************************************************************************
-
-#define MAXRAMPS 5
-typedef struct
-{
-    int  min;
-    int  factor;
-} RampType;
-void PollAssassin (void)
-{
-    int i;
-    int mask;
-    int press;
-    int yaw;
-    int strafeAngle;
-    int acc;
-    int numramps=4;
-    RampType ramp[MAXRAMPS]= {
-        {0,280000},
-        {4,380000},
-        {10,480000},
-        {25,680000},
-//                              {25,( (1<<26)/80  )}
-    };
-
-    SWIFT_Get3DStatus (&SWIFTStatus);
-
-    mask = 4;
-    for( i = 0; i < 3; i++, mask >>= 1 )
-    {
-        press = SWIFTStatus.buttons & mask;
-
-        if ( press )
-        {
-//         if ( ( buttonmouse[ i ] != bt_nobutton ) &&
-//            ( DoubleClickCount[ i ] != 2 ) )
-            if ( buttonmouse[ i ] != bt_nobutton )
-            {
-                buttonpoll[ buttonmouse[ i ] ] = true;
-            }
-        }
-
-        // Check double-click
-        if ( buttonmouse[ i + 3 ] != bt_nobutton )
-        {
-            if ( press )
-            {
-                // Was the button pressed last tic?
-                if ( !DoubleClickPressed[ i ] )
-                {
-                    // Yes, take note of it
-                    DoubleClickPressed[ i ] = true;
-
-                    // Is this the first click, or a really late click?
-                    if ( ( DoubleClickCount[ i ] == 0 ) ||
-                            ( GetTicCount() >= DoubleClickTimer[ i ] ) )
-                    {
-                        // Yes, now wait for a second click
-                        DoubleClickTimer[ i ] = GetTicCount() + DoubleClickSpeed;
-
-                        //( tics << 5 );
-                        DoubleClickCount[ i ] = 1;
-                    }
-                    else
-                    {
-                        // Second click
-                        buttonpoll[ buttonmouse[ i + 3 ] ] = true;
-                        DoubleClickTimer[ i ] = 0;
-                        DoubleClickCount[ i ] = 2;
-                    }
-                }
-                else
-                {
-                    // After second click, button remains pressed
-                    // until user releases it
-                    if ( DoubleClickCount[ i ] == 2 )
-                    {
-                        buttonpoll[ buttonmouse[ i + 3 ] ] = true;
-                    }
-                }
-            }
-            else
-            {
-                if ( DoubleClickCount[ i ] == 2 )
-                {
-                    DoubleClickCount[ i ] = 0;
-                }
-                DoubleClickPressed[ i ] = false;
-            }
-        }
-    }
-
-    buttonpoll[bt_horizonup] |=   ((SWIFTStatus.buttons>>7) & 1);
-    buttonpoll[bt_horizondown] |= ((SWIFTStatus.buttons>>8) & 1);
-
-    if ( abs(SWIFTStatus.pitch) < (20<<6) )
-    {
-        SWIFTStatus.pitch = 0;
-    }
-    else
-    {
-        SWIFTStatus.pitch -= SGN(SWIFTStatus.pitch)*(20<<6);
-    }
-
-    if ( abs(SWIFTStatus.pitch) > (60<<6) )
-    {
-        buttonpoll[bt_run] = 1;
-    }
-
-    if ( abs(SWIFTStatus.roll) > (80<<6) )
-    {
-        buttonpoll[bt_run] = 1;
-    }
-
-
-    if ( abs(SWIFTStatus.roll) < (20<<6) )
-    {
-        SWIFTStatus.roll = 0;
-    }
-    else
-    {
-        SWIFTStatus.roll -= SGN(SWIFTStatus.roll)*(20<<6);
-    }
-
-    strafeAngle = (player->angle - FINEANGLES/4)&(FINEANGLES-1);
-
-    controlbuf[0] += -(FixedMulShift (SWIFTStatus.pitch, viewcos,16))+
-                     FixedMulShift (-SWIFTStatus.roll, costable[strafeAngle], 16);
-
-    controlbuf[1] +=  FixedMulShift (SWIFTStatus.pitch, viewsin,16) -
-                      FixedMulShift (-SWIFTStatus.roll, sintable[strafeAngle], 16);
-
-    yaw = abs(SWIFTStatus.yaw);
-    acc = 0;
-    for (i=0; i<numramps; i++)
-    {
-        if (yaw > ramp[i].min)
-        {
-            if (i>0)
-            {
-                acc += ramp[i].min*(ramp[i].factor-ramp[i-1].factor);
-            }
-        }
-        else
-        {
-            i++;
-            break;
-        }
-    }
-    controlbuf[2]= SWIFTStatus.yaw * ramp[i-1].factor - acc;
-}
-
-
 //******************************************************************************
 //
 // PollControls
@@ -2827,7 +2550,6 @@ void PollControls (void)
     memset (buttonpoll, 0, sizeof(buttonpoll));
 
     controlbuf[0] = controlbuf[1] = controlbuf[2] = 0;
-    CYBERLOOKUP = CYBERLOOKDOWN = false;
 
     //if (gamestate.autorun==1)
         //buttonpoll[bt_run] = true;
@@ -2851,7 +2573,7 @@ void PollControls (void)
         }
     }
 
-    if (mouseenabled && !cybermanenabled)
+    if (mouseenabled)
         PollMouseButtons ();
 
     if (joystickenabled)
@@ -2864,9 +2586,6 @@ void PollControls (void)
     if (joystickenabled)
         PollJoystickMove ();
 
-    if (cybermanenabled)
-        PollCyberman ();
-
     else if (mouseenabled && MousePresent)
         PollMouseMove ();
 
@@ -2876,13 +2595,6 @@ void PollControls (void)
         PollVirtualReality ();
 
     PollMove ();
-
-    if (spaceballenabled)
-        PollSpaceBall ();
-
-    else if (assassinenabled)
-        PollAssassin ();
-
 
     buttonbits = 0;
     if (player->flags & FL_DYING) // Player has died
@@ -4292,12 +4004,12 @@ void PlayerTiltHead (objtype * ob)
                 SetPlayerHorizon(pstate,(pstate->horizon-HORIZONYZOFFSET-YZHORIZONSPEED));
             }
         }
-        if (pstate->buttonstate[bt_lookup] || CYBERLOOKUP)
+        if (pstate->buttonstate[bt_lookup])
         {
             if (!(ob->flags & FL_FLEET))
             {
                 dyz=YZTILTSPEED;
-                if (pstate->buttonstate[bt_lookdown] || CYBERLOOKDOWN)
+                if (pstate->buttonstate[bt_lookdown])
                 {
                     dyz=0;
                 }
@@ -4305,12 +4017,12 @@ void PlayerTiltHead (objtype * ob)
                 SetNormalHorizon(ob);
             }
         }
-        if (pstate->buttonstate[bt_lookdown] || CYBERLOOKDOWN)
+        if (pstate->buttonstate[bt_lookdown])
         {
             if (!(ob->flags & FL_FLEET))
             {
                 dyz=-YZTILTSPEED;
-                if (pstate->buttonstate[bt_lookup] || CYBERLOOKUP)
+                if (pstate->buttonstate[bt_lookup])
                 {
                     dyz=0;
                 }
@@ -5653,11 +5365,11 @@ void CheckFlying(objtype*ob,playertype *pstate)
 {
 
 
-    if (pstate->buttonstate[bt_lookup] || CYBERLOOKUP)
+    if (pstate->buttonstate[bt_lookup])
     {
         ob->momentumz = -FLYINGZMOM;
     }
-    if (pstate->buttonstate[bt_lookdown] || CYBERLOOKDOWN)
+    if (pstate->buttonstate[bt_lookdown])
     {
         ob->momentumz = FLYINGZMOM;
     }

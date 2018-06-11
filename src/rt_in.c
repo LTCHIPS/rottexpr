@@ -29,13 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #endif
 
 #include "rt_main.h"
-#include "rt_spbal.h"
 #include "rt_def.h"
 #include "rt_in.h"
 #include "_rt_in.h"
 #include "isr.h"
 #include "rt_util.h"
-#include "rt_swift.h"
 #include "rt_vh_a.h"
 #include "rt_cfg.h"
 #include "rt_msg.h"
@@ -66,9 +64,6 @@ int IgnoreMouse = 0;
 
 // configuration variables
 //
-boolean  SpaceBallPresent;
-boolean  CybermanPresent;
-boolean  AssassinPresent;
 boolean  MousePresent;
 boolean  JoysPresent[MaxJoys];
 boolean  JoyPadPresent     = 0;
@@ -155,7 +150,7 @@ static   Direction   DirTable[] =      // Quick lookup for total direction
 
 int (far *function_ptr)();
 
-static char *ParmStrings[] = {"nojoys","nomouse","spaceball","cyberman","assassin",NULL};
+static char *ParmStrings[] = {"nojoys","nomouse",NULL};
 
 
 #if USE_SDL
@@ -751,11 +746,7 @@ void INL_ShutJoy (word joy)
 void IN_Startup (void)
 {
     boolean checkjoys,
-            checkmouse,
-            checkcyberman,
-            checkspaceball,
-            swiftstatus,
-            checkassassin;
+            checkmouse;
 
     word    i;
 
@@ -884,12 +875,6 @@ void IN_Startup (void)
 
     checkjoys        = true;
     checkmouse       = true;
-    checkcyberman    = false;
-    checkassassin    = false;
-    checkspaceball   = false;
-    SpaceBallPresent = false;
-    CybermanPresent  = false;
-    AssassinPresent  = false;
 
     for (i = 1; i < _argc; i++)
     {
@@ -900,20 +885,6 @@ void IN_Startup (void)
             break;
 
         case 1:
-            checkmouse = false;
-            break;
-
-        case 2:
-            checkspaceball = true;
-            break;
-
-        case 3:
-            checkcyberman = true;
-            checkmouse = false;
-            break;
-
-        case 4:
-            checkassassin = true;
             checkmouse = false;
             break;
         }
@@ -937,35 +908,6 @@ void IN_Startup (void)
             if (!quiet)
                 printf("IN_Startup: Joystick Present\n");
         }
-    }
-
-    if (checkspaceball)
-    {
-        OpenSpaceBall ();
-        spaceballenabled=true;
-    }
-
-    if ((checkcyberman || checkassassin) && (swiftstatus = SWIFT_Initialize ()))
-    {
-        if (checkcyberman)
-        {
-            CybermanPresent = swiftstatus;
-            cybermanenabled = true;
-        }
-        else if (checkassassin)
-        {
-            AssassinPresent = checkassassin & swiftstatus;
-            assassinenabled = true;
-        }
-
-        SWIFT_TactileFeedback (40, 20, 20);
-
-        if (SWIFT_GetDynamicDeviceData () == 2)
-            Error ("SWIFT ERROR : External Power too high!\n");
-
-        SWIFT_TactileFeedback (100, 10, 10);
-        if (!quiet)
-            printf("IN_Startup: Swift Device Present\n");
     }
 
     IN_Started = true;
@@ -993,11 +935,6 @@ void IN_Shutdown (void)
 
     for (i = 0; i < MaxJoys; i++)
         INL_ShutJoy(i);
-
-    if (CybermanPresent || AssassinPresent)
-        SWIFT_Terminate ();
-
-    CloseSpaceBall ();
 
     IN_Started = false;
 }
@@ -1132,11 +1069,6 @@ void IN_StartAck (void)
     buttons = IN_JoyButtons () << 4;
 
     buttons |= IN_GetMouseButtons();
-
-    if (SpaceBallPresent && spaceballenabled)
-    {
-        buttons |= GetSpaceBallButtons ();
-    }
 
     for (i=0; i<8; i++,buttons>>=1)
         if (buttons&1)
