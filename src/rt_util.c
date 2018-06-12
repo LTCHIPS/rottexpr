@@ -352,7 +352,8 @@ void Error (char *error, ...)
             sptr = script_p;
         }
 
-        UL_printf (token);
+        printf("%s ", token);
+        
         px++;                //SPACE
         GetToken (true);
     }
@@ -1283,36 +1284,6 @@ void VL_FillPalette (int red, int green, int blue)
 /*
 =================
 =
-= VL_SetColor
-=
-=================
-*/
-
-void VL_SetColor  (int color, int red, int green, int blue)
-{
-    STUB_FUNCTION;
-}
-
-//===========================================================================
-
-/*
-=================
-=
-= VL_GetColor
-=
-=================
-*/
-
-void VL_GetColor  (int color, int *red, int *green, int *blue)
-{
-    STUB_FUNCTION;
-}
-
-//===========================================================================
-
-/*
-=================
-=
 = VL_NormalizePalette
 =
 =================
@@ -1397,32 +1368,6 @@ void UL_DisplayMemoryError ( int memneeded )
 {
     STUB_FUNCTION;
     exit (0);
-}
-
-
-/*
-=================
-=
-= UL_printf
-=
-=================
-*/
-
-void UL_printf (byte *str)
-{
-    printf ("%s ",str);	// Hackish but works - DDOI
-}
-
-/*
-=================
-=
-= UL_ColorBox
-=
-=================
-*/
-
-void UL_ColorBox (int x, int y, int w, int h, int color)
-{
 }
 
 //******************************************************************************
@@ -1578,32 +1523,6 @@ boolean UL_ChangeDirectory (char *path)
 
     return true;
 }
-
-
-
-//******************************************************************************
-//
-// UL_ChangeDrive ()
-//
-// Purpose
-//    To change drives.
-//
-// Parms
-//    drive - The drive to change to.
-//
-// Returns
-//    TRUE  - If drive change successful.
-//    FALSE - If drive change unsuccessful.
-//
-//******************************************************************************
-
-boolean UL_ChangeDrive (char *drive)
-{
-    STUB_FUNCTION;
-
-    return false;
-}
-
 
 /*
 =============

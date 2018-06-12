@@ -161,17 +161,6 @@ void SetTextMode ( void )
 /*
 ====================
 =
-= TurnOffTextCursor
-=
-====================
-*/
-void TurnOffTextCursor ( void )
-{
-}
-
-/*
-====================
-=
 = WaitVBL
 =
 ====================
@@ -256,30 +245,6 @@ void VL_CopyPlanarPageToMemory ( byte * src, byte * dest )
 }
 
 /*
-=======================
-=
-= VL_CopyBufferToAll
-=
-=======================
-*/
-void VL_CopyBufferToAll ( byte *buffer )
-{
-    //STUB_FUNCTION;
-}
-
-/*
-=======================
-=
-= VL_CopyDisplayToHidden
-=
-=======================
-*/
-void VL_CopyDisplayToHidden ( void )
-{
-    VL_CopyBufferToAll ( displayofs );
-}
-
-/*
 =================
 =
 = VL_ClearBuffer
@@ -309,18 +274,6 @@ void VL_ClearVideo (byte color)
     memset (sdl_surface->pixels, color, iGLOBAL_SCREENWIDTH*iGLOBAL_SCREENHEIGHT);
 }
 
-/*
-=================
-=
-= VL_DePlaneVGA
-=
-=================
-*/
-
-void VL_DePlaneVGA (void)
-{
-}
-
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
     SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
@@ -334,71 +287,6 @@ void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect
 }
 
 int hudRescaleFactor = 1;
-
-/*
-void DrawObjsInSDLQueue(SDL_Texture * tex)
-{
-    SDL_SetRenderTarget(renderer, tex);
-    //SDL_LockTexture(tex,NULL, sdl_surface->pixels, iGLOBAL_SCREENBWIDE);
-    
-    while(sdl_draw_obj_queue->sizeOfQueue != 0)
-    {   
-        SDLDrawObj * thing = sdl_draw_obj_queue->head->data;
-        
-        
-        SDL_Surface * tempSurf = SDL_CreateRGBSurfaceWithFormatFrom( thing->data, (int) thing->shape->width,
-                                (int) thing->shape->height, 8, (int)thing->shape->width, sdl_surface->format->format);
-        
-        //SDL_LockSurface(tempSurf);
-        
-        
-        //tempSurf->pixels = (byte *) &thing->data;
-        
-        //SDL_UnlockSurface(tempSurf);
-        
-        if(tempSurf == NULL)
-        {
-            Error("Failed to make temporary Surface when rendering things in SDL");
-            exit(1);
-        }
-        
-        SDL_Texture * tempTex = SDL_CreateTextureFromSurface(renderer, tempSurf);
-        
-        if(tempTex == NULL)
-        {
-            Error("Failed to make temporary Texture when rendering things in SDL");
-            exit(1);
-        }
-        
-        SDL_Rect newCoords = (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor};
-        
-        SDL_RenderCopy(renderer, tempTex, NULL, &newCoords);
-        
-        SDL_FreeSurface(tempSurf);
-        
-        SDL_DestroyTexture(tempTex);
-        
-        dequeue(sdl_draw_obj_queue, thing);
-        
-    
-    }
-    //SDL_SetRenderTarget(renderer, NULL);
-    
-    //SDL_RenderCopy(renderer, tex, NULL, NULL);
-    
-    
-    //SDL_UnlockTexture(tex);
-    
-    SDL_SetRenderTarget(renderer, NULL);
-    
-    //SDL_RenderPresent(renderer);
-    
-
-}
-*/
-
-
-
 
 void RenderSurface(void)
 {

@@ -444,7 +444,6 @@ void SetupScreen ( boolean flip )
         DisableScreenStretch();
         DrawPlayScreen (true);
         ThreeDRefresh();
-        VL_CopyDisplayToHidden();
         if (wasStretched == true)
         {
             EnableScreenStretch();

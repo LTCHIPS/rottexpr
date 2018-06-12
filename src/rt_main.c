@@ -394,12 +394,10 @@ void DrawRottTitle ( void )
     char buf[5];
 
     SetTextMode();
-    TurnOffTextCursor ();
 
     if (CheckParm("QUIET") == 0)
     {
         SetTextMode();
-        TurnOffTextCursor ();
             strcpy (title,"Rise of the Triad Startup  Version ");
             strcat (title,itoa(ROTTMAJORVERSION,&buf[0],10));
             strcat (title,".");
@@ -414,7 +412,7 @@ void DrawRottTitle ( void )
             px=(80-strlen(title))>>1;
             py=0;
 
-            UL_printf(title);
+            printf("%s ", title);
 
             memset (title,0,sizeof(title));
 
@@ -438,15 +436,11 @@ void DrawRottTitle ( void )
             px=(80-strlen(title))>>1;
             py=1;
 
-            UL_printf(title);
+            printf("%s ", title);
+            
             printf ("\n");
-
-            UL_ColorBox (0, 0, 80, 2, 0x1e);
-    }
-    else
-    {
-        TurnOffTextCursor ();
-    }
+ 
+   }
 
 }
 

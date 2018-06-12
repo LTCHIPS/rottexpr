@@ -2700,7 +2700,6 @@ void DoLoadGameSequence ( void )
     FlipPage();
 
     VL_CopyPlanarPageToMemory ( (byte *)bufferofs,  destscreen );
-    VL_CopyDisplayToHidden ();
 
     CalcTics();
     
@@ -2719,7 +2718,6 @@ void DoLoadGameSequence ( void )
 
     DrawScaledScreen(0,0,0x10000,destscreen);
     FlipPage();
-    VL_CopyDisplayToHidden ();
     SafeFree(destscreen);
     CalcTics();
     CalcTics();
