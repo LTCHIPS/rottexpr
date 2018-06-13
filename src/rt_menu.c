@@ -1890,6 +1890,11 @@ void ControlPanel
         break;
 
     }
+    
+    if (playstate == ex_stillplaying)
+    {
+        DisableScreenStretch();
+    }
 
     CleanUpControlPanel();
     ShutdownMenuBuf();

@@ -1080,9 +1080,7 @@ void GameLoop (void)
         case ex_titles:
 
             BATTLE_Shutdown();
-            SDL_SetRelativeMouseMode(SDL_FALSE);
             MU_StartSong(song_title);
-            SDL_SetRelativeMouseMode(SDL_TRUE);
             EnableScreenStretch();
             if ((NoWait==false)&&(!modemgame))
             {
@@ -1528,7 +1526,6 @@ void GameLoop (void)
 }
 
 boolean CheckForQuickLoad  (void )
-
 {
     EnableScreenStretch();//bna++
     if ( pickquick )
