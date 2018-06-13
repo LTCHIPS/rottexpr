@@ -257,8 +257,6 @@ extern void SaveWeapons(objtype*);
 extern int whichpath;
 extern statobj_t *BulletHoles[MAXBULLETS];
 
-extern boolean vrenabled;
-
 void SetupBulletHoleLink (int num, statobj_t * item);
 
 #endif

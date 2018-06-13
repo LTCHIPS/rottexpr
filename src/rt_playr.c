@@ -144,7 +144,6 @@ int JX = 0;
 int JY = 0;
 int CX = 0;
 int CY = 0;
-boolean vrenabled = false;
 int VX = 0;
 int VY = 0;
 
