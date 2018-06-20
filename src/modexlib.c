@@ -80,6 +80,8 @@ boolean graphicsmode=false;
 char        *bufofsTopLimit;
 char        *bufofsBottomLimit;
 
+boolean tempHasStuff = false;
+
 void DrawCenterAim ();
 
 #ifndef STUB_FUNCTION
@@ -130,6 +132,8 @@ void GraphicsMode ( void )
     
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
     
+    
+    //temp = SDL_CreateRGBSurface(0, 320, 16, 8, 0, 0, 0, 0);
     
          
     SDL_SetSurfaceRLE(sdl_surface, 1);
@@ -292,6 +296,15 @@ void RenderSurface(void)
 {
     SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
     
+/*
+    SDL_Texture * tempTex = NULL;
+    
+    if (tempHasStuff)
+    {
+        tempTex = SDL_CreateTextureFromSurface(renderer, temp);
+    }
+*/
+    
     if (newTex == NULL) 
     {
         Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
@@ -301,6 +314,8 @@ void RenderSurface(void)
     SDL_RenderClear(renderer);
     
     SDL_RenderCopy(renderer, newTex, NULL, NULL);
+    
+    //SDL_RenderCopy(renderer,tempTex, NULL, NULL);
     
     if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
     {

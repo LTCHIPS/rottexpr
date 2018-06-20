@@ -374,13 +374,6 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
     }
 }
 
-void QueueItemToDraw(pic_t * source, int x, int y)
-{
-
-
-}
-
-
 int topBarCenterOffsetX;
 extern int hudRescaleFactor;
 
@@ -389,6 +382,13 @@ extern int hudRescaleFactor;
 // DrawPlayScreen ()
 //
 //******************************************************************************
+
+void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height);
+
+extern SDL_Surface * temp;
+
+extern boolean tempHasStuff;
+
 void DrawPlayScreen (boolean bufferofsonly)
 {
     pic_t *shape;
@@ -407,6 +407,10 @@ void DrawPlayScreen (boolean bufferofsonly)
             DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 0,16, shape );
         }
         shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+        
+        //GM_MemToSDLSurface((byte *) &shape->data, temp, shape->width, shape->height);
+        
+        //tempHasStuff = true;
         
         GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
         
@@ -2662,6 +2666,28 @@ void  DrawEpisodeLevel (int x, int y)
             VL_MemToScreenClipped ((byte *)&timenums[str[0]-'0']->data, 8>>2, 16, x+49, y+16);
             //Drawpic (x+57, y+16, 8>>2, 16, (byte *)&timenums[str[1]-'0']->data);
             VL_MemToScreenClipped ((byte *)&timenums[str[1]-'0']->data, 8>>2, 16, x+57, y+16);
+        }
+    }
+}
+
+void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height)
+{
+    byte *dest1;
+    byte *screen1;
+    int  plane;
+
+    int x, y;
+    
+    dest1 = (byte *) destSurf->pixels;
+
+    for (plane = 0; plane<4; plane++)
+    {
+        screen1 = dest1;
+        for (y = 0; y < height; y++, screen1 += destSurf->w, source+=width)
+        {
+            for (x = 0; x < width; x++) {
+                screen1[x*4+plane] = source[x];
+            }
         }
     }
 }
