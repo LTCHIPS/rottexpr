@@ -152,6 +152,8 @@ extern void RottConsole ( void );
 extern void	ReadDelay(long delay);
 extern void RecordDemoQuery ( void );
 
+extern SDL_Surface *temp;
+
 
 extern int CountDigits(const int number);
 
@@ -325,6 +327,8 @@ int main (int argc, char *argv[])
 
     VL_SetVGAPlaneMode();
     VL_SetPalette(origpal);
+    
+    //SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette);
 
 //   SetTextMode();
 //   GraphicsMode();
