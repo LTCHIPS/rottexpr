@@ -59,7 +59,7 @@ SDL_Renderer * renderer = NULL;
 
 SDL_Surface *unstretch_sdl_surface = NULL;
 
-static SDL_Texture *sdl_texture = NULL;
+SDL_Texture *sdl_texture = NULL;
 
 SDL_Surface *temp = NULL;
 
@@ -124,7 +124,7 @@ void GraphicsMode ( void )
         exit(1);
     }
     
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_TARGETTEXTURE);
     
     sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
                                     SDL_TEXTUREACCESS_TARGET, iGLOBAL_SCREENWIDTH,
@@ -280,7 +280,7 @@ void VL_ClearVideo (byte color)
 
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
-    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
+    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
     SDL_SetRenderTarget(renderer, sourceToResize);
     SDL_RenderCopy(renderer, source, &src, NULL);
     // the folowing line should reset the target to default(the screen)
@@ -292,36 +292,15 @@ void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect
 
 
 int hudRescaleFactor = 2;
-void DrawPlayScreenToTex (boolean bufferofsonly, SDL_Texture * tex);
 
-boolean rdy = false;
+void DrawPlayScreenToSDLSurface(SDL_Surface**);
+
 
 void RenderSurface(void)
 {
     
-    //SDL_PIXELFORMAT_ARGB8888
+    SDL_RenderClear(renderer);
     
-    //SDL_Texture * newTex = SDL_CreateTextureFromSurface(renderer, sdl_surface);
-    
-    
-  
-    //int formatInt = 0;
-    
-    //SDL_QueryTexture(newTex, &formatInt, NULL, NULL, NULL);
-    
-    //printf("%s \n", SDL_GetPixelFormatName(formatInt));
-    
-    //DrawPlayScreenToTex (false, newTex);
-
-    
-/*
-    SDL_Texture * tempTex = NULL;
-    
-    if (tempHasStuff)
-    {
-        tempTex = SDL_CreateTextureFromSurface(renderer, temp);
-    }
-*/
     SDL_PixelFormat * dst_fmt;
     
     dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
@@ -332,36 +311,31 @@ void RenderSurface(void)
     
     SDL_FreeFormat(dst_fmt);
     
-    SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
-    
-    SDL_FreeSurface(temp2);
-    
-    if (sdl_texture == NULL) 
-    {
-        Error("CreateTextureFromSurface failed: %s\n", SDL_GetError());
-        exit(1);
-    }
-   
-    SDL_RenderClear(renderer);
-    
-    SDL_RenderCopy(renderer, sdl_texture, NULL, NULL);
-    
-    //SDL_RenderCopy(renderer,tempTex, NULL, NULL);
-    
     if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
     {
+        DrawPlayScreenToSDLSurface(&temp2);
+/*
         if(SHOW_TOP_STATUS_BAR())
             RescaleAreaOfTexture(renderer, sdl_texture, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
                    (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
         if(SHOW_BOTTOM_STATUS_BAR())
             RescaleAreaOfTexture(renderer, sdl_texture,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
                (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+*/
                    
     }
+    
+    
+    
+    SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
+    
+    SDL_RenderCopy(renderer, sdl_texture, NULL, NULL);
     
     SDL_RenderPresent(renderer);
     
     //SDL_DestroyTexture();
+    
+    SDL_FreeSurface(temp2);
 
 }
 
