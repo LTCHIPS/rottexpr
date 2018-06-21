@@ -352,6 +352,202 @@ void SetupPlayScreen
     oldpercenthealth = -1;
 }
 
+SDL_Texture * eraseTex = NULL;
+SDL_Texture * erasebTex = NULL;
+
+SDL_Texture * statusBarTex = NULL;
+
+SDL_Texture * bottomBarTex = NULL;
+
+SDL_Texture  * timenumsTexs[10];
+SDL_Texture * lifeptnumsTexs[10];
+SDL_Texture * lifenumsTexs[10];
+SDL_Texture * healthTexs[6];
+SDL_Texture * keysTexs[4];
+SDL_Texture * scorenumsTexs[10];
+SDL_Texture * menTexs[5];
+SDL_Texture * ammoTex[26];
+
+
+//extern SDL_Surface * temp;
+
+extern int hudRescaleFactor;
+
+extern boolean tempHasStuff;
+
+void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height);
+
+void Pic_tToSDLTexture(pic_t * source, SDL_Texture * destTex)
+{
+    SDL_Surface *  temp = SDL_CreateRGBSurface(0, source->width*4, source->height,  8, 0,0,0,0);
+    
+    SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette);
+    
+    GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height);
+    
+    //SDL_Renderer * rendererptr =  GetRenderer();
+    
+    SDL_Texture * tempTex = SDL_CreateTextureFromSurface(renderer,  temp);
+    
+    destTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 
+                                                                   source->width*4*hudRescaleFactor, source->height*hudRescaleFactor);          
+    
+    SDL_SetRenderTarget(renderer, destTex);
+    SDL_RenderCopy( renderer, tempTex, NULL, NULL);
+    
+    SDL_DestroyTexture(tempTex);
+    
+    SDL_FreeSurface(temp); 
+}
+
+extern boolean rdy;
+
+void SetupPlayScreenCreateSDLTex( void )
+{
+    int i;
+    int j;
+    int num;
+    
+    Pic_tToSDLTexture(erase, eraseTex);
+    
+    Pic_tToSDLTexture(eraseb, erasebTex);
+    
+    int count;
+    
+    for (count = 0; count < 10; count++)
+    {
+        Pic_tToSDLTexture(timenums[count], timenumsTexs[count]);
+    }
+    
+    for(count = 0; count < 10; count++)
+    {
+        Pic_tToSDLTexture(lifeptnums[count], lifeptnumsTexs[count]);
+    }
+    
+    for(count = 0; count < 10; count++)
+    {
+        Pic_tToSDLTexture(lifenums[count], lifenumsTexs[count]);    
+    }
+    
+    for (count = 0; count < 6; count++)
+    {
+        Pic_tToSDLTexture(health[count], healthTexs[count]);
+    }
+    
+    for (count = 0; count < 4; count++)
+    {
+        Pic_tToSDLTexture(keys[count], keysTexs[count]);
+    }
+    
+    
+    
+    //DONE
+    //erase  = ( pic_t * )W_CacheLumpName( "erase", PU_LEVEL, Cvt_pic_t, 1 );
+    //eraseb = ( pic_t * )W_CacheLumpName( "eraseb", PU_LEVEL, Cvt_pic_t, 1 );   
+    
+   // GM_MemToSDLSurface ((byte * ) &erase->data, temp, erase->width, erase->height);
+    
+/*
+    CacheLumpGroup( "tmnum0", timenums, 10 );
+    CacheLumpGroup( "lfnum0", lifeptnums, 10 );
+    CacheLumpGroup( "lvnum0", lifenums, 10 );
+    CacheLumpGroup( "health1b", health, 6 );
+    CacheLumpGroup( "key1", keys, 4 );
+*/
+
+    if ( !BATTLEMODE )
+    {
+        for(count = 0; count < 10; count++)
+        {
+            Pic_tToSDLTexture(scorenums[count], scorenumsTexs[count]);
+        }
+        
+        for(count = 0; count < 5; count++)
+        {
+            Pic_tToSDLTexture(men[count], menTexs[count]);  
+        }
+        
+        //CacheLumpGroup( "scnum0", scorenums, 10 );
+
+        //num = locplayerstate->player;
+        //men[ num ] = ( pic_t * )W_CacheLumpNum( W_GetNumForName( "MAN1" ) +
+           //                                     num, PU_LEVEL, Cvt_pic_t, 1 );
+    }
+    else
+    {
+        int  man;
+        int  num100;
+        int  negnum;
+        int  negman;
+
+        for(count = 0; count < 10; count++)
+        {
+            Pic_tToSDLTexture(scorenums[count], scorenumsTexs[count]);
+        }
+        
+        //CacheLumpGroup( "kilnum0", scorenums, 10 );
+
+        negnum  = W_GetNumForName( "botnpic1" );
+        num     = W_GetNumForName( "botpic0" );
+        num100  = W_GetNumForName( "botopic1" );
+        negman  = W_GetNumForName( "negman1" );
+        man     = W_GetNumForName( "man1" );
+
+        blankfragpic = ( pic_t * )W_CacheLumpNum( num, PU_LEVEL, Cvt_pic_t, 1 );
+        num++;
+
+        for( i = 0; i < numplayers; i++ )
+        {
+            j = PLAYERSTATE[ i ].player;
+            if ( !gamestate.teamplay )
+            {
+                fragpic[ j ]    = ( pic_t * )W_CacheLumpNum( num + j, PU_LEVEL, Cvt_pic_t, 1 );
+                frag100pic[ j ] = ( pic_t * )W_CacheLumpNum( num100 + j, PU_LEVEL, Cvt_pic_t, 1 );
+                negfragpic[ j ] = ( pic_t * )W_CacheLumpNum( negnum + j, PU_LEVEL, Cvt_pic_t, 1 );
+            }
+            else
+            {
+                negfragpic[ j ] = ( pic_t * )W_CacheLumpName( "teamnpic", PU_LEVEL, Cvt_pic_t, 1 );
+                fragpic[ j ]    = ( pic_t * )W_CacheLumpName( "teampic", PU_LEVEL, Cvt_pic_t, 1 );
+                frag100pic[ j ] = fragpic[ j ];
+            }
+
+            menneg[ j ]     = ( pic_t * )W_CacheLumpNum( negman + j, PU_LEVEL, Cvt_pic_t, 1 );
+            men[ j ]        = ( pic_t * )W_CacheLumpNum( man + j, PU_LEVEL, Cvt_pic_t, 1 );
+        }
+    }
+
+    //TODO: load the powerup pics into memory
+    
+   // powerpics   = W_GetNumForName( "GDMODEP" );
+   // poweradjust = POWERUPTICS / 16;
+
+   // num   = W_GetNumForName( "INF_B" );
+
+    for (count = 0; count < 26; count++)
+    {
+        Pic_tToSDLTexture(ammo[count], ammoTex[count]);
+
+    }
+    
+    
+
+    oldplayerhealth  = -1;
+    oldpercenthealth = -1;
+    
+    pic_t * shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+    
+    Pic_tToSDLTexture(shape, bottomBarTex);
+    
+    shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+    
+    Pic_tToSDLTexture(shape, statusBarTex);
+    
+    rdy = true;
+    
+}
+
+
 
 
 //******************************************************************************
@@ -374,20 +570,25 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
     }
 }
 
-int topBarCenterOffsetX;
-extern int hudRescaleFactor;
+
 
 //******************************************************************************
 //
 // DrawPlayScreen ()
 //
 //******************************************************************************
+/*
 
 void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height);
+*/
 
+/*
 extern SDL_Surface * temp;
 
 extern boolean tempHasStuff;
+*/
+
+int topBarCenterOffsetX;
 
 void DrawPlayScreen (boolean bufferofsonly)
 {
@@ -5472,6 +5673,8 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     LoadPlayer ();
     DoLoadGameAction ();
     SetupPlayScreen();
+    SetupPlayScreenCreateSDLTex();
+    
     UpdateScore (gamestate.score);
     UpdateLives (locplayerstate->lives);
     UpdateTriads (player, 0);

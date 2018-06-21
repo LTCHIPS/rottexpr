@@ -63,6 +63,8 @@ extern  boolean  graphicsmode;
 
 extern SDL_Surface * sdl_surface;
 
+extern SDL_Renderer * renderer;
+
 
 void  GraphicsMode ( void );
 void  ChangeResolution( int, int);
