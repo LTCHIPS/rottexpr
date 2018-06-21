@@ -5332,6 +5332,8 @@ void SetupZomROTTStuff()
 
 extern boolean enableZomROTT;
 
+void SetupPlayScreenSDLSurface( void );
+
 void SetupGameLevel (void)
 {
     int crud;
@@ -5512,6 +5514,7 @@ void SetupGameLevel (void)
         ConnectAreas();
         PreCache();
         SetupPlayScreen();
+        SetupPlayScreenSDLSurface();
         SetupScreen(false);
     }
 

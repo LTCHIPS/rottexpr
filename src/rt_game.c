@@ -131,6 +131,23 @@ static pic_t *negfragpic[ 5 ];
 static pic_t *menneg[ 5 ];
 static pic_t *blankfragpic;
 
+SDL_Surface * eraseSurf;
+SDL_Surface * erasebSurf;
+
+SDL_Surface * statusBarSurf;
+
+SDL_Surface * bottomBarSurf;
+
+SDL_Surface  * timenumsSurf[10];
+SDL_Surface * lifeptnumsSurf[10];
+SDL_Surface * lifenumsSurf[10];
+SDL_Surface * healthSurf[6];
+SDL_Surface * keysSurf[4];
+SDL_Surface * scorenumsSurf[10];
+SDL_Surface * menSurf[5];
+SDL_Surface * ammoSurf[26];
+
+
 static int powerpics;
 static int poweradjust;
 
@@ -352,21 +369,7 @@ void SetupPlayScreen
     oldpercenthealth = -1;
 }
 
-SDL_Texture * eraseTex = NULL;
-SDL_Texture * erasebTex = NULL;
 
-SDL_Texture * statusBarTex = NULL;
-
-SDL_Texture * bottomBarTex = NULL;
-
-SDL_Texture  * timenumsTexs[10];
-SDL_Texture * lifeptnumsTexs[10];
-SDL_Texture * lifenumsTexs[10];
-SDL_Texture * healthTexs[6];
-SDL_Texture * keysTexs[4];
-SDL_Texture * scorenumsTexs[10];
-SDL_Texture * menTexs[5];
-SDL_Texture * ammoTex[26];
 
 
 //extern SDL_Surface * temp;
@@ -375,97 +378,106 @@ extern int hudRescaleFactor;
 
 extern boolean tempHasStuff;
 
+extern SDL_Renderer * renderer;
+
 void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height);
 
-void Pic_tToSDLTexture(pic_t * source, SDL_Texture * destTex)
+void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
 {
-    SDL_Surface *  temp = SDL_CreateRGBSurface(0, source->width*4, source->height,  8, 0,0,0,0);
     
-    SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette);
+    SDL_Surface * temp;
     
-    GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height);
+    temp = SDL_CreateRGBSurface(0, source->width*4, source->height,8, 0,0,0,0);
     
-    //SDL_Renderer * rendererptr =  GetRenderer();
+    if(temp == NULL)
+    {
+        printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
+    }
     
-    SDL_Texture * tempTex = SDL_CreateTextureFromSurface(renderer,  temp);
+    if(SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette) == -1)
+    {
+        printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
+    }
     
-    destTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, 
-                                                                   source->width*4*hudRescaleFactor, source->height*hudRescaleFactor);          
+    GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height); 
     
-    SDL_SetRenderTarget(renderer, destTex);
-    SDL_RenderCopy( renderer, tempTex, NULL, NULL);
+    SDL_PixelFormat * pixfmt; 
     
-    SDL_DestroyTexture(tempTex);
+    pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
     
-    SDL_FreeSurface(temp); 
+    SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
+    
+    SDL_FreeFormat(pixfmt);
+    
+    *destSurf = SDL_CreateRGBSurface(0, temp2->w*scaleFactor, temp2->h*scaleFactor, temp2->format->BitsPerPixel, 0, 0, 0, 0 );
+    
+    SDL_FreeSurface(temp);
+    
+    if(SDL_BlitScaled(temp2,NULL, *destSurf, NULL) < 0)
+    {
+        printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
+        exit(1);
+    }
+    
+    SDL_FreeSurface(temp2);
+    
 }
 
 extern boolean rdy;
 
-void SetupPlayScreenCreateSDLTex( void )
+void SetupPlayScreenSDLSurface( void )
 {
+/*
     int i;
     int j;
     int num;
+*/
     
-    Pic_tToSDLTexture(erase, eraseTex);
+    //eraseTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, 
+      //                          erase->width*4*hudRescaleFactor, erase->height*hudRescaleFactor);          
     
-    Pic_tToSDLTexture(eraseb, erasebTex);
+    Pic_tToSDLSurface(erase, &eraseSurf, hudRescaleFactor);
+    
+    Pic_tToSDLSurface(eraseb, &erasebSurf, hudRescaleFactor);
     
     int count;
     
     for (count = 0; count < 10; count++)
     {
-        Pic_tToSDLTexture(timenums[count], timenumsTexs[count]);
+        Pic_tToSDLSurface(timenums[count], &timenumsSurf[count], hudRescaleFactor);
     }
     
     for(count = 0; count < 10; count++)
     {
-        Pic_tToSDLTexture(lifeptnums[count], lifeptnumsTexs[count]);
+        Pic_tToSDLSurface(lifeptnums[count], &lifeptnumsSurf[count], hudRescaleFactor);
     }
     
     for(count = 0; count < 10; count++)
     {
-        Pic_tToSDLTexture(lifenums[count], lifenumsTexs[count]);    
+        Pic_tToSDLSurface(lifenums[count], &lifenumsSurf[count], hudRescaleFactor);    
     }
     
     for (count = 0; count < 6; count++)
     {
-        Pic_tToSDLTexture(health[count], healthTexs[count]);
+        Pic_tToSDLSurface(health[count], &healthSurf[count], hudRescaleFactor);
     }
     
     for (count = 0; count < 4; count++)
     {
-        Pic_tToSDLTexture(keys[count], keysTexs[count]);
+        Pic_tToSDLSurface(keys[count], &keysSurf[count], hudRescaleFactor);
     }
-    
-    
-    
-    //DONE
-    //erase  = ( pic_t * )W_CacheLumpName( "erase", PU_LEVEL, Cvt_pic_t, 1 );
-    //eraseb = ( pic_t * )W_CacheLumpName( "eraseb", PU_LEVEL, Cvt_pic_t, 1 );   
-    
-   // GM_MemToSDLSurface ((byte * ) &erase->data, temp, erase->width, erase->height);
-    
-/*
-    CacheLumpGroup( "tmnum0", timenums, 10 );
-    CacheLumpGroup( "lfnum0", lifeptnums, 10 );
-    CacheLumpGroup( "lvnum0", lifenums, 10 );
-    CacheLumpGroup( "health1b", health, 6 );
-    CacheLumpGroup( "key1", keys, 4 );
-*/
 
     if ( !BATTLEMODE )
     {
         for(count = 0; count < 10; count++)
         {
-            Pic_tToSDLTexture(scorenums[count], scorenumsTexs[count]);
+            Pic_tToSDLSurface(scorenums[count], &scorenumsSurf[count], hudRescaleFactor);
         }
         
-        for(count = 0; count < 5; count++)
-        {
-            Pic_tToSDLTexture(men[count], menTexs[count]);  
-        }
+        //for(count = 0; count < 5; count++)
+        //{
+            //Pic_tToSDLTexture(men[count], menTexs[count]);  
+        //}
         
         //CacheLumpGroup( "scnum0", scorenums, 10 );
 
@@ -473,6 +485,8 @@ void SetupPlayScreenCreateSDLTex( void )
         //men[ num ] = ( pic_t * )W_CacheLumpNum( W_GetNumForName( "MAN1" ) +
            //                                     num, PU_LEVEL, Cvt_pic_t, 1 );
     }
+    //All multiplayer related items, for now I'm just focusing on the hud elements for single player
+/*
     else
     {
         int  man;
@@ -482,7 +496,7 @@ void SetupPlayScreenCreateSDLTex( void )
 
         for(count = 0; count < 10; count++)
         {
-            Pic_tToSDLTexture(scorenums[count], scorenumsTexs[count]);
+            Pic_tToSDLSurface(scorenums[count], scorenumsSurf[count], hudRescaleFactor);
         }
         
         //CacheLumpGroup( "kilnum0", scorenums, 10 );
@@ -498,7 +512,7 @@ void SetupPlayScreenCreateSDLTex( void )
 
         for( i = 0; i < numplayers; i++ )
         {
-            j = PLAYERSTATE[ i ].player;
+            j = PLAYERSTATE[ i ].player;s
             if ( !gamestate.teamplay )
             {
                 fragpic[ j ]    = ( pic_t * )W_CacheLumpNum( num + j, PU_LEVEL, Cvt_pic_t, 1 );
@@ -516,17 +530,18 @@ void SetupPlayScreenCreateSDLTex( void )
             men[ j ]        = ( pic_t * )W_CacheLumpNum( man + j, PU_LEVEL, Cvt_pic_t, 1 );
         }
     }
+*/
 
-    //TODO: load the powerup pics into memory
+    //TODO: load the powerup pics into memory for sake of consistency
     
    // powerpics   = W_GetNumForName( "GDMODEP" );
    // poweradjust = POWERUPTICS / 16;
 
-   // num   = W_GetNumForName( "INF_B" );
+    //num = W_GetNumForName( "INF_B" );
 
     for (count = 0; count < 26; count++)
     {
-        Pic_tToSDLTexture(ammo[count], ammoTex[count]);
+        Pic_tToSDLSurface(ammo[count], &ammoSurf[count], hudRescaleFactor);
 
     }
     
@@ -537,17 +552,225 @@ void SetupPlayScreenCreateSDLTex( void )
     
     pic_t * shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
     
-    Pic_tToSDLTexture(shape, bottomBarTex);
+    Pic_tToSDLSurface(shape, &bottomBarSurf, hudRescaleFactor);
     
     shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
     
-    Pic_tToSDLTexture(shape, statusBarTex);
+    Pic_tToSDLSurface(shape, &statusBarSurf, hudRescaleFactor);
     
-    rdy = true;
+/*
+    int fmt = 0;
+    int w = 0;
+    int h = 0;
+    int access = 0;
+*/
+    
+    //SDL_QueryTexture(statusBarTex, &fmt, &access, &w, &h);
+    
+    //printf("%d %d %d %d \n", fmt, access, w, h);
+    
+    //rdy = true;
     
 }
 
+//int topBarCenterOffsetX;
 
+extern int hudRescaleFactor;
+
+void DrawPlayScreenToSDLSurface (SDL_Surface ** destSurf)
+{
+
+    //figure out where the middle point of the status bar should be for top bar
+    //topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320*hudRescaleFactor) >> 1;
+    
+    //SDL_SetRenderTarget(renderer, sdl_texture);
+    
+    if (SHOW_TOP_STATUS_BAR())
+    {
+        
+        //SDL_SetTextureBlendMode(statusBarSurf, SDL_BLENDMODE_BLEND);
+        
+        
+        SDL_Rect drawArea;
+        
+        drawArea.x = (iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1;
+        drawArea.y = 0;
+        drawArea.w = statusBarSurf->w;
+        drawArea.h = statusBarSurf->h;
+        
+        if(SDL_BlitSurface(statusBarSurf, NULL, *destSurf, &drawArea) < 0)
+        {
+            printf("In function DrawPlayScreenToSDLSurface: %s", SDL_GetError());
+            
+            exit(1);
+        
+        }
+    
+    }
+/*
+    if ( SHOW_TOP_STATUS_BAR() )
+    {
+        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
+        {
+            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+            
+            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 0,16, shape );
+        }
+        shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
+        
+        //GM_MemToSDLSurface((byte *) &shape->data, temp, shape->width, shape->height);
+        
+        //tempHasStuff = true;
+        
+        GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
+        
+    }
+
+    if ( BATTLEMODE )
+    {
+        DrawKills( bufferofsonly );
+    }
+
+    if ( SHOW_BOTTOM_STATUS_BAR() )
+    {
+        shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+
+        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
+        {
+            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
+            
+            
+            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
+            
+            //apparently the line below was causing segfaults on linux...
+            
+            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
+            
+            shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
+            
+            
+            
+            
+            //enqueue(sdl_draw_obj_queue, shape);
+            
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
+        }
+        
+        
+        
+        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
+
+        //}
+
+        DrawBarAmmo( bufferofsonly );
+        DrawBarHealth( bufferofsonly );
+
+        if ( demoplayback )
+        {
+            shape = ( pic_t * )W_CacheLumpName( "demo", PU_CACHE, Cvt_pic_t, 1 );
+            
+            DrawPPic( (iGLOBAL_SCREENWIDTH-(shape->width<<2)), (iGLOBAL_SCREENHEIGHT-shape->height)>>1, 
+                    shape->width, shape->height, ( byte * )&shape->data, 1, true, bufferofsonly );
+        }
+    }
+
+    if ( !SHOW_TOP_STATUS_BAR() )
+    {
+        return;
+    }
+
+//draws small player picture and name in topbar
+    oldsec = -1;
+
+    //DrawTime( bufferofsonly );
+
+    if ( !BATTLEMODE )
+    {
+        int character;
+        int width;
+        int height;
+
+        character = locplayerstate->player;
+        GameMemToScreen( men[ character ], MEN_X + topBarCenterOffsetX, MEN_Y,bufferofsonly );
+
+        CurrentFont = tinyfont;
+
+        // Draw player's name
+        
+        DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
+        VW_MeasurePropString( LastNames[ character ], &width, &height );
+        DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
+                     LastNames[ character ], bufferofsonly );
+        
+        UpdateLives( locplayerstate->lives );
+        UpdateScore( gamestate.score );
+        DrawTriads( bufferofsonly );
+        DrawLives( bufferofsonly );
+        DrawScore( bufferofsonly );
+    }
+
+    DrawKeys( bufferofsonly );
+
+    if ( locplayerstate->poweruptime )
+    {
+        if ( player->flags & FL_GODMODE )
+        {
+            shapenum = powerpics;
+        }
+        else if ( player->flags & FL_DOGMODE )
+        {
+            shapenum = powerpics + 1;
+        }
+        else if ( player->flags & FL_FLEET )
+        {
+            shapenum = powerpics + 2;
+        }
+        else if ( player->flags & FL_ELASTO )
+        {
+            shapenum = powerpics + 3;
+        }
+        else if ( player->flags & FL_SHROOMS )
+        {
+            shapenum = powerpics + 4;
+        }
+
+        shape = ( pic_t * )W_CacheLumpNum ( shapenum, PU_CACHE, Cvt_pic_t, 1 );
+
+        GameMemToScreen( eraseb, POWERUP1X + topBarCenterOffsetX, POWERUPY, bufferofsonly );
+
+        DrawMPPic( POWERUP1X + topBarCenterOffsetX, POWERUPY + powerupheight, shape->width,
+                   shape->height - powerupheight, powerupheight,
+                   ( byte * )&shape->data, bufferofsonly );
+    }
+
+
+    if ( locplayerstate->protectiontime )
+    {
+        if ( player->flags & FL_BPV )
+        {
+            shapenum = powerpics + 6;
+        }
+        else if ( player->flags & FL_GASMASK )
+        {
+            shapenum = powerpics + 5;
+        }
+        else if ( player->flags & FL_AV )
+        {
+            shapenum = powerpics + 7;
+        }
+
+        shape = ( pic_t * )W_CacheLumpNum( shapenum, PU_CACHE, Cvt_pic_t, 1 );
+
+        GameMemToScreen( eraseb, POWERUP2X + topBarCenterOffsetX, POWERUPY, bufferofsonly );
+
+        DrawMPPic( POWERUP2X + topBarCenterOffsetX, POWERUPY + protectionheight, shape->width,
+                   shape->height - protectionheight, protectionheight,
+                   ( byte * )&shape->data, bufferofsonly );
+    }
+*/
+    //SDL_SetRenderTarget(renderer, NULL);
+}
 
 
 //******************************************************************************
@@ -613,7 +836,7 @@ void DrawPlayScreen (boolean bufferofsonly)
         
         //tempHasStuff = true;
         
-        GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
+        //GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
         
     }
 
@@ -5673,7 +5896,7 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     LoadPlayer ();
     DoLoadGameAction ();
     SetupPlayScreen();
-    SetupPlayScreenCreateSDLTex();
+    SetupPlayScreenSDLSurface();
     
     UpdateScore (gamestate.score);
     UpdateLives (locplayerstate->lives);
