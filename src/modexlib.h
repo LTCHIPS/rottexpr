@@ -65,6 +65,8 @@ extern SDL_Surface * sdl_surface;
 
 extern SDL_Renderer * renderer;
 
+extern SDL_Texture * sdl_texture;
+
 
 void  GraphicsMode ( void );
 void  ChangeResolution( int, int);
