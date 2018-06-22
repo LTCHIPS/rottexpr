@@ -387,7 +387,9 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
     
     SDL_Surface * temp;
     
-    temp = SDL_CreateRGBSurface(0, source->width*4, source->height,8, 0,0,0,0);
+    temp = SDL_CreateRGBSurface(0, source->width*4, source->height,8,0,0,0,0);
+    
+    
     
     if(temp == NULL)
     {
@@ -403,7 +405,7 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
     
     SDL_PixelFormat * pixfmt; 
     
-    pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
+    pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB24);
     
     SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
     
@@ -413,13 +415,21 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
     
     SDL_FreeSurface(temp);
     
+    Uint32 translucPix = SDL_MapRGB(temp2->format, 0, 0, 0);
+    
+    SDL_SetColorKey(*destSurf, SDL_TRUE, translucPix);
+    
     if(SDL_BlitScaled(temp2,NULL, *destSurf, NULL) < 0)
     {
         printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
         exit(1);
     }
     
+    
+    
     SDL_FreeSurface(temp2);
+    
+    
     
 }
 
@@ -590,10 +600,46 @@ void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y
 
 }
 
+//void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, boolean up, boolean bufferofsonly)
+
 void DrawBarAmmoToSDLSurface(SDL_Surface ** dest)
 {
+    int endBottomBarX = ((iGLOBAL_SCREENWIDTH - bottomBarSurf->w) >> 1) + bottomBarSurf->w;
 
-
+    int ammoX = endBottomBarX - 20*(hudRescaleFactor);
+    
+    int ammoY = iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor;
+    
+    if((locplayerstate->new_weapon < wp_bazooka) || 
+            (locplayerstate->new_weapon == wp_godhand) ||
+            (gamestate.BattleOptions.Ammo == bo_infinite_shots))
+    {
+        DrawSurfaceOntoSurface(ammoSurf[13], dest, ammoX - 16*hudRescaleFactor, ammoY);
+    }
+    else if (locplayerstate->new_weapon == wp_dog)
+    {
+        DrawSurfaceOntoSurface(ammoSurf[12+13], dest, ammoX - 16*hudRescaleFactor, ammoY);
+    }
+    else
+    {
+        int count;
+        int drawAtX = ammoX;
+        
+        ammoY+=1*hudRescaleFactor;
+        
+        for(count = 0; count < locplayerstate->ammo; count++)
+        {
+            DrawSurfaceOntoSurface(ammoSurf[13+locplayerstate->new_weapon], dest, drawAtX, ammoY);
+            drawAtX-=ammoSurf[13+locplayerstate->new_weapon]->w;
+        }
+    
+    }
+    
+    
+    
+    
+    //iGLOBAL_AMMO_X = middleWidth + 160 - 20;
+    
 }
 
 
@@ -602,7 +648,9 @@ void DrawBarAmmoToSDLSurface(SDL_Surface ** dest)
 extern int hudRescaleFactor;
 
 void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
-{   
+{
+   
+    
     if (SHOW_TOP_STATUS_BAR())
     { 
         DrawSurfaceOntoSurface(statusBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1, 0);  
@@ -625,6 +673,8 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     {
         return;
     }
+    
+    DrawBarAmmoToSDLSurface(destSurf);
     
     
     
@@ -3061,7 +3111,8 @@ void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int he
         for (y = 0; y < height; y++, screen1 += destSurf->w, source+=width)
         {
             for (x = 0; x < width; x++) {
-                screen1[x*4+plane] = source[x];
+                if (source[x] != 255)
+                    screen1[x*4+plane] = source[x];
             }
         }
     }

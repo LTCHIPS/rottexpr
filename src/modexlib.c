@@ -126,7 +126,7 @@ void GraphicsMode ( void )
     
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_TARGETTEXTURE);
     
-    sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888,
+    sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24,
                                     SDL_TEXTUREACCESS_TARGET, iGLOBAL_SCREENWIDTH,
                                     iGLOBAL_SCREENHEIGHT);
     
@@ -280,7 +280,7 @@ void VL_ClearVideo (byte color)
 
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
-    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
+    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
     SDL_SetRenderTarget(renderer, sourceToResize);
     SDL_RenderCopy(renderer, source, &src, NULL);
     // the folowing line should reset the target to default(the screen)
@@ -303,7 +303,7 @@ void RenderSurface(void)
     
     SDL_PixelFormat * dst_fmt;
     
-    dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_ARGB8888);
+    dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB24);
     
     SDL_Surface * temp2;
     
