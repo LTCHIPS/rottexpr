@@ -573,112 +573,63 @@ void SetupPlayScreenSDLSurface( void )
     
 }
 
+void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y)
+{
+    SDL_Rect coords;
+    
+    coords.x = x;
+    coords.y = y;
+    coords.w = src->w;
+    coords.h = src->h;
+    
+    if(SDL_BlitSurface(src, NULL, *dest, &coords) < 0)
+    {
+        printf("In function DrawSurfaceOntoSurface: %s", SDL_GetError());   
+        exit(1);
+    }
+
+}
+
+void DrawBarAmmoToSDLSurface(SDL_Surface ** dest)
+{
+
+
+}
+
+
 //int topBarCenterOffsetX;
 
 extern int hudRescaleFactor;
 
-void DrawPlayScreenToSDLSurface (SDL_Surface ** destSurf)
-{
-
-    //figure out where the middle point of the status bar should be for top bar
-    //topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320*hudRescaleFactor) >> 1;
-    
-    //SDL_SetRenderTarget(renderer, sdl_texture);
-    
+void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
+{   
     if (SHOW_TOP_STATUS_BAR())
-    {
-        
-        //SDL_SetTextureBlendMode(statusBarSurf, SDL_BLENDMODE_BLEND);
-        
-        
-        SDL_Rect drawArea;
-        
-        drawArea.x = (iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1;
-        drawArea.y = 0;
-        drawArea.w = statusBarSurf->w;
-        drawArea.h = statusBarSurf->h;
-        
-        if(SDL_BlitSurface(statusBarSurf, NULL, *destSurf, &drawArea) < 0)
-        {
-            printf("In function DrawPlayScreenToSDLSurface: %s", SDL_GetError());
-            
-            exit(1);
-        
-        }
-    
-    }
-/*
-    if ( SHOW_TOP_STATUS_BAR() )
-    {
-        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
-        {
-            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            
-            DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 0,16, shape );
-        }
-        shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-        
-        //GM_MemToSDLSurface((byte *) &shape->data, temp, shape->width, shape->height);
-        
-        //tempHasStuff = true;
-        
-        GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-        
+    { 
+        DrawSurfaceOntoSurface(statusBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1, 0);  
     }
 
+//TODO: more multiplayer hud stuff
+/*
     if ( BATTLEMODE )
     {
         DrawKills( bufferofsonly );
     }
+*/
 
     if ( SHOW_BOTTOM_STATUS_BAR() )
     {
-        shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-
-        if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
-        {
-            shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            
-            
-            DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
-            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
-            
-            //apparently the line below was causing segfaults on linux...
-            
-            //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
-            
-            shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-            
-            
-            
-            
-            //enqueue(sdl_draw_obj_queue, shape);
-            
-            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
-        }
-        
-        
-        
-        GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
-
-        //}
-
-        DrawBarAmmo( bufferofsonly );
-        DrawBarHealth( bufferofsonly );
-
-        if ( demoplayback )
-        {
-            shape = ( pic_t * )W_CacheLumpName( "demo", PU_CACHE, Cvt_pic_t, 1 );
-            
-            DrawPPic( (iGLOBAL_SCREENWIDTH-(shape->width<<2)), (iGLOBAL_SCREENHEIGHT-shape->height)>>1, 
-                    shape->width, shape->height, ( byte * )&shape->data, 1, true, bufferofsonly );
-        }
+        DrawSurfaceOntoSurface(bottomBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - bottomBarSurf->w) >> 1, iGLOBAL_SCREENHEIGHT - bottomBarSurf->h);
     }
-
+    
     if ( !SHOW_TOP_STATUS_BAR() )
     {
         return;
     }
+    
+    
+    
+/*
+    
 
 //draws small player picture and name in topbar
     oldsec = -1;
@@ -2464,10 +2415,10 @@ void DrawBarAmmo(boolean bufferofsonly)
        )
     {
         DrawPPic( iGLOBAL_AMMO_X - 16, ammo_y, 24 >> 2, 16,
-                  ( byte * )&ammo[ 0 ]->data, 1, true, bufferofsonly);
+                  ( byte * )&ammo[ 0 ]->data, 1, true, bufferofsonly); //Draw the ammo
 
         DrawPPic( iGLOBAL_AMMO_X - 32, ammo_y + 1, 8 >> 2, 16,
-                  ( byte * )&erase->data, 2, true, bufferofsonly );
+                  ( byte * )&erase->data, 2, true, bufferofsonly ); //Erase the ammo
     }
 #if (SHAREWARE == 0)
     else if ( locplayerstate->new_weapon == wp_dog )
