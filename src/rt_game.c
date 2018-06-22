@@ -425,12 +425,8 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
         exit(1);
     }
     
-    
-    
     SDL_FreeSurface(temp2);
-    
-    
-    
+       
 }
 
 extern boolean rdy;
@@ -642,6 +638,73 @@ void DrawBarAmmoToSDLSurface(SDL_Surface ** dest)
     
 }
 
+void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
+{
+    int percenthealth;
+
+    if ( !SHOW_BOTTOM_STATUS_BAR() )
+    {
+        return;
+    }
+
+    int healthY = iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor;
+    
+    int healthX = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + 20 * hudRescaleFactor;
+    
+/*
+    if ( SHOW_KILLS() )
+    {
+        health_y -= KILLS_HEIGHT;
+    }
+*/
+
+    percenthealth = ( locplayerstate->health * 10 ) /
+                    MaxHitpointsForCharacter( locplayerstate );
+
+    oldpercenthealth = percenthealth + 1;
+    
+    
+
+    if ( locplayerstate->health <= 0 )
+    {
+        oldpercenthealth = 0;
+    }
+
+    if ( oldpercenthealth >= 11 )
+    {
+        oldpercenthealth = 10;
+    }
+
+    int healthBarThing;
+    if ( oldpercenthealth < 4 )
+    {
+        healthBarThing = 3;
+    }
+    else if ( oldpercenthealth < 5 )
+    {
+        healthBarThing = 4;
+    }
+    else
+    {
+        healthBarThing = 5;
+    }
+
+    int numToDraw = oldpercenthealth;
+    
+    int count;
+    
+    int drawAtX = healthX;
+    
+    for (count = 0; count < numToDraw; count++)
+    {
+        DrawSurfaceOntoSurface(healthSurf[healthBarThing], dest, drawAtX, healthY);
+        drawAtX+=healthSurf[healthBarThing]->w;
+    
+    }
+
+
+}
+
 
 //int topBarCenterOffsetX;
 
@@ -675,7 +738,7 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     }
     
     DrawBarAmmoToSDLSurface(destSurf);
-    
+    DrawBarHealthToSDLSurface(destSurf);
     
     
 /*
