@@ -433,14 +433,6 @@ extern boolean rdy;
 
 void SetupPlayScreenSDLSurface( void )
 {
-/*
-    int i;
-    int j;
-    int num;
-*/
-    
-    //eraseTex = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, 
-      //                          erase->width*4*hudRescaleFactor, erase->height*hudRescaleFactor);          
     
     Pic_tToSDLSurface(erase, &eraseSurf, hudRescaleFactor);
     
@@ -579,6 +571,7 @@ void SetupPlayScreenSDLSurface( void )
     
 }
 
+
 void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y)
 {
     SDL_Rect coords;
@@ -705,10 +698,132 @@ void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
 
 }
 
+extern int hudRescaleFactor;
+
+void DrawTriadsToSDLSurface(SDL_Surface ** dest, int width)
+{
+    unsigned length,c;
+    char  *str;
+    byte z;
+    
+    str = TriadStr.str;
+    length = TriadStr.length;
+    
+
+    z = width - length;     // Num zeros
+    
+    int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + statusBarSurf->w ) - (12*hudRescaleFactor);
+
+    int y = 6*hudRescaleFactor;
+    
+    while (z)
+    {
+        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
+        
+        DrawSurfaceOntoSurface(lifeptnumsSurf[0], dest, x, y);
+        
+        x+=6*hudRescaleFactor;
+        z--;
+    }
+
+    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
+    //y = 0;
+    c = length <= (unsigned)width ? 0 : length-width;
+    while (c < length)
+    {
+        DrawSurfaceOntoSurface(lifeptnumsSurf[str[c]-'0'], dest, x, y);
+        
+        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
+        x+=6*hudRescaleFactor;
+        c++;
+    }
+    
+}
+
+void DrawLivesToSDLSurface(SDL_Surface ** dest, int width)
+{
+    unsigned length,c;
+    char  *str;
+    byte z;
+    
+    str = LivesStr.str;
+    length = LivesStr.length;
+    
+
+    z = width - length;     // Num zeros
+    
+    int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + statusBarSurf->w ) - (32*hudRescaleFactor);
+
+    int y = 0;
+    
+    while (z)
+    {
+        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
+        
+        DrawSurfaceOntoSurface(lifenumsSurf[0], dest, x, y);
+        
+        x+=8*hudRescaleFactor;
+        z--;
+    }
+
+    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
+    //y = 0;
+    c = length <= (unsigned)width ? 0 : length-width;
+    while (c < length)
+    {
+        DrawSurfaceOntoSurface(lifenumsSurf[str[c]-'0'], dest, x, y);
+        
+        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
+        x+=8*hudRescaleFactor;
+        c++;
+    }
+    
+}
+
+void DrawScoreToSDLSurface(SDL_Surface ** dest, int width)
+{
+    unsigned length,c;
+    char  *str;
+    byte z;
+    
+    str = ScoreStr.str;
+    length = ScoreStr.length;
+    
+
+    z = width - length;     // Num zeros
+    
+    int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1)) + 4*hudRescaleFactor;//(((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + statusBarSurf->w ) - (32*hudRescaleFactor);
+
+    int y = 0;
+    
+    while (z)
+    {
+        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
+        
+        DrawSurfaceOntoSurface(scorenumsSurf[0], dest, x, y);
+        
+        x+=8*hudRescaleFactor;
+        z--;
+    }
+
+    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
+    //y = 0;
+    c = length <= (unsigned)width ? 0 : length-width;
+    while (c < length)
+    {
+        DrawSurfaceOntoSurface(scorenumsSurf[str[c]-'0'], dest, x, y);
+        
+        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
+        x+=8*hudRescaleFactor;
+        c++;
+    }
+    
+}
+
 
 //int topBarCenterOffsetX;
 
-extern int hudRescaleFactor;
+
 
 void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 {
@@ -739,6 +854,43 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     
     DrawBarAmmoToSDLSurface(destSurf);
     DrawBarHealthToSDLSurface(destSurf);
+    
+    
+    
+    if ( !BATTLEMODE )
+    {
+        
+        //TODO: Scale Game strings....
+/*
+        int character;
+        int width;
+        int height;
+
+        character = locplayerstate->player;
+        GameMemToScreen( men[ character ], MEN_X + topBarCenterOffsetX, MEN_Y,bufferofsonly );
+
+        CurrentFont = tinyfont;
+
+        // Draw player's name
+        
+        DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
+        VW_MeasurePropString( LastNames[ character ], &width, &height );
+        DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
+                     LastNames[ character ], bufferofsonly );
+*/
+        UpdateLives( locplayerstate->lives );
+        UpdateScore( gamestate.score );
+        
+        DrawTriadsToSDLSurface(destSurf, 2);
+        
+        DrawLivesToSDLSurface(destSurf, 2);
+        
+        DrawScoreToSDLSurface(destSurf, 10);
+        
+        //DrawTriads( bufferofsonly );
+        //DrawLives( bufferofsonly );
+        DrawScore( bufferofsonly );
+    }
     
     
 /*
