@@ -147,6 +147,22 @@ SDL_Surface * scorenumsSurf[10];
 SDL_Surface * menSurf[5];
 SDL_Surface * ammoSurf[26];
 
+SDL_Surface * godmodePicSurf;
+
+SDL_Surface * dogmodePicSurf;
+
+SDL_Surface * elasticmodePicSurf;
+
+SDL_Surface * shroomsmodePicSurf;
+
+SDL_Surface * bpvestPicSurf;
+
+SDL_Surface * abestosvestPicSurf;
+
+SDL_Surface * mercurymodePicSurf;
+
+SDL_Surface * gasmaskPicSurf;
+
 
 static int powerpics;
 static int poweradjust;
@@ -556,18 +572,39 @@ void SetupPlayScreenSDLSurface( void )
     
     Pic_tToSDLSurface(shape, &statusBarSurf, hudRescaleFactor);
     
-/*
-    int fmt = 0;
-    int w = 0;
-    int h = 0;
-    int access = 0;
-*/
+    int powerpics   = W_GetNumForName( "GDMODEP" );
     
-    //SDL_QueryTexture(statusBarTex, &fmt, &access, &w, &h);
+    shape = (pic_t*)W_CacheLumpNum(powerpics, PU_CACHE, Cvt_pic_t, 1);
     
-    //printf("%d %d %d %d \n", fmt, access, w, h);
+    Pic_tToSDLSurface(shape, &godmodePicSurf, hudRescaleFactor);
     
-    //rdy = true;
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 1, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &dogmodePicSurf, hudRescaleFactor);
+    
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 2, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &mercurymodePicSurf, hudRescaleFactor);
+    
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 3, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &elasticmodePicSurf, hudRescaleFactor);
+    
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 4, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &shroomsmodePicSurf, hudRescaleFactor);
+    
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 6, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &bpvestPicSurf, hudRescaleFactor);
+    
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 5, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &gasmaskPicSurf, hudRescaleFactor);
+    
+    shape = (pic_t*)W_CacheLumpNum(powerpics + 7, PU_CACHE, Cvt_pic_t, 1);
+    
+    Pic_tToSDLSurface(shape, &abestosvestPicSurf, hudRescaleFactor);
     
 }
 
@@ -584,6 +621,31 @@ void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y
     if(SDL_BlitSurface(src, NULL, *dest, &coords) < 0)
     {
         printf("In function DrawSurfaceOntoSurface: %s", SDL_GetError());   
+        exit(1);
+    }
+
+}
+
+void DrawHeightModdedSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y, int heightmod)
+{
+    SDL_Rect coords;
+    
+    coords.x = x;
+    coords.y = y;
+    coords.w = src->w;
+    coords.h = src->h;
+    
+    SDL_Rect srcCoords;
+    
+    srcCoords.x = 0;
+    srcCoords.y = 0;
+    srcCoords.w = src->w;
+    srcCoords.h = src->h - heightmod;
+    
+    
+    if(SDL_BlitSurface(src, &srcCoords, *dest, &coords) < 0)
+    {
+        printf("In function DrawMSurfaceOntoSurface: %s", SDL_GetError());   
         exit(1);
     }
 
@@ -699,6 +761,8 @@ void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
 }
 
 extern int hudRescaleFactor;
+
+//TODO: Refactor the following three functions into one
 
 void DrawTriadsToSDLSurface(SDL_Surface ** dest, int width)
 {
@@ -889,102 +953,78 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
         
         //DrawTriads( bufferofsonly );
         //DrawLives( bufferofsonly );
-        DrawScore( bufferofsonly );
+        //DrawScore( bufferofsonly );
     }
     
-    
-/*
-    
-
-//draws small player picture and name in topbar
-    oldsec = -1;
-
-    //DrawTime( bufferofsonly );
-
-    if ( !BATTLEMODE )
+    if ( locplayerstate->keys & 1 )
     {
-        int character;
-        int width;
-        int height;
-
-        character = locplayerstate->player;
-        GameMemToScreen( men[ character ], MEN_X + topBarCenterOffsetX, MEN_Y,bufferofsonly );
-
-        CurrentFont = tinyfont;
-
-        // Draw player's name
-        
-        DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
-        VW_MeasurePropString( LastNames[ character ], &width, &height );
-        DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
-                     LastNames[ character ], bufferofsonly );
-        
-        UpdateLives( locplayerstate->lives );
-        UpdateScore( gamestate.score );
-        DrawTriads( bufferofsonly );
-        DrawLives( bufferofsonly );
-        DrawScore( bufferofsonly );
+        DrawSurfaceOntoSurface(keysSurf[0], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 152*hudRescaleFactor, 0);
     }
 
-    DrawKeys( bufferofsonly );
+    if ( locplayerstate->keys & 2 )
+    {
+        DrawSurfaceOntoSurface(keysSurf[1], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 160*hudRescaleFactor, 0);
+    }
 
-    if ( locplayerstate->poweruptime )
+    if ( locplayerstate->keys & 4 )
+    {
+        DrawSurfaceOntoSurface(keysSurf[2], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 168*hudRescaleFactor, 0);
+    }
+
+    if ( locplayerstate->keys & 8 )
+    {
+        DrawSurfaceOntoSurface(keysSurf[3], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 176*hudRescaleFactor, 0);
+    }
+    
+    if(locplayerstate->poweruptime)
     {
         if ( player->flags & FL_GODMODE )
         {
-            shapenum = powerpics;
+            DrawHeightModdedSurfaceOntoSurface(godmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+                                                POWERUPY + powerupheight* hudRescaleFactor, powerupheight * hudRescaleFactor);
+            //shapenum = powerpics;
         }
         else if ( player->flags & FL_DOGMODE )
         {
-            shapenum = powerpics + 1;
+            DrawHeightModdedSurfaceOntoSurface(dogmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+                                                POWERUPY + powerupheight*hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_FLEET )
         {
-            shapenum = powerpics + 2;
+            DrawHeightModdedSurfaceOntoSurface(mercurymodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+                                                POWERUPY + powerupheight*hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_ELASTO )
         {
-            shapenum = powerpics + 3;
+            DrawHeightModdedSurfaceOntoSurface(elasticmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+                                                POWERUPY + powerupheight * hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_SHROOMS )
         {
-            shapenum = powerpics + 4;
+            DrawHeightModdedSurfaceOntoSurface(shroomsmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+                                                POWERUPY + powerupheight * hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
-
-        shape = ( pic_t * )W_CacheLumpNum ( shapenum, PU_CACHE, Cvt_pic_t, 1 );
-
-        GameMemToScreen( eraseb, POWERUP1X + topBarCenterOffsetX, POWERUPY, bufferofsonly );
-
-        DrawMPPic( POWERUP1X + topBarCenterOffsetX, POWERUPY + powerupheight, shape->width,
-                   shape->height - powerupheight, powerupheight,
-                   ( byte * )&shape->data, bufferofsonly );
+    
     }
-
 
     if ( locplayerstate->protectiontime )
     {
         if ( player->flags & FL_BPV )
         {
-            shapenum = powerpics + 6;
+            DrawHeightModdedSurfaceOntoSurface(bpvestPicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP2X*hudRescaleFactor, 
+                                                POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
         else if ( player->flags & FL_GASMASK )
         {
-            shapenum = powerpics + 5;
+            DrawHeightModdedSurfaceOntoSurface(gasmaskPicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP2X*hudRescaleFactor, 
+                                                POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
         else if ( player->flags & FL_AV )
         {
-            shapenum = powerpics + 7;
+            DrawHeightModdedSurfaceOntoSurface(abestosvestPicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP2X*hudRescaleFactor, 
+                                                POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
-
-        shape = ( pic_t * )W_CacheLumpNum( shapenum, PU_CACHE, Cvt_pic_t, 1 );
-
-        GameMemToScreen( eraseb, POWERUP2X + topBarCenterOffsetX, POWERUPY, bufferofsonly );
-
-        DrawMPPic( POWERUP2X + topBarCenterOffsetX, POWERUPY + protectionheight, shape->width,
-                   shape->height - protectionheight, protectionheight,
-                   ( byte * )&shape->data, bufferofsonly );
     }
-*/
     //SDL_SetRenderTarget(renderer, NULL);
 }
 
@@ -3309,6 +3349,8 @@ void  DrawEpisodeLevel (int x, int y)
         }
     }
 }
+
+
 
 void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height)
 {
