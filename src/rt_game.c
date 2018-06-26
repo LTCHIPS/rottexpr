@@ -401,6 +401,8 @@ void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int he
 void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
 {
     
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+    
     SDL_Surface * temp;
     
     temp = SDL_CreateRGBSurface(0, source->width*4, source->height,8,0,0,0,0);
@@ -488,10 +490,12 @@ void SetupPlayScreenSDLSurface( void )
             Pic_tToSDLSurface(scorenums[count], &scorenumsSurf[count], hudRescaleFactor);
         }
         
-        //for(count = 0; count < 5; count++)
-        //{
-            //Pic_tToSDLTexture(men[count], menTexs[count]);  
-        //}
+        
+        //TODO: optimize this
+        for(count = 0; count < 5; count++)
+        {
+            Pic_tToSDLSurface(men[locplayerstate->player], &menSurf[count], hudRescaleFactor);  
+        }
         
         //CacheLumpGroup( "scnum0", scorenums, 10 );
 
@@ -572,7 +576,7 @@ void SetupPlayScreenSDLSurface( void )
     
     Pic_tToSDLSurface(shape, &statusBarSurf, hudRescaleFactor);
     
-    int powerpics   = W_GetNumForName( "GDMODEP" );
+    powerpics   = W_GetNumForName( "GDMODEP" );
     
     shape = (pic_t*)W_CacheLumpNum(powerpics, PU_CACHE, Cvt_pic_t, 1);
     
@@ -884,15 +888,83 @@ void DrawScoreToSDLSurface(SDL_Surface ** dest, int width)
     
 }
 
+void DrawNumbersToSDLSurface(int x, int y, int val, int width, unsigned length, SDL_Surface * numArray[], SDL_Surface ** dest)
+{
+    unsigned c;
+    //char  *str;
+    byte z;
+
+    z = width - length;     // Num zeros
+    
+    //int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1)) + 4*hudRescaleFactor;
+
+    //int y = 0;
+    
+    
+    //pad zeroes
+    while (z)
+    {
+        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
+        
+        DrawSurfaceOntoSurface(numArray[0], dest, x, y);
+        
+        x+=8*hudRescaleFactor;
+        z--;
+    }
+    
+    char* valChar = calloc(sizeof(char), length);
+    
+    ltoa(val, valChar, 10);
+
+    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
+    //y = 0;
+    c = length <= (unsigned)width ? 0 : length-width;
+    while (c < length)
+    {
+        DrawSurfaceOntoSurface(numArray[valChar[c]-'0'], dest, x, y);
+        
+        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
+        x+=8*hudRescaleFactor;
+        c++;
+    }    
+}
+
 
 //int topBarCenterOffsetX;
+
+int intLen(const int number)
+{
+    int lenResult = 1;
+    
+    //int remainder = number;
+    
+    if(number)
+    {
+        int oldRemainder;
+        int remainder = number;
+        
+        while(1)
+        {
+            oldRemainder = remainder;
+            
+            remainder%=10;
+            if (oldRemainder == remainder)
+                break;
+            
+            lenResult++;
+            
+        }
+    }
+    
+    return lenResult;
+}
 
 
 
 void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 {
-   
     
+    SDL_SetRelativeMouseMode(SDL_FALSE);
     if (SHOW_TOP_STATUS_BAR())
     { 
         DrawSurfaceOntoSurface(statusBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1, 0);  
@@ -911,13 +983,13 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
         DrawSurfaceOntoSurface(bottomBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - bottomBarSurf->w) >> 1, iGLOBAL_SCREENHEIGHT - bottomBarSurf->h);
     }
     
+    DrawBarAmmoToSDLSurface(destSurf);
+    DrawBarHealthToSDLSurface(destSurf);
+    
     if ( !SHOW_TOP_STATUS_BAR() )
     {
         return;
     }
-    
-    DrawBarAmmoToSDLSurface(destSurf);
-    DrawBarHealthToSDLSurface(destSurf);
     
     
     
@@ -925,13 +997,17 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     {
         
         //TODO: Scale Game strings....
-/*
+        
         int character;
+/*
         int width;
         int height;
+*/
 
         character = locplayerstate->player;
-        GameMemToScreen( men[ character ], MEN_X + topBarCenterOffsetX, MEN_Y,bufferofsonly );
+        
+        DrawSurfaceOntoSurface(menSurf[character], destSurf,((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + MEN_X*hudRescaleFactor, MEN_Y);
+        //GameMemToScreen( men[ character ], MEN_X + topBarCenterOffsetX, MEN_Y,bufferofsonly );
 
         CurrentFont = tinyfont;
 
@@ -941,7 +1017,7 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
         VW_MeasurePropString( LastNames[ character ], &width, &height );
         DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
                      LastNames[ character ], bufferofsonly );
-*/
+        
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
         
@@ -1025,6 +1101,45 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
     }
+    
+    
+    //time 
+    int sec = gamestate.TimeCount / VBLCOUNTER;
+    
+    int hour  = sec / 3600;
+    int min   = ( sec / 60 ) - ( hour * 60 );
+    sec  %= 60;
+    
+    //printf("%d \n", min);
+ 
+    
+    //draw hour
+    
+    int x =((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1)+ (GAMETIME_X*hudRescaleFactor + HOUR_X*hudRescaleFactor + 8*hudRescaleFactor);
+    
+    int y = GAMETIME_Y;
+    
+    int length = intLen(hour);
+    
+    
+    DrawNumbersToSDLSurface( x,  y, hour,  1, length, timenumsSurf, destSurf);
+    
+    //draw minutes
+    
+    x =((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1)+ (GAMETIME_X*hudRescaleFactor + MIN_X*hudRescaleFactor);
+    
+    length = intLen(min);
+    
+    DrawNumbersToSDLSurface(x, y, min,2,length, timenumsSurf, destSurf);
+    
+    //draw seconds
+    
+    length = intLen(sec);
+    
+    x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1)+ (GAMETIME_X*hudRescaleFactor + SEC_X* hudRescaleFactor);
+    
+    DrawNumbersToSDLSurface(x, y, sec, 2, length, timenumsSurf, destSurf);
+    
     //SDL_SetRenderTarget(renderer, NULL);
 }
 
