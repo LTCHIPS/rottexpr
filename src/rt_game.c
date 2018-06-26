@@ -1013,10 +1013,12 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 
         // Draw player's name
         
+/*
         DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
         VW_MeasurePropString( LastNames[ character ], &width, &height );
         DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
                      LastNames[ character ], bufferofsonly );
+*/
         
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
