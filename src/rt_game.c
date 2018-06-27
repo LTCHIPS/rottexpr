@@ -690,21 +690,11 @@ void DrawBarAmmoToSDLSurface(SDL_Surface ** dest)
     
     }
     
-    
-    
-    
-    //iGLOBAL_AMMO_X = middleWidth + 160 - 20;
-    
 }
 
 void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
 {
     int percenthealth;
-
-    if ( !SHOW_BOTTOM_STATUS_BAR() )
-    {
-        return;
-    }
 
     int healthY = iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor;
     
@@ -722,8 +712,6 @@ void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
 
     oldpercenthealth = percenthealth + 1;
     
-    
-
     if ( locplayerstate->health <= 0 )
     {
         oldpercenthealth = 0;
@@ -760,135 +748,13 @@ void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
         drawAtX+=healthSurf[healthBarThing]->w;
     
     }
-
-
 }
 
 extern int hudRescaleFactor;
 
 //TODO: Refactor the following three functions into one
 
-void DrawTriadsToSDLSurface(SDL_Surface ** dest, int width)
-{
-    unsigned length,c;
-    char  *str;
-    byte z;
-    
-    str = TriadStr.str;
-    length = TriadStr.length;
-    
-
-    z = width - length;     // Num zeros
-    
-    int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + statusBarSurf->w ) - (12*hudRescaleFactor);
-
-    int y = 6*hudRescaleFactor;
-    
-    while (z)
-    {
-        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
-        
-        DrawSurfaceOntoSurface(lifeptnumsSurf[0], dest, x, y);
-        
-        x+=6*hudRescaleFactor;
-        z--;
-    }
-
-    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
-    //y = 0;
-    c = length <= (unsigned)width ? 0 : length-width;
-    while (c < length)
-    {
-        DrawSurfaceOntoSurface(lifeptnumsSurf[str[c]-'0'], dest, x, y);
-        
-        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
-        x+=6*hudRescaleFactor;
-        c++;
-    }
-    
-}
-
-void DrawLivesToSDLSurface(SDL_Surface ** dest, int width)
-{
-    unsigned length,c;
-    char  *str;
-    byte z;
-    
-    str = LivesStr.str;
-    length = LivesStr.length;
-    
-
-    z = width - length;     // Num zeros
-    
-    int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + statusBarSurf->w ) - (32*hudRescaleFactor);
-
-    int y = 0;
-    
-    while (z)
-    {
-        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
-        
-        DrawSurfaceOntoSurface(lifenumsSurf[0], dest, x, y);
-        
-        x+=8*hudRescaleFactor;
-        z--;
-    }
-
-    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
-    //y = 0;
-    c = length <= (unsigned)width ? 0 : length-width;
-    while (c < length)
-    {
-        DrawSurfaceOntoSurface(lifenumsSurf[str[c]-'0'], dest, x, y);
-        
-        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
-        x+=8*hudRescaleFactor;
-        c++;
-    }
-    
-}
-
-void DrawScoreToSDLSurface(SDL_Surface ** dest, int width)
-{
-    unsigned length,c;
-    char  *str;
-    byte z;
-    
-    str = ScoreStr.str;
-    length = ScoreStr.length;
-    
-
-    z = width - length;     // Num zeros
-    
-    int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1)) + 4*hudRescaleFactor;//(((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + statusBarSurf->w ) - (32*hudRescaleFactor);
-
-    int y = 0;
-    
-    while (z)
-    {
-        //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
-        
-        DrawSurfaceOntoSurface(scorenumsSurf[0], dest, x, y);
-        
-        x+=8*hudRescaleFactor;
-        z--;
-    }
-
-    //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
-    //y = 0;
-    c = length <= (unsigned)width ? 0 : length-width;
-    while (c < length)
-    {
-        DrawSurfaceOntoSurface(scorenumsSurf[str[c]-'0'], dest, x, y);
-        
-        //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
-        x+=8*hudRescaleFactor;
-        c++;
-    }
-    
-}
-
-void DrawNumbersToSDLSurface(int x, int y, int val, int width, unsigned length, SDL_Surface * numArray[], SDL_Surface ** dest)
+void DrawNumbersToSDLSurface(int x, int y, int val, int width, unsigned length, int digitOffset, SDL_Surface * numArray[], SDL_Surface ** dest)
 {
     unsigned c;
     //char  *str;
@@ -908,7 +774,7 @@ void DrawNumbersToSDLSurface(int x, int y, int val, int width, unsigned length, 
         
         DrawSurfaceOntoSurface(numArray[0], dest, x, y);
         
-        x+=8*hudRescaleFactor;
+        x+=digitOffset*hudRescaleFactor;
         z--;
     }
     
@@ -924,7 +790,7 @@ void DrawNumbersToSDLSurface(int x, int y, int val, int width, unsigned length, 
         DrawSurfaceOntoSurface(numArray[valChar[c]-'0'], dest, x, y);
         
         //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
-        x+=8*hudRescaleFactor;
+        x+=digitOffset*hudRescaleFactor;
         c++;
     }    
 }
@@ -963,11 +829,11 @@ int intLen(const int number)
 
 void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 {
+    int bottStatusBarStartX = (iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1;
     
-    SDL_SetRelativeMouseMode(SDL_FALSE);
     if (SHOW_TOP_STATUS_BAR())
     { 
-        DrawSurfaceOntoSurface(statusBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1, 0);  
+        DrawSurfaceOntoSurface(statusBarSurf, destSurf, bottStatusBarStartX, 0);  
     }
 
 //TODO: more multiplayer hud stuff
@@ -980,19 +846,19 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 
     if ( SHOW_BOTTOM_STATUS_BAR() )
     {
-        DrawSurfaceOntoSurface(bottomBarSurf, destSurf, (iGLOBAL_SCREENWIDTH - bottomBarSurf->w) >> 1, iGLOBAL_SCREENHEIGHT - bottomBarSurf->h);
+        DrawSurfaceOntoSurface(bottomBarSurf, destSurf, bottStatusBarStartX, iGLOBAL_SCREENHEIGHT - bottomBarSurf->h);
     }
-    
-    DrawBarAmmoToSDLSurface(destSurf);
-    DrawBarHealthToSDLSurface(destSurf);
-    
+    if ( SHOW_PLAYER_STATS() || SHOW_BOTTOM_STATUS_BAR() )
+    {
+        DrawBarAmmoToSDLSurface(destSurf);
+        DrawBarHealthToSDLSurface(destSurf);   //DrawStats ();
+    }   
+        
     if ( !SHOW_TOP_STATUS_BAR() )
     {
         return;
     }
-    
-    
-    
+
     if ( !BATTLEMODE )
     {
         
@@ -1006,8 +872,7 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 
         character = locplayerstate->player;
         
-        DrawSurfaceOntoSurface(menSurf[character], destSurf,((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) + MEN_X*hudRescaleFactor, MEN_Y);
-        //GameMemToScreen( men[ character ], MEN_X + topBarCenterOffsetX, MEN_Y,bufferofsonly );
+        DrawSurfaceOntoSurface(menSurf[character], destSurf, bottStatusBarStartX + MEN_X*hudRescaleFactor, MEN_Y);
 
         CurrentFont = tinyfont;
 
@@ -1023,63 +888,84 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
         
-        DrawTriadsToSDLSurface(destSurf, 2);
+        //triads
+    
+        int triadVal = atoi(TriadStr.str);
         
-        DrawLivesToSDLSurface(destSurf, 2);
+        int x = (bottStatusBarStartX + statusBarSurf->w ) - (12*hudRescaleFactor);
+
+        int y = 6*hudRescaleFactor;
         
-        DrawScoreToSDLSurface(destSurf, 10);
+        DrawNumbersToSDLSurface(x, y, triadVal, 2, TriadStr.length, 6, lifeptnumsSurf, destSurf);
         
-        //DrawTriads( bufferofsonly );
-        //DrawLives( bufferofsonly );
-        //DrawScore( bufferofsonly );
+        x = (bottStatusBarStartX + statusBarSurf->w ) - (32*hudRescaleFactor);
+        
+        y = 0;
+        
+        //lives
+        
+        int livesVal = atoi(LivesStr.str);
+        
+        DrawNumbersToSDLSurface(x, y, livesVal, 2, LivesStr.length, 8, lifenumsSurf, destSurf);
+        
+        //score
+        
+        x = bottStatusBarStartX + 4*hudRescaleFactor;
+
+        y = 0;
+        
+        int scoreVal = atoi(ScoreStr.str);
+        
+        DrawNumbersToSDLSurface(x, y, scoreVal, 10, ScoreStr.length, 8, scorenumsSurf, destSurf);
+        
     }
     
     if ( locplayerstate->keys & 1 )
     {
-        DrawSurfaceOntoSurface(keysSurf[0], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 152*hudRescaleFactor, 0);
+        DrawSurfaceOntoSurface(keysSurf[0], destSurf, bottStatusBarStartX + 152*hudRescaleFactor, 0);
     }
 
     if ( locplayerstate->keys & 2 )
     {
-        DrawSurfaceOntoSurface(keysSurf[1], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 160*hudRescaleFactor, 0);
+        DrawSurfaceOntoSurface(keysSurf[1], destSurf, bottStatusBarStartX + 160*hudRescaleFactor, 0);
     }
 
     if ( locplayerstate->keys & 4 )
     {
-        DrawSurfaceOntoSurface(keysSurf[2], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 168*hudRescaleFactor, 0);
+        DrawSurfaceOntoSurface(keysSurf[2], destSurf, bottStatusBarStartX + 168*hudRescaleFactor, 0);
     }
 
     if ( locplayerstate->keys & 8 )
     {
-        DrawSurfaceOntoSurface(keysSurf[3], destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + 176*hudRescaleFactor, 0);
+        DrawSurfaceOntoSurface(keysSurf[3], destSurf, bottStatusBarStartX + 176*hudRescaleFactor, 0);
     }
     
     if(locplayerstate->poweruptime)
     {
         if ( player->flags & FL_GODMODE )
         {
-            DrawHeightModdedSurfaceOntoSurface(godmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(godmodePicSurf, destSurf, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
                                                 POWERUPY + powerupheight* hudRescaleFactor, powerupheight * hudRescaleFactor);
             //shapenum = powerpics;
         }
         else if ( player->flags & FL_DOGMODE )
         {
-            DrawHeightModdedSurfaceOntoSurface(dogmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(dogmodePicSurf, destSurf, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
                                                 POWERUPY + powerupheight*hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_FLEET )
         {
-            DrawHeightModdedSurfaceOntoSurface(mercurymodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(mercurymodePicSurf, destSurf, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
                                                 POWERUPY + powerupheight*hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_ELASTO )
         {
-            DrawHeightModdedSurfaceOntoSurface(elasticmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(elasticmodePicSurf, destSurf, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
                                                 POWERUPY + powerupheight * hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_SHROOMS )
         {
-            DrawHeightModdedSurfaceOntoSurface(shroomsmodePicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(shroomsmodePicSurf, destSurf, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
                                                 POWERUPY + powerupheight * hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
     
@@ -1089,17 +975,17 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     {
         if ( player->flags & FL_BPV )
         {
-            DrawHeightModdedSurfaceOntoSurface(bpvestPicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP2X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(bpvestPicSurf, destSurf, bottStatusBarStartX + POWERUP2X*hudRescaleFactor, 
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
         else if ( player->flags & FL_GASMASK )
         {
-            DrawHeightModdedSurfaceOntoSurface(gasmaskPicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP2X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(gasmaskPicSurf, destSurf, bottStatusBarStartX + POWERUP2X*hudRescaleFactor, 
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
         else if ( player->flags & FL_AV )
         {
-            DrawHeightModdedSurfaceOntoSurface(abestosvestPicSurf, destSurf, ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1) + POWERUP2X*hudRescaleFactor, 
+            DrawHeightModdedSurfaceOntoSurface(abestosvestPicSurf, destSurf, bottStatusBarStartX + POWERUP2X*hudRescaleFactor, 
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
     }
@@ -1117,32 +1003,31 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     
     //draw hour
     
-    int x =((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1)+ (GAMETIME_X*hudRescaleFactor + HOUR_X*hudRescaleFactor + 8*hudRescaleFactor);
+    int x = bottStatusBarStartX + (GAMETIME_X*hudRescaleFactor + HOUR_X*hudRescaleFactor + 8*hudRescaleFactor);
     
     int y = GAMETIME_Y;
     
     int length = intLen(hour);
     
     
-    DrawNumbersToSDLSurface( x,  y, hour,  1, length, timenumsSurf, destSurf);
+    DrawNumbersToSDLSurface(x, y, hour, 1, length, 8, timenumsSurf, destSurf);
     
     //draw minutes
     
-    x =((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1)+ (GAMETIME_X*hudRescaleFactor + MIN_X*hudRescaleFactor);
+    x = bottStatusBarStartX + (GAMETIME_X*hudRescaleFactor + MIN_X*hudRescaleFactor);
     
     length = intLen(min);
     
-    DrawNumbersToSDLSurface(x, y, min,2,length, timenumsSurf, destSurf);
+    DrawNumbersToSDLSurface(x, y, min,2,length, 8, timenumsSurf, destSurf);
     
     //draw seconds
     
     length = intLen(sec);
     
-    x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w) >> 1)+ (GAMETIME_X*hudRescaleFactor + SEC_X* hudRescaleFactor);
+    x = bottStatusBarStartX + (GAMETIME_X*hudRescaleFactor + SEC_X* hudRescaleFactor);
     
-    DrawNumbersToSDLSurface(x, y, sec, 2, length, timenumsSurf, destSurf);
+    DrawNumbersToSDLSurface(x, y, sec, 2, length, 8, timenumsSurf, destSurf);
     
-    //SDL_SetRenderTarget(renderer, NULL);
 }
 
 
@@ -1250,8 +1135,8 @@ void DrawPlayScreen (boolean bufferofsonly)
 
         //}
 
-        DrawBarAmmo( bufferofsonly );
-        DrawBarHealth( bufferofsonly );
+        //DrawBarAmmo( bufferofsonly );
+        //DrawBarHealth( bufferofsonly );
 
         if ( demoplayback )
         {
