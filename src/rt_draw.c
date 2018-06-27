@@ -2525,7 +2525,7 @@ void      ThreeDRefresh (void)
 
         if ( SHOW_PLAYER_STATS() )
         {
-            DrawStats ();
+            //DrawStats ();
         }
 
         DoBorderShifts ();
