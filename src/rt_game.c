@@ -131,12 +131,12 @@ static pic_t *negfragpic[ 5 ];
 static pic_t *menneg[ 5 ];
 static pic_t *blankfragpic;
 
-SDL_Surface * eraseSurf;
-SDL_Surface * erasebSurf;
+SDL_Surface * eraseSurf = NULL;
+SDL_Surface * erasebSurf = NULL;
 
-SDL_Surface * statusBarSurf;
+SDL_Surface * statusBarSurf = NULL;
 
-SDL_Surface * bottomBarSurf;
+SDL_Surface * bottomBarSurf = NULL;
 
 SDL_Surface  * timenumsSurf[10];
 SDL_Surface * lifeptnumsSurf[10];
@@ -147,21 +147,21 @@ SDL_Surface * scorenumsSurf[10];
 SDL_Surface * menSurf[5];
 SDL_Surface * ammoSurf[26];
 
-SDL_Surface * godmodePicSurf;
+SDL_Surface * godmodePicSurf = NULL;
 
-SDL_Surface * dogmodePicSurf;
+SDL_Surface * dogmodePicSurf = NULL;
 
-SDL_Surface * elasticmodePicSurf;
+SDL_Surface * elasticmodePicSurf = NULL;
 
-SDL_Surface * shroomsmodePicSurf;
+SDL_Surface * shroomsmodePicSurf = NULL;
 
-SDL_Surface * bpvestPicSurf;
+SDL_Surface * bpvestPicSurf = NULL;
 
-SDL_Surface * abestosvestPicSurf;
+SDL_Surface * abestosvestPicSurf = NULL;
 
-SDL_Surface * mercurymodePicSurf;
+SDL_Surface * mercurymodePicSurf = NULL;
 
-SDL_Surface * gasmaskPicSurf;
+SDL_Surface * gasmaskPicSurf = NULL;
 
 
 static int powerpics;
@@ -447,10 +447,65 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
        
 }
 
+void CleanUpPlayScreenSDLSurfaces()
+{
+    SDL_FreeSurface(eraseSurf);
+    SDL_FreeSurface(erasebSurf);
+    
+    SDL_FreeSurface(statusBarSurf);
+    SDL_FreeSurface(bottomBarSurf);
+    
+    SDL_FreeSurface(godmodePicSurf);
+    
+    SDL_FreeSurface(dogmodePicSurf);
+    
+    SDL_FreeSurface(elasticmodePicSurf);
+    
+    SDL_FreeSurface(shroomsmodePicSurf);
+    
+    SDL_FreeSurface(bpvestPicSurf);
+    
+    SDL_FreeSurface(abestosvestPicSurf);
+    
+    SDL_FreeSurface(mercurymodePicSurf);
+    
+    SDL_FreeSurface(gasmaskPicSurf);
+    
+    int count;
+    
+    for (count = 0; count < 10; count++)
+    {
+        SDL_FreeSurface(timenumsSurf[count]);
+        SDL_FreeSurface(lifeptnumsSurf[count]);
+        SDL_FreeSurface(lifenumsSurf[count]);
+        SDL_FreeSurface(scorenumsSurf[count]);
+    }
+    for (count = 0; count < 6; count++)
+        SDL_FreeSurface(healthSurf[count]);
+    
+    for (count = 0; count < 4; count++)
+        SDL_FreeSurface(keysSurf[count]);
+    
+    for(count = 0; count < 5; count++)
+        SDL_FreeSurface(menSurf[count]);
+    
+    for(count = 0; count < 26; count++)
+        SDL_FreeSurface(ammoSurf[count]);
+    
+}
+
 extern boolean rdy;
 
 void SetupPlayScreenSDLSurface( void )
 {
+    
+    if(eraseSurf != NULL)
+    {
+        CleanUpPlayScreenSDLSurfaces();
+    }
+    
+    
+    
     
     Pic_tToSDLSurface(erase, &eraseSurf, hudRescaleFactor);
     
@@ -611,7 +666,6 @@ void SetupPlayScreenSDLSurface( void )
     Pic_tToSDLSurface(shape, &abestosvestPicSurf, hudRescaleFactor);
     
 }
-
 
 void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y)
 {
@@ -3357,7 +3411,7 @@ void  DrawEpisodeLevel (int x, int y)
 void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height)
 {
     byte *dest1;
-    byte *screen1;
+    byte *surfRow;
     int  plane;
 
     int x, y;
@@ -3366,12 +3420,12 @@ void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int he
 
     for (plane = 0; plane<4; plane++)
     {
-        screen1 = dest1;
-        for (y = 0; y < height; y++, screen1 += destSurf->w, source+=width)
+        surfRow = dest1;
+        for (y = 0; y < height; y++, surfRow += destSurf->w, source+=width)
         {
             for (x = 0; x < width; x++) {
                 if (source[x] != 255)
-                    screen1[x*4+plane] = source[x];
+                    surfRow[x*4+plane] = source[x];
             }
         }
     }
