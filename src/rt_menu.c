@@ -5290,13 +5290,18 @@ extern int hudRescaleFactor;
 
 void CleanUpPlayScreenSDLSurfaces();
 
+void SetupPlayScreenSDLSurface();
+
 void DoAdjustHudScale (void)
 {   
     SliderMenu (&hudRescaleFactor, 10, 0, 44, 81, 194, 1, "block2", NULL,
                 "Adjust Hud Scaling", "Small", "Large" );
+    
     CleanUpPlayScreenSDLSurfaces();
     
-    SetupPlayScreen();
+    SetupPlayScreenSDLSurface();
+    
+    //SetupPlayScreen();
     
     DrawVisualsMenu ();
 }
