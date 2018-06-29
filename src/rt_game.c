@@ -131,37 +131,37 @@ static pic_t *negfragpic[ 5 ];
 static pic_t *menneg[ 5 ];
 static pic_t *blankfragpic;
 
-SDL_Surface * eraseSurf = NULL;
-SDL_Surface * erasebSurf = NULL;
+static  SDL_Surface * eraseSurf;
+static  SDL_Surface * erasebSurf;
 
-SDL_Surface * statusBarSurf = NULL;
+static  SDL_Surface * statusBarSurf;
 
-SDL_Surface * bottomBarSurf = NULL;
+static  SDL_Surface * bottomBarSurf;
 
-SDL_Surface  * timenumsSurf[10];
-SDL_Surface * lifeptnumsSurf[10];
-SDL_Surface * lifenumsSurf[10];
-SDL_Surface * healthSurf[6];
-SDL_Surface * keysSurf[4];
-SDL_Surface * scorenumsSurf[10];
-SDL_Surface * menSurf[5];
-SDL_Surface * ammoSurf[26];
+static  SDL_Surface  * timenumsSurf[10];
+static  SDL_Surface * lifeptnumsSurf[10];
+static  SDL_Surface * lifenumsSurf[10];
+static  SDL_Surface * healthSurf[6];
+static  SDL_Surface * keysSurf[4];
+static  SDL_Surface * scorenumsSurf[10];
+static  SDL_Surface * menSurf[5];
+static  SDL_Surface * ammoSurf[26];
 
-SDL_Surface * godmodePicSurf = NULL;
+static  SDL_Surface * godmodePicSurf;
 
-SDL_Surface * dogmodePicSurf = NULL;
+static  SDL_Surface * dogmodePicSurf;
 
-SDL_Surface * elasticmodePicSurf = NULL;
+static  SDL_Surface * elasticmodePicSurf;
 
-SDL_Surface * shroomsmodePicSurf = NULL;
+static  SDL_Surface * shroomsmodePicSurf;
 
-SDL_Surface * bpvestPicSurf = NULL;
+static  SDL_Surface * bpvestPicSurf;
 
-SDL_Surface * abestosvestPicSurf = NULL;
+static  SDL_Surface * abestosvestPicSurf;
 
-SDL_Surface * mercurymodePicSurf = NULL;
+static  SDL_Surface * mercurymodePicSurf;
 
-SDL_Surface * gasmaskPicSurf = NULL;
+static  SDL_Surface * gasmaskPicSurf;
 
 
 static int powerpics;
@@ -396,18 +396,24 @@ extern boolean tempHasStuff;
 
 extern SDL_Renderer * renderer;
 
+boolean playScreenIsReady = false;
+
 void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height);
 
-void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
+void GM_ColoredPicToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height, int color);
+
+void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor, int color)
 {
-    
-    SDL_SetRelativeMouseMode(SDL_FALSE);
     
     SDL_Surface * temp;
     
     temp = SDL_CreateRGBSurface(0, source->width*4, source->height,8,0,0,0,0);
     
     
+    
+    //int translucentpix = SDL_MapRGB(sdl_surface->format, sdl_surface->format->palette->colors[255].r, sdl_surface->format->palette->colors[255].g,sdl_surface->format->palette->colors[255].b); //152, 0, 136 is the RGB combo for the translucent pixel
+    
+    //SDL_FillRect(temp, NULL, translucentpix);
     
     if(temp == NULL)
     {
@@ -418,8 +424,10 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
     {
         printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
     }
-    
-    GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height); 
+    if(color > -1)
+        GM_ColoredPicToSDLSurface((byte * ) &source->data, temp, source->width, source->height, color); 
+    else
+        GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height); 
     
     SDL_PixelFormat * pixfmt; 
     
@@ -427,15 +435,19 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
     
     SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
     
+    int translucentpix = SDL_MapRGB(temp2->format, 152, 0, 136); //152, 0, 136 is the RGB combo for the translucent pixel
+     
     SDL_FreeFormat(pixfmt);
     
     *destSurf = SDL_CreateRGBSurface(0, temp2->w*scaleFactor, temp2->h*scaleFactor, temp2->format->BitsPerPixel, 0, 0, 0, 0 );
     
     SDL_FreeSurface(temp);
     
-    Uint32 translucPix = SDL_MapRGB(temp2->format, 0, 0, 0);
+    SDL_FillRect(*destSurf, NULL, translucentpix);
     
-    SDL_SetColorKey(*destSurf, SDL_TRUE, translucPix);
+    SDL_SetColorKey(*destSurf, SDL_TRUE, translucentpix);
+    
+    SDL_SetColorKey(temp2, SDL_TRUE, translucentpix);
     
     if(SDL_BlitScaled(temp2,NULL, *destSurf, NULL) < 0)
     {
@@ -448,7 +460,7 @@ void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor)
 }
 
 void CleanUpPlayScreenSDLSurfaces()
-{
+{    
     SDL_FreeSurface(eraseSurf);
     SDL_FreeSurface(erasebSurf);
     
@@ -492,64 +504,56 @@ void CleanUpPlayScreenSDLSurfaces()
     for(count = 0; count < 26; count++)
         SDL_FreeSurface(ammoSurf[count]);
     
+    playScreenIsReady = false;
+    
 }
 
-extern boolean rdy;
-
 void SetupPlayScreenSDLSurface( void )
-{
+{  
+    if (playScreenIsReady)
+        return;
     
-    if(eraseSurf != NULL)
-    {
-        CleanUpPlayScreenSDLSurfaces();
-    }
+    Pic_tToSDLSurface(erase, &eraseSurf, hudRescaleFactor, -1);
     
-    
-    
-    
-    Pic_tToSDLSurface(erase, &eraseSurf, hudRescaleFactor);
-    
-    Pic_tToSDLSurface(eraseb, &erasebSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(eraseb, &erasebSurf, hudRescaleFactor, -1);
     
     int count;
     
     for (count = 0; count < 10; count++)
     {
-        Pic_tToSDLSurface(timenums[count], &timenumsSurf[count], hudRescaleFactor);
+        Pic_tToSDLSurface(timenums[count], &timenumsSurf[count], hudRescaleFactor, -1);
     }
     
     for(count = 0; count < 10; count++)
     {
-        Pic_tToSDLSurface(lifeptnums[count], &lifeptnumsSurf[count], hudRescaleFactor);
+        Pic_tToSDLSurface(lifeptnums[count], &lifeptnumsSurf[count], hudRescaleFactor, -1);
     }
     
     for(count = 0; count < 10; count++)
     {
-        Pic_tToSDLSurface(lifenums[count], &lifenumsSurf[count], hudRescaleFactor);    
+        Pic_tToSDLSurface(lifenums[count], &lifenumsSurf[count], hudRescaleFactor, -1);    
     }
     
     for (count = 0; count < 6; count++)
     {
-        Pic_tToSDLSurface(health[count], &healthSurf[count], hudRescaleFactor);
+        Pic_tToSDLSurface(health[count], &healthSurf[count], hudRescaleFactor, -1);
     }
     
     for (count = 0; count < 4; count++)
     {
-        Pic_tToSDLSurface(keys[count], &keysSurf[count], hudRescaleFactor);
+        Pic_tToSDLSurface(keys[count], &keysSurf[count], hudRescaleFactor, -1);
     }
 
     if ( !BATTLEMODE )
     {
         for(count = 0; count < 10; count++)
         {
-            Pic_tToSDLSurface(scorenums[count], &scorenumsSurf[count], hudRescaleFactor);
-        }
+            Pic_tToSDLSurface(scorenums[count], &scorenumsSurf[count], hudRescaleFactor, playeruniformcolor);
+        }        
         
-        
-        //TODO: optimize this
         for(count = 0; count < 5; count++)
         {
-            Pic_tToSDLSurface(men[locplayerstate->player], &menSurf[count], hudRescaleFactor);  
+            Pic_tToSDLSurface(men[locplayerstate->player], &menSurf[count], hudRescaleFactor, -1);  
         }
         
         //CacheLumpGroup( "scnum0", scorenums, 10 );
@@ -605,65 +609,58 @@ void SetupPlayScreenSDLSurface( void )
     }
 */
 
-    //TODO: load the powerup pics into memory for sake of consistency
-    
-   // powerpics   = W_GetNumForName( "GDMODEP" );
-   // poweradjust = POWERUPTICS / 16;
-
-    //num = W_GetNumForName( "INF_B" );
-
     for (count = 0; count < 26; count++)
     {
-        Pic_tToSDLSurface(ammo[count], &ammoSurf[count], hudRescaleFactor);
+        Pic_tToSDLSurface(ammo[count], &ammoSurf[count], hudRescaleFactor, -1);
 
     }
     
-    
-
     oldplayerhealth  = -1;
     oldpercenthealth = -1;
     
     pic_t * shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
     
-    Pic_tToSDLSurface(shape, &bottomBarSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &bottomBarSurf, hudRescaleFactor, -1);
     
     shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
     
-    Pic_tToSDLSurface(shape, &statusBarSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &statusBarSurf, hudRescaleFactor, -1);
     
     powerpics   = W_GetNumForName( "GDMODEP" );
     
     shape = (pic_t*)W_CacheLumpNum(powerpics, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &godmodePicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &godmodePicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 1, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &dogmodePicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &dogmodePicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 2, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &mercurymodePicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &mercurymodePicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 3, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &elasticmodePicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &elasticmodePicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 4, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &shroomsmodePicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &shroomsmodePicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 6, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &bpvestPicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &bpvestPicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 5, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &gasmaskPicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &gasmaskPicSurf, hudRescaleFactor, -1);
     
     shape = (pic_t*)W_CacheLumpNum(powerpics + 7, PU_CACHE, Cvt_pic_t, 1);
     
-    Pic_tToSDLSurface(shape, &abestosvestPicSurf, hudRescaleFactor);
+    Pic_tToSDLSurface(shape, &abestosvestPicSurf, hudRescaleFactor, -1);
+    
+    playScreenIsReady = true;
     
 }
 
@@ -703,7 +700,7 @@ void DrawHeightModdedSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, 
     
     if(SDL_BlitSurface(src, &srcCoords, *dest, &coords) < 0)
     {
-        printf("In function DrawMSurfaceOntoSurface: %s", SDL_GetError());   
+        printf("In function DrawHeightModdedSurfaceOntoSurface: %s", SDL_GetError());   
         exit(1);
     }
 
@@ -806,8 +803,6 @@ void DrawBarHealthToSDLSurface(SDL_Surface ** dest)
 
 extern int hudRescaleFactor;
 
-//TODO: Refactor the following three functions into one
-
 void DrawNumbersToSDLSurface(int x, int y, int val, int width, unsigned length, int digitOffset, SDL_Surface * numArray[], SDL_Surface ** dest)
 {
     unsigned c;
@@ -905,7 +900,7 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     if ( SHOW_PLAYER_STATS() || SHOW_BOTTOM_STATUS_BAR() )
     {
         DrawBarAmmoToSDLSurface(destSurf);
-        DrawBarHealthToSDLSurface(destSurf);   //DrawStats ();
+        DrawBarHealthToSDLSurface(destSurf);
     }   
         
     if ( !SHOW_TOP_STATUS_BAR() )
@@ -932,12 +927,10 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
 
         // Draw player's name
         
-/*
-        DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
-        VW_MeasurePropString( LastNames[ character ], &width, &height );
-        DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
-                     LastNames[ character ], bufferofsonly );
-*/
+        //DrawGameString ( MEN_X + 3, MEN_Y + 2, Names[ character ], bufferofsonly );
+       //VW_MeasurePropString( LastNames[ character ], &width, &height );
+        //DrawGameString ( MEN_X + 44 - width, MEN_Y + 8,
+           //          LastNames[ character ], bufferofsonly );
         
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
@@ -1062,7 +1055,6 @@ void DrawPlayScreenToSDLSurface(SDL_Surface ** destSurf)
     int y = GAMETIME_Y;
     
     int length = intLen(hour);
-    
     
     DrawNumbersToSDLSurface(x, y, hour, 1, length, 8, timenumsSurf, destSurf);
     
@@ -3423,13 +3415,47 @@ void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int he
         surfRow = dest1;
         for (y = 0; y < height; y++, surfRow += destSurf->w, source+=width)
         {
-            for (x = 0; x < width; x++) {
-                if (source[x] != 255)
+            for (x = 0; x < width; x++)
+            {
+                //if (source[x] != 255)
                     surfRow[x*4+plane] = source[x];
+                //else
+                   // printf("found trans pix \n");
             }
         }
     }
 }
+
+void GM_ColoredPicToSDLSurface(byte *source, SDL_Surface * destSurf, int width, int height, int color)
+{
+    int x;
+    int y;
+    int plane;
+    byte pixel;
+    byte * cmap;
+    byte * surfRow;
+    
+    cmap=playermaps[color]+(1<<12);
+    
+    byte *  dest1 = (byte *) destSurf->pixels;
+
+    for (plane = 0; plane<4; plane++)
+    {
+        surfRow = dest1;
+        for (y = 0; y < height; y++, surfRow += destSurf->w, source+=width)
+        {
+            for (x = 0; x < width; x++) 
+            {
+                pixel = source[x];
+                pixel = cmap[pixel];
+                //if (source[x] != 255)
+                    surfRow[x*4+plane] = pixel;
+            }
+        }
+    }
+    
+}
+
 
 
 //******************************************************************************

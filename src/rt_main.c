@@ -1614,6 +1614,8 @@ void ShutDown ( void )
 
 //===========================================================================
 
+void CleanUpPlayScreenSDLSurfaces();
+
 void QuitGame ( void )
 {
     MU_FadeOut(200);
@@ -1629,6 +1631,7 @@ void QuitGame ( void )
     SetTextMode();
 
     ClearScanCodes();
+    CleanUpPlayScreenSDLSurfaces();
     
     exit(0);
 }
