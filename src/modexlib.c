@@ -126,7 +126,7 @@ void GraphicsMode ( void )
     
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_TARGETTEXTURE);
     
-    sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24,
+    sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
                                     SDL_TEXTUREACCESS_TARGET, iGLOBAL_SCREENWIDTH,
                                     iGLOBAL_SCREENHEIGHT);
     
@@ -280,7 +280,7 @@ void VL_ClearVideo (byte color)
 
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
-    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
+    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
     SDL_SetRenderTarget(renderer, sourceToResize);
     SDL_RenderCopy(renderer, source, &src, NULL);
     // the folowing line should reset the target to default(the screen)
@@ -293,17 +293,14 @@ void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect
 
 int hudRescaleFactor = 2;
 
-void DrawPlayScreenToSDLSurface(SDL_Surface**);
+void DrawPlayScreenToSDLTexture(SDL_Texture*);
 
 
 void RenderSurface(void)
 {
-    
-    SDL_RenderClear(renderer);
-    
     SDL_PixelFormat * dst_fmt;
     
-    dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB24);
+    dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
     
     SDL_Surface * temp2;
     
@@ -311,9 +308,16 @@ void RenderSurface(void)
     
     SDL_FreeFormat(dst_fmt);
     
+    
+    SDL_RenderClear(renderer);
+    
+    SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
+    
+    
+    
     if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
     {
-        DrawPlayScreenToSDLSurface(&temp2);
+        DrawPlayScreenToSDLTexture(sdl_texture);
 /*
         if(SHOW_TOP_STATUS_BAR())
             RescaleAreaOfTexture(renderer, sdl_texture, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
@@ -326,7 +330,7 @@ void RenderSurface(void)
     
     
     
-    SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
+    
     
     SDL_RenderCopy(renderer, sdl_texture, NULL, NULL);
     

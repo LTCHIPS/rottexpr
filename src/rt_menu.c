@@ -5288,18 +5288,18 @@ void DoAdjustFocalWidth (void)
 
 extern int hudRescaleFactor;
 
-void CleanUpPlayScreenSDLSurfaces();
+void CleanUpPlayScreenSDLTextures();
 
-void SetupPlayScreenSDLSurface();
+void SetupPlayScreenSDLTexture();
 
 void DoAdjustHudScale (void)
 {   
     SliderMenu (&hudRescaleFactor, 10, 0, 44, 81, 194, 1, "block2", NULL,
                 "Adjust Hud Scaling", "Small", "Large" );
     
-    CleanUpPlayScreenSDLSurfaces();
+    CleanUpPlayScreenSDLTextures();
     
-    SetupPlayScreenSDLSurface();
+    SetupPlayScreenSDLTexture();
     
     //SetupPlayScreen();
     
