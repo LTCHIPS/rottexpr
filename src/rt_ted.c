@@ -5514,7 +5514,7 @@ void SetupGameLevel (void)
         ConnectAreas();
         PreCache();
         SetupPlayScreen();
-        SetupPlayScreenSDLSurface();
+        SetupPlayScreenSDLTexture();
         SetupScreen(false);
     }
 

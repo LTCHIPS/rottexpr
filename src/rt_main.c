@@ -1600,7 +1600,7 @@ void QuitGame ( void )
     SetTextMode();
 
     ClearScanCodes();
-    CleanUpPlayScreenSDLSurfaces();
+    CleanUpPlayScreenSDLTextures();
     
     exit(0);
 }
