@@ -153,6 +153,8 @@ extern void	ReadDelay(long delay);
 extern void RecordDemoQuery ( void );
 
 
+extern int CountDigits(const int number);
+
 int main (int argc, char *argv[])
 {
     extern char *BATTMAPS;
@@ -398,16 +400,20 @@ void DrawRottTitle ( void )
     if (CheckParm("QUIET") == 0)
     {
         SetTextMode();
-            strcpy (title,"Rise of the Triad Startup  Version ");
-            strcat (title,itoa(ROTTMAJORVERSION,&buf[0],10));
-            strcat (title,".");
+        
+        char rottStartupStr[] = "Rise of the Triad Startup  Version ";
+        
+            strncpy (title,rottStartupStr, sizeof(rottStartupStr));
+            
+            strncat (title,itoa(ROTTMAJORVERSION,&buf[0],10), CountDigits(ROTTMAJORVERSION));
+            strncat (title,".", 1);
 //MED
 #if (SHAREWARE==1)||(DOPEFISH==0)
-            strcat (title,itoa(ROTTMINORVERSION,&buf[0],10));
+            strncat (title,itoa(ROTTMINORVERSION,&buf[0],10), CountDigits(ROTTMINORVERSION));
 #else
             strcat (title,"DFISH");
 #endif
-            strcat (title,"\n");
+            strncat (title,"\n", 1);
 
             px=(80-strlen(title))>>1;
             py=0;
@@ -415,23 +421,36 @@ void DrawRottTitle ( void )
             printf("%s ", title);
 
             memset (title,0,sizeof(title));
-
+            
             if (gamestate.Product == ROTT_SHAREWARE)
             {
 #if (DELUXE==1)
-                strcpy(title,"Lasersoft Deluxe Version");
+                char header[] = "Lasersoft Deluxe Version";
 #elif (LOWCOST==1)
-                strcpy(title,"Episode One");
+                char header[] = "Episode One";
 #else
-                strcpy(title,"Shareware Version");
+                char header[] = "Shareware Version";
+                
 #endif
+                strncpy(title,header, strlen(header));
             }
             else if (gamestate.Product == ROTT_SUPERCD)
-                strcpy(title,"CD Version");
+            {
+                char header[] = "CD Version";
+                strncpy(title,header, strlen(header));
+            }
             else if (gamestate.Product == ROTT_SITELICENSE)
-                strcpy(title,"Site License CD Version");
+            {
+                char header[] = "Site License CD Version";
+                strncpy(title,header, strlen(header));
+            }
             else
-                strcpy(title,"Commercial Version");
+            {
+                char header[] = "Commercial Version";
+                strncpy(title,header, strlen(header));
+            }
+            
+            //strncpy(title, header, )
 
             px=(80-strlen(title))>>1;
             py=1;
@@ -771,19 +790,24 @@ void SetupWads( void )
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
             tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strcpy (tempstr,_argv[arg+1]);//copy it to tempstr
+            strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
-                    strcat (tempstr,".rtc");//non exists, try add .rtc
+                    strncat (tempstr,".rtc", 4);//non exists, try add .rtc
                     if (access (tempstr, 0) != 0) { //try open again
                         //stil no useful filename
-                        strcat (tempstr," not found, skipping RTL file ");
+                        
+                        char notfoundStr[] = " not found, skipping RTL file \n";
+                        
+                        strncat (tempstr,notfoundStr, strlen(notfoundStr));
                         printf("%s", tempstr);
                         goto NoRTL;
                     }
                 }
                 if((f = fopen( tempstr, "r" )) == NULL ) { //try opnong file
-                    strcat (tempstr," not could not be opened, skipping RTL file ");
+                    char cannotOpenStr[] = " not could be opened, skipping RTL file \n";
+                    
+                    strncat (tempstr, cannotOpenStr, strlen(cannotOpenStr));
                     printf("%s", tempstr);
                     goto NoRTL;
                 } else {
@@ -792,9 +816,9 @@ void SetupWads( void )
                         GameLevels.file = strdup(tempstr);
                         GameLevels.avail++;
                         buf = realloc(buf, 32 + strlen(tempstr));
-                        strcpy (buf,"Adding ");
-                        strcat (buf,tempstr);
-                        printf("%s", buf);
+                        strncpy (buf,"Adding ", 7);
+                        strncat (buf,tempstr, strlen(&tempstr) + 32);
+                        printf("%s \n", buf);
                     }
                     fclose(f);
                 }
@@ -805,7 +829,6 @@ void SetupWads( void )
         free(buf);
     }
 NoRTL:
-    ;
     // Check for rtc files
     arg = CheckParm ("filertc");
     if (arg!=0)
@@ -814,20 +837,24 @@ NoRTL:
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
             tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strcpy (tempstr,_argv[arg+1]);//copy it to tempstr
+            strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
-                    strcat (tempstr,".rtc");//non exists, try add .rtc
+                    strncat (tempstr,".rtc", 4);//non exists, try add .rtc
                     if (access (tempstr, 0) != 0) { //try open again
                         //stil no useful filename
-                        strcat (tempstr," not found, skipping RTC file ");
-                        printf("%s", tempstr);
+                        char notfoundRTC[] = " not found, skipping RTC file ";
+                        
+                        strncat (tempstr,notfoundRTC, strlen(notfoundRTC));
+                        printf("%s \n", tempstr);
                         goto NoRTL;
                     }
                 }
                 if((f = fopen( tempstr, "r" )) == NULL ) { //try opening file
-                    strcat (tempstr," not could not be opened, skipping RTC file ");
-                    printf("%s", tempstr);
+                    char cannotOpenRTC[] = " could not be opened, skipping RTC file ";
+                    
+                    strncat (tempstr,cannotOpenRTC, strlen(cannotOpenRTC));
+                    printf("%s \n", tempstr);
                     goto NoRTL;
                 } else {
                     fread(buf,3,3,f);//is the 3 first letters RTL (RTC)
@@ -835,8 +862,8 @@ NoRTL:
                         BattleLevels.file = strdup(tempstr);
                         BattleLevels.avail++;
                         buf = realloc(buf, 32 + strlen(tempstr));
-                        strcpy (buf,"Adding ");
-                        strcat (buf,tempstr);
+                        strncpy (buf,"Adding ", 7);
+                        strncat (buf,tempstr, strlen(tempstr) + 32);
                         printf("%s", buf);
                     }
                     fclose(f);
@@ -896,11 +923,11 @@ NoRTC:
         char  *src;
 
         tempstr = realloc(tempstr, strlen(RemoteSounds.path) + strlen(RemoteSounds.file) + 2);
-        strcpy (tempstr,RemoteSounds.path);
+        strncpy (tempstr,RemoteSounds.path, strlen(RemoteSounds.path));
         src = RemoteSounds.path + strlen(RemoteSounds.path) - 1;
         if (*src != '\\')
-            strcat (tempstr,"\\\0");
-        strcat (tempstr,RemoteSounds.file);
+            strncat (tempstr,"\\\0", 1);
+        strncat (tempstr,RemoteSounds.file, strlen(RemoteSounds.file));
         newargs [argnum++] = strdup(tempstr);
     }
     else
@@ -1381,7 +1408,7 @@ void GameLoop (void)
                 lbm_t * LBM;
                 byte *s;
                 patch_t *p;
-                char str[50];
+                char * str = '\0';
                 int width, height;
 
                 LBM = (lbm_t *) W_CacheLumpName( "deadboss", PU_CACHE, Cvt_lbm_t, 1);
@@ -1411,16 +1438,20 @@ void GameLoop (void)
                 switch (gamestate.mapon)
                 {
                 case 6:
-                    strcpy(&str[0],"\"General\" John Darian");
+                    str = "\"General\" John Darian";
+                    //strncpy(&str[0],"\"General\" John Darian");
                     break;
                 case 14:
-                    strcpy(&str[0],"Sebastian \"Doyle\" Krist");
+                    str = "Sebastian \"Doyle\" Krist";
+                    //strcpy(&str[0],"Sebastian \"Doyle\" Krist");
                     break;
                 case 22:
-                    strcpy(&str[0],"the NME");
+                    str = "the NME";
+                    //strcpy(&str[0],"the NME");
                     break;
                 case 33:
-                    strcpy(&str[0],"El Oscuro");
+                    str = "El Oscuro";
+                    //strcpy(&str[0],"El Oscuro");
                     break;
 //                  default:
 //                     Error("Boss died on an illegal level\n");
@@ -2332,7 +2363,7 @@ void PollKeyboard
             }
             VL_SetPalette( origpal );
             itoa( gammaindex, str2, 10 );
-            strcat( str, str2 );
+            strncat( str, str2, strlen(str2) );
             AddMessage( str, MSG_SYSTEM );
 
             while( Keyboard[ sc_F11 ] )
@@ -2355,7 +2386,7 @@ void PollKeyboard
                 MU_SetVolume( MUvolume );
 
                 itoa( MUvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
             else
@@ -2370,7 +2401,7 @@ void PollKeyboard
                 FX_SetVolume( FXvolume );
 
                 itoa( FXvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
         }
@@ -2390,7 +2421,7 @@ void PollKeyboard
                 MU_SetVolume( MUvolume );
 
                 itoa( MUvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
             else
@@ -2405,7 +2436,7 @@ void PollKeyboard
                 FX_SetVolume( FXvolume );
 
                 itoa( FXvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
         }

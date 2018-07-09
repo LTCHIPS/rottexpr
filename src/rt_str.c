@@ -587,7 +587,7 @@ void US_CPrint (const char *string)
           *se,
           *s;
 
-    strcpy(strbuf, string);
+    strncpy(strbuf, string, strlen(string));
     s = strbuf;
 
     while (*s)
@@ -634,7 +634,7 @@ static void USL_XORICursor (int x, int y, const char *s, int cursor, int color)
     int      oldx = px;
     int      oldy = py;
 
-    strcpy (buf,s);
+    strncpy (buf,s, strlen(s));
     buf[cursor] = '\0';
     USL_MeasureString (buf, &w, &h, CurrentFont);
 
@@ -716,7 +716,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
 
     if (def)
-        strcpy (s, def);
+        strncpy (s, def, strlen(def));
     else
         *s = '\0';
 
@@ -800,7 +800,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
 
         case sc_Return:
-            strcpy (buf,s);
+            strncpy (buf,s, strlen(s));
             done = true;
             result = true;
             lastkey = key_None;
@@ -821,7 +821,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (cursor)
             {
-                strcpy (s + cursor - 1,s + cursor);
+                strncpy (s + cursor - 1,s + cursor, strlen(s + cursor));
                 cursor--;
                 redraw = true;
                 cursormoved = true;
@@ -836,7 +836,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (s[cursor])
             {
-                strcpy (s + cursor,s + cursor + 1);
+                strncpy (s + cursor,s + cursor + 1, strlen(s + cursor + 1));
                 redraw = true;
                 cursormoved = true;
                 MN_PlayMenuSnd (SD_MOVECURSORSND);
@@ -900,7 +900,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
             else
                 EraseMenuBufRegion (x, y, BKw, BKh);
 
-            strcpy (olds, s);
+            strncpy (olds, s, strlen(s));
 
             px = x;
             py = y;
@@ -1010,7 +1010,7 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
 
 
     if (def)
-        strcpy (s, def);
+        strncpy (s, def, strlen(def));
     else
         *s = '\0';
 
@@ -1093,7 +1093,7 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
             break;
 
         case sc_Return:
-            strcpy (buf,s);
+            strncpy (buf,s, strlen(s));
             done = true;
             result = true;
             lastkey = key_None;
@@ -1114,8 +1114,8 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (cursor)
             {
-                strcpy (s + cursor - 1,s + cursor);
-                strcpy (xx + cursor - 1,xx + cursor);
+                strncpy (s + cursor - 1,s + cursor, strlen(s + cursor));
+                strncpy (xx + cursor - 1,xx + cursor, strlen(xx + cursor));
                 cursor--;
                 redraw = true;
                 MN_PlayMenuSnd (SD_MOVECURSORSND);
@@ -1130,8 +1130,8 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (s[cursor])
             {
-                strcpy (s + cursor,s + cursor + 1);
-                strcpy (xx + cursor,xx + cursor + 1);
+                strncpy (s + cursor,s + cursor + 1, strlen(s + cursor + 1));
+                strncpy (xx + cursor,xx + cursor + 1, strlen(xx + cursor + 1));
                 redraw = true;
                 cursormoved = true;
                 MN_PlayMenuSnd (SD_MOVECURSORSND);
@@ -1195,7 +1195,7 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
             else
                 EraseMenuBufRegion (x, y, BKw, BKh);
 
-            strcpy (olds, s);
+            strncpy (olds, s, strlen(s));
 
             px = x;
             py = y;

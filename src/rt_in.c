@@ -269,7 +269,9 @@ static int handle_keypad_enter_hack(const SDL_Event *event)
             if (kp_enter_hack)
             {
                 kp_enter_hack = 0;
-                retval = scancodes = Lookup(scancodes, SDLK_KP_ENTER);
+                //retval = scancodes = Lookup(scancodes, SDLK_KP_ENTER);
+                retval = Lookup(scancodes, SDLK_KP_ENTER);
+                
                 //retval = scancodes[SDLK_KP_ENTER];
             } /* if */
         } /* if */
@@ -1408,8 +1410,8 @@ void QueueLetterInput (void)
                         if ( CommbatMacros[ msg ].avail )
                         {
                             MSG.length = strlen( CommbatMacros[ msg ].macro ) + 1;
-                            strcpy( Messages[ MSG.textnum ].text,
-                                    CommbatMacros[ msg ].macro );
+                            strncpy( Messages[ MSG.textnum ].text,
+                                    CommbatMacros[ msg ].macro, MSG.length) ;
 
                             MSG.messageon = false;
                             FinishModemMessage( MSG.textnum, true );

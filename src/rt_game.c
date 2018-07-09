@@ -374,12 +374,6 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
     }
 }
 
-void QueueItemToDraw(pic_t * source, int x, int y)
-{
-
-
-}
-
 
 int topBarCenterOffsetX;
 extern int hudRescaleFactor;

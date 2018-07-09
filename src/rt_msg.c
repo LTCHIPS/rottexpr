@@ -725,8 +725,8 @@ void DrawPlayerSelectionMenu
     {
         if ( i != consoleplayer )
         {
-            strcpy( str, "0 - " );
-            strcat( str, PLAYERSTATE[ i ].codename );
+            strncpy( str, "0 - ", 4 );
+            strncat( str, PLAYERSTATE[ i ].codename, strlen(PLAYERSTATE[ i ].codename) );
             str[ 0 ] = '0' + p;
             p++;
             if ( p > 9 )

@@ -95,6 +95,41 @@ int setup_homedir (void)
     return 0;
 }
 
+/*
+ * GetDigitCount returns the number of digits that are found in an integer
+ * 
+ * Params: number - number to measure # of digits
+ * 
+ * Returns: number of digits founded in number
+*/
+int CountDigits(const int number)
+{
+    int lenResult = 1;
+    
+    //int remainder = number;
+    
+    if(number)
+    {
+        int oldRemainder;
+        int remainder = number;
+        
+        while(1)
+        {
+            oldRemainder = remainder;
+            
+            remainder%=10;
+            if (oldRemainder == remainder)
+                break;
+            
+            lenResult++;
+            
+        }
+    }
+    
+    return lenResult;
+}
+
+
 /* from Dan Olson */
 void put_dos2ansi(byte attrib)
 {

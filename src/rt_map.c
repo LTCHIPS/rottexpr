@@ -711,20 +711,23 @@ void DrawFullMap( void )
 void DrawMapInfo ( void )
 {
     char temp[80];
+    
     int width,height;
 
     CurrentFont=tinyfont;
 
     PrintX = 2;
     PrintY = 2;
-    strcpy (&temp[0], &(LevelName[0]));
+    strncpy (&temp[0], LevelName, strlen(LevelName));
     US_MeasureStr (&width, &height, "%s", &temp[0]);
 
     VWB_TBar (0, 0, 320, height+4);
 
     US_BufPrint (&temp[0]);
+    
+    strncpy (&temp[0], "", strlen(LevelName)); //reset temp
 
-    strcpy (&temp[0], "TAB=EXIT");
+    strncpy (&temp[0], "TAB=EXIT", 8);
     US_MeasureStr (&width, &height, "%s", &temp[0]);
 
     PrintX = 316-width;
@@ -732,7 +735,9 @@ void DrawMapInfo ( void )
 
     US_BufPrint (&temp[0]);
 
-    strcpy (&temp[0], "< > CHANGE BACKGROUND COLOR");
+    strncpy (&temp[0], "", strlen(LevelName)); //reset temp
+    
+    strncpy (&temp[0], "< > CHANGE BACKGROUND COLOR", 27);
     US_MeasureStr (&width, &height, "%s", &temp[0]);
 
     PrintX = (320-width)>>1;
