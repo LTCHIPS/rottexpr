@@ -129,6 +129,64 @@ int CountDigits(const int number)
     return lenResult;
 }
 
+char *strlwr(char *s)
+{
+    char *p = s;
+
+    while (*p) {
+        *p = tolower(*p);
+        p++;
+    }
+
+    return s;
+}
+
+char *strupr(char *s)
+{
+    char *p = s;
+
+    while (*p) {
+        *p = toupper(*p);
+        p++;
+    }
+
+    return s;
+}
+
+char *itoa(int value, char *string, int radix)
+{
+    switch (radix) {
+    case 10:
+        sprintf(string, "%d", value);
+        break;
+    case 16:
+        sprintf(string, "%x", value);
+        break;
+    default:
+        STUB_FUNCTION;
+        break;
+    }
+
+    return string;
+}
+
+char *ltoa(long value, char *string, int radix)
+{
+    switch (radix) {
+    case 10:
+        sprintf(string, "%ld", value);
+        break;
+    case 16:
+        sprintf(string, "%lx", value);
+        break;
+    default:
+        STUB_FUNCTION;
+        break;
+    }
+
+    return string;
+}
+
 
 /* from Dan Olson */
 void put_dos2ansi(byte attrib)
