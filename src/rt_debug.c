@@ -42,8 +42,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <stdlib.h>
 #include <ctype.h>
-//MED
-#include "memcheck.h"
 #include "w_wad.h"
 
 extern int		iDemoNames;

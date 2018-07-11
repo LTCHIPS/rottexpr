@@ -28,8 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 #include <SDL2/SDL_video.h>
 #include "modexlib.h"
-//MED
-#include "memcheck.h"
 #include "rt_util.h"
 #include "rt_net.h" // for GamePaused
 #include "myprint.h"

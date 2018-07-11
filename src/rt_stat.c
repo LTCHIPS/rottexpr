@@ -40,8 +40,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h"
 #include "rt_view.h"
 #include "isr.h"
-//MED
-#include "memcheck.h"
 
 
 
@@ -157,7 +155,6 @@ statinfo stats[NUMSTATS] =
     {0,EMPTY_STATUE1,stat_emptystatue,FL_BLOCK|FL_SHOOTABLE,0,0,50,0,0},
     {16,TOMLARVA1,stat_tomlarva,FL_ACTIVE|FL_SHOOTABLE|FL_BLOCK,2,4,150,0,0},
     {0,BULLETHOLE,stat_bullethole,FL_TRANSLUCENT,0,0,0,0,0},
-//MED
 #if (SHAREWARE == 1)
     {0,COLLECTOR1,stat_collector,FL_ACTIVE|FL_BONUS,2,8,-1,0,0},
 #else

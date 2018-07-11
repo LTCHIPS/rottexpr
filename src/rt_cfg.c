@@ -54,8 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "isr.h"
 #include "fx_man.h"
 #include "develop.h"
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************

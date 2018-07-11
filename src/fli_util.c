@@ -46,8 +46,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "fli_util.h"
 #include "fli_def.h"
 #include "fli_main.h"
-//MED
-#include "memcheck.h"
 
 static Ushort screenlookup[200];
 

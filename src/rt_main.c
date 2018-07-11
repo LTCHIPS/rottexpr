@@ -73,8 +73,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "music.h"
 #include "fx_man.h"
-//MED
-#include "memcheck.h"
 
 volatile int    oldtime;
 volatile int    gametime;
@@ -407,7 +405,6 @@ void DrawRottTitle ( void )
             
             strncat (title,itoa(ROTTMAJORVERSION,&buf[0],10), CountDigits(ROTTMAJORVERSION));
             strncat (title,".", 1);
-//MED
 #if (SHAREWARE==1)||(DOPEFISH==0)
             strncat (title,itoa(ROTTMINORVERSION,&buf[0],10), CountDigits(ROTTMINORVERSION));
 #else
@@ -649,7 +646,6 @@ void CheckCommandLineParameters( void )
         case 10:
             SetTextMode ();
             printf ("Rise of the Triad  (c) 1995 Apogee Software\n");
-//MED
             if (gamestate.Product == ROTT_SHAREWARE)
             {
 #if (DELUXE==1)

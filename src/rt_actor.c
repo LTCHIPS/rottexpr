@@ -55,8 +55,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h"
 #include "rt_msg.h"
 #include "fx_man.h"
-//MED
-#include "memcheck.h"
 #include "queue.h"
 
 
@@ -3496,7 +3494,6 @@ boolean Vicious_Annihilation(objtype *ob, objtype *attacker)
                )
             {
                 MISCVARS->directgibs = true;
-//MED
                 MISCVARS->gibgravity = GRAVITY/2;
 //            MISCVARS->gibgravity = GRAVITY*2;
                 MISCVARS->fulllightgibs = true;
@@ -4090,7 +4087,6 @@ gib_t RandomGutsType(void)
 }
 
 
-//MED
 void SpawnParticles(objtype*ob,int which,int numparticles)
 {
     int randphi,randtheta,i,nspeed;
@@ -6084,7 +6080,6 @@ void RespawnEluder(void)
 
     }
 
-//MED
     nx = SPAWNLOC[rand].x;
     ny = SPAWNLOC[rand].y;
     FindEmptyTile(&nx,&ny);

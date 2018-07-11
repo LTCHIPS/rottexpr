@@ -34,8 +34,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdlib.h>
 #include <sys\stat.h>
 
-//MED
-#include "memcheck.h"
 
 #define PANGLES 512
 #define NUMSINANGLES FINEANGLES+FINEANGLEQUAD+1

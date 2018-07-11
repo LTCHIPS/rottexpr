@@ -35,8 +35,6 @@ typedef long fixed;
 
 #include "develop.h"
 #include "sbconfig.h"
-//MED
-#include "memcheck.h"
 
 /* ----------------------------------------------------------------------- */
 

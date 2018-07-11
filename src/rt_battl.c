@@ -45,8 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_util.h"
 #include "rt_main.h"
-//MED
-#include "memcheck.h"
 
 #define INFINITE -1
 

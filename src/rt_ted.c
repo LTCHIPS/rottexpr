@@ -56,8 +56,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_debug.h"
 #include "rt_scale.h"
 #include "rt_net.h"
-//MED
-#include "memcheck.h"
 #include "queue.h"
 
 
@@ -5489,7 +5487,6 @@ void SetupGameLevel (void)
 
     if (gamestate.SpawnEluder || gamestate.SpawnDeluder)
     {
-//MED
         for (i=0; i<25; i++)
             RespawnEluder();
     }
