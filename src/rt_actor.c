@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 
@@ -55,8 +53,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h"
 #include "rt_msg.h"
 #include "fx_man.h"
-//MED
-#include "memcheck.h"
 #include "queue.h"
 
 
@@ -3496,7 +3492,6 @@ boolean Vicious_Annihilation(objtype *ob, objtype *attacker)
                )
             {
                 MISCVARS->directgibs = true;
-//MED
                 MISCVARS->gibgravity = GRAVITY/2;
 //            MISCVARS->gibgravity = GRAVITY*2;
                 MISCVARS->fulllightgibs = true;
@@ -4090,7 +4085,6 @@ gib_t RandomGutsType(void)
 }
 
 
-//MED
 void SpawnParticles(objtype*ob,int which,int numparticles)
 {
     int randphi,randtheta,i,nspeed;
@@ -6084,7 +6078,6 @@ void RespawnEluder(void)
 
     }
 
-//MED
     nx = SPAWNLOC[rand].x;
     ny = SPAWNLOC[rand].y;
     FindEmptyTile(&nx,&ny);

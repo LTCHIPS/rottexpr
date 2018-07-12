@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "lumpy.h"
@@ -73,8 +71,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "music.h"
 #include "fx_man.h"
-//MED
-#include "memcheck.h"
 
 volatile int    oldtime;
 volatile int    gametime;
@@ -407,7 +403,6 @@ void DrawRottTitle ( void )
             
             strncat (title,itoa(ROTTMAJORVERSION,&buf[0],10), CountDigits(ROTTMAJORVERSION));
             strncat (title,".", 1);
-//MED
 #if (SHAREWARE==1)||(DOPEFISH==0)
             strncat (title,itoa(ROTTMINORVERSION,&buf[0],10), CountDigits(ROTTMINORVERSION));
 #else
@@ -649,7 +644,6 @@ void CheckCommandLineParameters( void )
         case 10:
             SetTextMode ();
             printf ("Rise of the Triad  (c) 1995 Apogee Software\n");
-//MED
             if (gamestate.Product == ROTT_SHAREWARE)
             {
 #if (DELUXE==1)
