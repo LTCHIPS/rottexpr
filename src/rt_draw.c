@@ -17,9 +17,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // RT_DRAW.C
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+
 #include "profile.h"
 #include "rt_def.h"
-#include <string.h>
 #include "watcom.h"
 #include "sprites.h"
 #include "rt_actor.h"
@@ -44,8 +48,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "rt_game.h"
 #include "rt_vid.h"
 #include "rt_view.h"
-#include <stdio.h>
-#include <stdlib.h>
 #include "rt_cfg.h"
 #include "rt_str.h"
 #include "develop.h"
@@ -56,6 +58,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "rt_net.h"
 #include "rt_sc_a.h"
 
+
+// g_sleeptime = one second / number of frames per second
+static const int g_sleeptime = 1000000 / VBLCOUNTER;
 
 extern void VH_UpdateScreen (void);
 
@@ -1369,15 +1374,11 @@ void CalcTics (void)
 //   SoftError("CT GetTicCount()=%ld\n",GetTicCount());
 //   SoftError("CT oldtime=%ld\n",oldtime);
 
-//
-// calculate tics since last refresh for adaptive timing
-//
-
+		// No need to calculate tics anymore.
+		// We just wait according to the desired refresh frame rate.
+		usleep(g_sleeptime);
     tc=GetTicCount();
-    while (tc==oldtime) {
-        tc=GetTicCount();    /* endwhile */
-    }
-    tics=tc-oldtime;
+		tics=tc-oldtime;
 
 //   SoftError("CT GetTicCount()=%ld\n",GetTicCount());
 //   if (tics>MAXTICS)
