@@ -319,8 +319,15 @@ int main (int argc, char *argv[])
     if (standalone==true)
         ServerLoop();
 
+    
+    
     VL_SetVGAPlaneMode();
     VL_SetPalette(origpal);
+    
+    if (mouseenabled)
+    {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    }
 
 //   SetTextMode();
 //   GraphicsMode();

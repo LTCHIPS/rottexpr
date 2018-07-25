@@ -3728,11 +3728,19 @@ void CP_Control (void)
             if (MousePresent)
             {
                 mouseenabled^=1;
+                if (mouseenabled)
+                    SDL_SetRelativeMouseMode(SDL_TRUE);
+                else
+                    SDL_SetRelativeMouseMode(SDL_FALSE);
+                
                 DrawCtlButtons ();
                 CusItems.curpos=-1;
             }
             else
+            {
                 mouseenabled = 0;
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+            }
             break;
 
         case JOYENABLE:
