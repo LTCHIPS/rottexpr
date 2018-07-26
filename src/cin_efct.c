@@ -28,7 +28,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string.h>
 
 #include "modexlib.h"
-#include "fli_glob.h"
 
 static int cin_sprtopoffset;
 static int cin_invscale;
