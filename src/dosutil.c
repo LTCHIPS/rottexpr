@@ -39,6 +39,96 @@ long filelength(int handle)
     return buf.st_size;
 }
 
+char *ultoa(unsigned long value, char *string, int radix)
+{
+    switch (radix) {
+    case 10:
+        sprintf(string, "%lu", value);
+        break;
+    case 16:
+        sprintf(string, "%lux", value);
+        break;
+    default:
+        STUB_FUNCTION;
+        break;
+    }
+
+    return string;
+}
+#endif
+
+char getch(void)
+{
+    getchar();
+    return 0;
+}
+
+extern char ApogeePath[256];
+
+int setup_homedir (void)
+{
+#if PLATFORM_UNIX && !defined(__MINGW32__)
+    int err;
+
+    /* try to create the root directory */
+    snprintf (ApogeePath, sizeof (ApogeePath), "%s/.rott/", getenv ("HOME"));
+    err = mkdir (ApogeePath, S_IRWXU);
+
+    /* keep the shareware and registered game data separated */
+#if (SHAREWARE == 1)
+    snprintf (ApogeePath, sizeof (ApogeePath), "%s/.rott/", getenv ("HOME"));
+#else
+    snprintf (ApogeePath, sizeof (ApogeePath), "%s/.rott/darkwar/", getenv ("HOME"));
+#endif
+
+    err = mkdir (ApogeePath, S_IRWXU);
+    if (err == -1 && errno != EEXIST)
+    {
+        fprintf (stderr, "Couldn't create preferences directory: %s\n",
+                 strerror (errno));
+        return -1;
+    }
+#else
+    sprintf(ApogeePath, ".%s", PATH_SEP_STR);
+#endif
+
+    return 0;
+}
+
+/*
+ * GetDigitCount returns the number of digits that are found in an integer
+ * 
+ * Params: number - number to measure # of digits
+ * 
+ * Returns: number of digits founded in number
+*/
+int CountDigits(const int number)
+{
+    int lenResult = 1;
+    
+    //int remainder = number;
+    
+    if(number)
+    {
+        int oldRemainder;
+        int remainder = number;
+        
+        while(1)
+        {
+            oldRemainder = remainder;
+            
+            remainder%=10;
+            if (oldRemainder == remainder)
+                break;
+            
+            lenResult++;
+            
+        }
+    }
+    
+    return lenResult;
+}
+
 char *strlwr(char *s)
 {
     char *p = s;
@@ -97,61 +187,6 @@ char *ltoa(long value, char *string, int radix)
     return string;
 }
 
-char *ultoa(unsigned long value, char *string, int radix)
-{
-    switch (radix) {
-    case 10:
-        sprintf(string, "%lu", value);
-        break;
-    case 16:
-        sprintf(string, "%lux", value);
-        break;
-    default:
-        STUB_FUNCTION;
-        break;
-    }
-
-    return string;
-}
-#endif
-
-char getch(void)
-{
-    getchar();
-    return 0;
-}
-
-extern char ApogeePath[256];
-
-int setup_homedir (void)
-{
-#if PLATFORM_UNIX && !defined(__MINGW32__)
-    int err;
-
-    /* try to create the root directory */
-    snprintf (ApogeePath, sizeof (ApogeePath), "%s/.rott/", getenv ("HOME"));
-    err = mkdir (ApogeePath, S_IRWXU);
-
-    /* keep the shareware and registered game data separated */
-#if (SHAREWARE == 1)
-    snprintf (ApogeePath, sizeof (ApogeePath), "%s/.rott/", getenv ("HOME"));
-#else
-    snprintf (ApogeePath, sizeof (ApogeePath), "%s/.rott/darkwar/", getenv ("HOME"));
-#endif
-
-    err = mkdir (ApogeePath, S_IRWXU);
-    if (err == -1 && errno != EEXIST)
-    {
-        fprintf (stderr, "Couldn't create preferences directory: %s\n",
-                 strerror (errno));
-        return -1;
-    }
-#else
-    sprintf(ApogeePath, ".%s", PATH_SEP_STR);
-#endif
-
-    return 0;
-}
 
 /* from Dan Olson */
 void put_dos2ansi(byte attrib)
@@ -241,154 +276,3 @@ void crash_print (int sig)
     exit (1);
 }
 
-#if 0
-/* ** */
-
-uint16_t SwapInt16L(uint16_t i)
-{
-#if BYTE_ORDER == BIG_ENDIAN
-    return ((uint16_t)i >> 8) | ((uint16_t)i << 8);
-#else
-    return i;
-#endif
-}
-
-uint32_t SwapInt32L(uint32_t i)
-{
-#if BYTE_ORDER == BIG_ENDIAN
-    return	((uint32_t)(i & 0xFF000000) >> 24) |
-            ((uint32_t)(i & 0x00FF0000) >>  8) |
-            ((uint32_t)(i & 0x0000FF00) <<  8) |
-            ((uint32_t)(i & 0x000000FF) << 24);
-#else
-    return i;
-#endif
-}
-
-/* ** */
-
-int OpenWrite(char *_fn)
-{
-    int fp;
-    char fn[MAX_PATH];
-    strncpy(fn, _fn, sizeof (fn));
-    fn[sizeof (fn) - 1] = '\0';
-    FixFilePath(fn);
-
-    fp = open(fn, O_CREAT|O_WRONLY|O_TRUNC|O_BINARY, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-    return fp;
-}
-
-int OpenWriteAppend(char *_fn)
-{
-    int fp;
-    char fn[MAX_PATH];
-    strncpy(fn, _fn, sizeof (fn));
-    fn[sizeof (fn) - 1] = '\0';
-    FixFilePath(fn);
-
-    fp = open(fn, O_CREAT|O_WRONLY|O_BINARY, S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH);
-    return fp;
-}
-
-void CloseWrite(int fp)
-{
-    close(fp);
-}
-
-int WriteSeek(int fp, int offset, int whence)
-{
-    return lseek(fp, offset, whence);
-}
-
-int WritePos(int fp)
-{
-    return lseek(fp, 0, SEEK_CUR);
-}
-
-int WriteInt8(int fp, int8_t d)
-{
-    return write(fp, &d, 1);
-}
-
-int WriteInt16(int fp, int16_t d)
-{
-    int16_t b = SwapInt16L(d);
-
-    return write(fp, &b, 2) / 2;
-}
-
-int WriteInt32(int fp, int32_t d)
-{
-    int32_t b = SwapInt32L(d);
-
-    return write(fp, &b, 4) / 4;
-}
-
-int WriteBytes(int fp, byte *d, int len)
-{
-    return write(fp, d, len);
-}
-
-
-int OpenRead(char *_fn)
-{
-    int fp;
-    char fn[MAX_PATH];
-    strncpy(fn, _fn, sizeof (fn));
-    fn[sizeof (fn) - 1] = '\0';
-    FixFilePath(fn);
-
-    fp = open(fn, O_RDONLY | O_BINARY);
-
-    return fp;
-}
-
-void CloseRead(int fp)
-{
-    close(fp);
-}
-
-int ReadSeek(int fp, int offset, int whence)
-{
-    return lseek(fp, offset, whence);
-}
-
-int ReadLength(int fp)
-{
-    return filelength(fp);
-}
-
-int8_t ReadInt8(int fp)
-{
-    byte d[1];
-
-    read(fp, d, 1);
-
-    return d[0];
-}
-
-int16_t ReadInt16(int fp)
-{
-    byte d[2];
-
-    read(fp, d, 2);
-
-    return (d[0]) | (d[1] << 8);
-}
-
-int32_t ReadInt32(int fp)
-{
-    byte d[4];
-
-    read(fp, d, 4);
-
-    return (d[0]) | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
-}
-
-int ReadBytes(int fp, byte *d, int len)
-{
-    return read(fp, d, len);
-}
-
-#endif

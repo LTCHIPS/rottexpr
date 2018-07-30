@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "lumpy.h"
@@ -73,8 +71,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "music.h"
 #include "fx_man.h"
-//MED
-#include "memcheck.h"
 
 volatile int    oldtime;
 volatile int    gametime;
@@ -106,15 +102,7 @@ boolean newlevel = false;
 boolean infopause;
 boolean quiet = false;
 
-#if (DEVELOPMENT == 1)
-boolean DebugOk = true;
-#else
 boolean DebugOk = false;
-#endif
-
-#if (WHEREAMI==1)
-int programlocation=-1;
-#endif
 
 #if SAVE_SCREEN
 static char savename[13] = "ROTT0000.LBM";
@@ -161,9 +149,10 @@ extern void	ReadDelay(long delay);
 extern void RecordDemoQuery ( void );
 
 
+extern int CountDigits(const int number);
+
 int main (int argc, char *argv[])
 {
-    char *macwd;
     extern char *BATTMAPS;
     
     _argc = argc;
@@ -201,7 +190,9 @@ int main (int argc, char *argv[])
     FixFilePath(BATTMAPS);
     gamestate.Product = ROTT_SHAREWARE;
 #else
+    
     BATTMAPS = strdup(SITELICENSEBATTLELEVELS);
+
     FixFilePath(BATTMAPS);
     if (!access(BATTMAPS, R_OK))
     {
@@ -265,15 +256,13 @@ int main (int argc, char *argv[])
 //      }
     if (standalone==false)
     {
-        int status1 = 0;
         int status2 = 0;
-        int status3 = 0;
 
         if ( !NoSound && !IS8250 )
         {
             if (!quiet)
                 printf( "MU_Startup: " );
-            status1 = MU_Startup(false);
+            MU_Startup(false);
             if (!quiet)
                 printf( "%s\n", MUSIC_ErrorString( MUSIC_Error ) );
         }
@@ -302,7 +291,7 @@ int main (int argc, char *argv[])
             {
                 if (!quiet)
                     printf( "SD_Startup: " );
-                status3 = SD_Startup(false);
+                SD_Startup(false);
                 if (!quiet)
                     printf( "%s\n", FX_ErrorString( FX_Error ) );
             }
@@ -325,28 +314,20 @@ int main (int argc, char *argv[])
     }
     I_StartupTimer();
     I_StartupKeyboard();
-#if 0
-#if (SHAREWARE == 1)
-    if ((!SOUNDSETUP) && (standalone==false))
-    {
-        byte * txtscn;
-        int i;
-
-        for (i=0; i<20; i++)
-            printf("\n");
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("rotts10"), PU_CACHE);
-        memcpy ((byte *)0xB8000, txtscn, 4000);
-        I_Delay (600);
-    }
-#endif
-#endif
     locplayerstate = &PLAYERSTATE[consoleplayer];
 
     if (standalone==true)
         ServerLoop();
 
+    
+    
     VL_SetVGAPlaneMode();
     VL_SetPalette(origpal);
+    
+    if (mouseenabled)
+    {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    }
 
 //   SetTextMode();
 //   GraphicsMode();
@@ -418,66 +399,69 @@ void DrawRottTitle ( void )
     char buf[5];
 
     SetTextMode();
-    TurnOffTextCursor ();
 
     if (CheckParm("QUIET") == 0)
     {
         SetTextMode();
-        TurnOffTextCursor ();
-#ifdef ANSIESC
-            printf("\n\n\n");
-#endif
-            strcpy (title,"Rise of the Triad Startup  Version ");
-            strcat (title,itoa(ROTTMAJORVERSION,&buf[0],10));
-            strcat (title,".");
-//MED
+        
+        char rottStartupStr[] = "Rise of the Triad Startup  Version ";
+        
+            strncpy (title,rottStartupStr, sizeof(rottStartupStr));
+            
+            strncat (title,itoa(ROTTMAJORVERSION,&buf[0],10), CountDigits(ROTTMAJORVERSION));
+            strncat (title,".", 1);
 #if (SHAREWARE==1)||(DOPEFISH==0)
-            strcat (title,itoa(ROTTMINORVERSION,&buf[0],10));
+            strncat (title,itoa(ROTTMINORVERSION,&buf[0],10), CountDigits(ROTTMINORVERSION));
 #else
             strcat (title,"DFISH");
 #endif
-#ifndef ANSIESC
-            strcat (title,"\n");
-#endif
+            strncat (title,"\n", 1);
 
             px=(80-strlen(title))>>1;
             py=0;
 
-            UL_printf(title);
+            printf("%s ", title);
 
             memset (title,0,sizeof(title));
-
+            
             if (gamestate.Product == ROTT_SHAREWARE)
             {
 #if (DELUXE==1)
-                strcpy(title,"Lasersoft Deluxe Version");
+                char header[] = "Lasersoft Deluxe Version";
 #elif (LOWCOST==1)
-                strcpy(title,"Episode One");
+                char header[] = "Episode One";
 #else
-                strcpy(title,"Shareware Version");
+                char header[] = "Shareware Version";
+                
 #endif
+                strncpy(title,header, strlen(header));
             }
             else if (gamestate.Product == ROTT_SUPERCD)
-                strcpy(title,"CD Version");
+            {
+                char header[] = "CD Version";
+                strncpy(title,header, strlen(header));
+            }
             else if (gamestate.Product == ROTT_SITELICENSE)
-                strcpy(title,"Site License CD Version");
+            {
+                char header[] = "Site License CD Version";
+                strncpy(title,header, strlen(header));
+            }
             else
-                strcpy(title,"Commercial Version");
+            {
+                char header[] = "Commercial Version";
+                strncpy(title,header, strlen(header));
+            }
+            
+            //strncpy(title, header, )
 
             px=(80-strlen(title))>>1;
             py=1;
 
-            UL_printf(title);
-#ifndef ANSIESC
+            printf("%s ", title);
+            
             printf ("\n");
-#endif
-
-            UL_ColorBox (0, 0, 80, 2, 0x1e);
-    }
-    else
-    {
-        TurnOffTextCursor ();
-    }
+ 
+   }
 
 }
 
@@ -504,7 +488,6 @@ void CheckCommandLineParameters( void )
     MAPSTATS=false;
     TILESTATS=false;
     IS8250 = false;
-    vrenabled = false;
     demoexit = false;
 
     modemgame=false;
@@ -542,11 +525,8 @@ void CheckCommandLineParameters( void )
         printf ("   FILE       - used to load Extern WAD files\n");
         printf ("              - next parameter is WAD filename\n");
 #endif
-        printf ("   SPACEBALL  - Enable check for Spaceball.\n");
         printf ("   NOJOYS     - Disable check for joystick.\n");
         printf ("   NOMOUSE    - Disable check for mouse.\n");
-        printf ("   CYBERMAN   - Enable check for Cyberman.\n");
-        printf ("   ASSASSIN   - Enable check for Wingman Assassin.\n");
         printf ("   VER        - Version number.\n");
         printf ("   MAPSTATS   - Dump Map statistics to ERROR.\n");
         printf ("   TILESTATS  - Dump Tile statistics to ERROR.\n");
@@ -671,7 +651,6 @@ void CheckCommandLineParameters( void )
         case 10:
             SetTextMode ();
             printf ("Rise of the Triad  (c) 1995 Apogee Software\n");
-//MED
             if (gamestate.Product == ROTT_SHAREWARE)
             {
 #if (DELUXE==1)
@@ -723,9 +702,6 @@ void CheckCommandLineParameters( void )
             IS8250 = true;
             break;
         case 16:
-            vrenabled = true;
-            if (!quiet)
-                printf("Virtual Reality Mode enabled\n");
             break;
         case 17:
             timelimitenabled = true;
@@ -815,19 +791,24 @@ void SetupWads( void )
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
             tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strcpy (tempstr,_argv[arg+1]);//copy it to tempstr
+            strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
-                    strcat (tempstr,".rtc");//non exists, try add .rtc
+                    strncat (tempstr,".rtc", 4);//non exists, try add .rtc
                     if (access (tempstr, 0) != 0) { //try open again
                         //stil no useful filename
-                        strcat (tempstr," not found, skipping RTL file ");
+                        
+                        char notfoundStr[] = " not found, skipping RTL file \n";
+                        
+                        strncat (tempstr,notfoundStr, strlen(notfoundStr));
                         printf("%s", tempstr);
                         goto NoRTL;
                     }
                 }
                 if((f = fopen( tempstr, "r" )) == NULL ) { //try opnong file
-                    strcat (tempstr," not could not be opened, skipping RTL file ");
+                    char cannotOpenStr[] = " not could be opened, skipping RTL file \n";
+                    
+                    strncat (tempstr, cannotOpenStr, strlen(cannotOpenStr));
                     printf("%s", tempstr);
                     goto NoRTL;
                 } else {
@@ -836,9 +817,9 @@ void SetupWads( void )
                         GameLevels.file = strdup(tempstr);
                         GameLevels.avail++;
                         buf = realloc(buf, 32 + strlen(tempstr));
-                        strcpy (buf,"Adding ");
-                        strcat (buf,tempstr);
-                        printf("%s", buf);
+                        strncpy (buf,"Adding ", 7);
+                        strncat (buf,tempstr, strlen(&tempstr) + 32);
+                        printf("%s \n", buf);
                     }
                     fclose(f);
                 }
@@ -849,7 +830,6 @@ void SetupWads( void )
         free(buf);
     }
 NoRTL:
-    ;
     // Check for rtc files
     arg = CheckParm ("filertc");
     if (arg!=0)
@@ -858,20 +838,24 @@ NoRTL:
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
             tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strcpy (tempstr,_argv[arg+1]);//copy it to tempstr
+            strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
-                    strcat (tempstr,".rtc");//non exists, try add .rtc
+                    strncat (tempstr,".rtc", 4);//non exists, try add .rtc
                     if (access (tempstr, 0) != 0) { //try open again
                         //stil no useful filename
-                        strcat (tempstr," not found, skipping RTC file ");
-                        printf("%s", tempstr);
+                        char notfoundRTC[] = " not found, skipping RTC file ";
+                        
+                        strncat (tempstr,notfoundRTC, strlen(notfoundRTC));
+                        printf("%s \n", tempstr);
                         goto NoRTL;
                     }
                 }
                 if((f = fopen( tempstr, "r" )) == NULL ) { //try opening file
-                    strcat (tempstr," not could not be opened, skipping RTC file ");
-                    printf("%s", tempstr);
+                    char cannotOpenRTC[] = " could not be opened, skipping RTC file ";
+                    
+                    strncat (tempstr,cannotOpenRTC, strlen(cannotOpenRTC));
+                    printf("%s \n", tempstr);
                     goto NoRTL;
                 } else {
                     fread(buf,3,3,f);//is the 3 first letters RTL (RTC)
@@ -879,8 +863,8 @@ NoRTL:
                         BattleLevels.file = strdup(tempstr);
                         BattleLevels.avail++;
                         buf = realloc(buf, 32 + strlen(tempstr));
-                        strcpy (buf,"Adding ");
-                        strcat (buf,tempstr);
+                        strncpy (buf,"Adding ", 7);
+                        strncat (buf,tempstr, strlen(tempstr) + 32);
                         printf("%s", buf);
                     }
                     fclose(f);
@@ -940,11 +924,11 @@ NoRTC:
         char  *src;
 
         tempstr = realloc(tempstr, strlen(RemoteSounds.path) + strlen(RemoteSounds.file) + 2);
-        strcpy (tempstr,RemoteSounds.path);
+        strncpy (tempstr,RemoteSounds.path, strlen(RemoteSounds.path));
         src = RemoteSounds.path + strlen(RemoteSounds.path) - 1;
         if (*src != '\\')
-            strcat (tempstr,"\\\0");
-        strcat (tempstr,RemoteSounds.file);
+            strncat (tempstr,"\\\0", 1);
+        strncat (tempstr,RemoteSounds.file, strlen(RemoteSounds.file));
         newargs [argnum++] = strdup(tempstr);
     }
     else
@@ -1060,11 +1044,7 @@ extern boolean doRescaling;
 
 void GameLoop (void)
 {
-    boolean done   = false;
-    boolean loadit = false;
     int NextLevel;
-
-    wami(1);
 
     while (1)
     {
@@ -1329,7 +1309,6 @@ void GameLoop (void)
             break;
 
         case ex_died:
-            loadit = done = false;
 //		   SetTextMode (  ); //12345678
             Died ();
             StopWind();
@@ -1384,6 +1363,8 @@ void GameLoop (void)
                         SetupGameLevel ();
                         UpdateTriads(player,0);
                         playstate = ex_stillplaying;
+                        DisableScreenStretch();
+
                     }
                 }
             }
@@ -1402,6 +1383,8 @@ void GameLoop (void)
             SetupGameLevel ();
 
             playstate = ex_stillplaying;
+            DisableScreenStretch();//bna++ shut off streech mode
+
             break;
 
         case ex_skiplevel:
@@ -1421,11 +1404,12 @@ void GameLoop (void)
 #if (SHAREWARE==0)
             if ((playstate==ex_bossdied) && (gamestate.mapon!=30))
             {
+                
                 int shape;
                 lbm_t * LBM;
                 byte *s;
                 patch_t *p;
-                char str[50];
+                char * str = '\0';
                 int width, height;
 
                 LBM = (lbm_t *) W_CacheLumpName( "deadboss", PU_CACHE, Cvt_lbm_t, 1);
@@ -1455,16 +1439,20 @@ void GameLoop (void)
                 switch (gamestate.mapon)
                 {
                 case 6:
-                    strcpy(&str[0],"\"General\" John Darian");
+                    str = "\"General\" John Darian";
+                    //strncpy(&str[0],"\"General\" John Darian");
                     break;
                 case 14:
-                    strcpy(&str[0],"Sebastian \"Doyle\" Krist");
+                    str = "Sebastian \"Doyle\" Krist";
+                    //strcpy(&str[0],"Sebastian \"Doyle\" Krist");
                     break;
                 case 22:
-                    strcpy(&str[0],"the NME");
+                    str = "the NME";
+                    //strcpy(&str[0],"the NME");
                     break;
                 case 33:
-                    strcpy(&str[0],"El Oscuro");
+                    str = "El Oscuro";
+                    //strcpy(&str[0],"El Oscuro");
                     break;
 //                  default:
 //                     Error("Boss died on an illegal level\n");
@@ -1497,6 +1485,8 @@ void GameLoop (void)
                 fizzlein = true;
                 SetupGameLevel ();
                 playstate = ex_stillplaying;
+                DisableScreenStretch();//bna++ shut off streech mode
+
             }
             else
             {
@@ -1561,13 +1551,10 @@ void GameLoop (void)
             ;
         }
     }
-    waminot();
 }
 
 boolean CheckForQuickLoad  (void )
-
 {
-
     EnableScreenStretch();//bna++
     if ( pickquick )
     {
@@ -1624,23 +1611,8 @@ void ShutDown ( void )
 
 //===========================================================================
 
-#if (DEVELOPMENT == 1)
-extern int totallevelsize;
-#endif
-
 void QuitGame ( void )
 {
-#if (DEBUG == 1)
-    char buf[5];
-#endif
-
-#if (DEVELOPMENT == 1)
-    int temp;
-#else
-    byte *txtscn;
-#endif
-    int k;
-
     MU_FadeOut(200);
     while (MU_FadeActive())
     {
@@ -1652,64 +1624,6 @@ void QuitGame ( void )
     PrintMapStats();
     PrintTileStats();
     SetTextMode();
-
-#if (DEVELOPMENT == 1)
-    printf("Clean Exit\n");
-    if (gamestate.TimeCount)
-    {
-        temp=(gamestate.frame*VBLCOUNTER*100)/gamestate.TimeCount;
-        printf("fps  = %2ld.%2ld\n",temp/100,temp%100);
-    }
-    printf("argc=%ld\n",_argc);
-    for (k=0; k<_argc; k++) printf("%s\n",_argv[k]);
-    switch( _heapchk() )
-    {
-    case _HEAPOK:
-        printf( "OK - heap is good\n" );
-        break;
-    case _HEAPEMPTY:
-        printf( "OK - heap is empty\n" );
-        break;
-    case _HEAPBADBEGIN:
-        printf( "ERROR - heap is damaged\n" );
-        break;
-    case _HEAPBADNODE:
-        printf( "ERROR - bad node in heap\n" );
-        break;
-    }
-    printf("\nLight Characteristics\n");
-    printf("---------------------\n");
-    if (fog)
-        printf("FOG is ON\n");
-    else
-        printf("FOG is OFF\n");
-    printf("LIGHTLEVEL=%ld\n",GetLightLevelTile());
-    printf("LIGHTRATE =%ld\n",GetLightRateTile());
-    printf("\nCENTERY=%ld\n",centery);
-#else
-#if (SHAREWARE==0)
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("regend"), PU_CACHE, CvtNull, 1);
-#else
-        txtscn = (byte *) W_CacheLumpNum (W_GetNumForName ("shareend"), PU_CACHE, CvtNull, 1);
-#endif
-#if defined (ANSIESC)
-        DisplayTextSplash (txtscn, 25);
-#endif
-
-#if (DEBUG == 1)
-        px = ERRORVERSIONCOL;
-        py = ERRORVERSIONROW;
-#if (BETA == 1)
-        UL_printf ("�");
-#else
-        UL_printf (itoa(ROTTMAJORVERSION,&buf[0],10));
-#endif
-        // Skip the dot
-        px++;
-
-        UL_printf (itoa(ROTTMINORVERSION,&buf[0],10));
-#endif
-#endif
 
     ClearScanCodes();
     
@@ -1768,12 +1682,9 @@ void UpdateGameObjects ( void )
     objtype * ob,*temp;
     battle_status BattleStatus;
 
-    wami(2);
-
     if (controlupdatestarted==0)
     {
         return;
-        waminot();
     }
 
     atime=GetFastTics();
@@ -1811,12 +1722,6 @@ void UpdateGameObjects ( void )
         {
             temp = ob->nextactive;
             DoActor (ob);
-#if (DEVELOPMENT == 1)
-            if ((ob->x<=0) || (ob->y<=0))
-                Error("object xy below zero obj->x=%ld obj->y=%ld obj->obclass=%ld\n",ob->x,ob->y,ob->obclass);
-            if ((ob->angle<0) || (ob->angle>=FINEANGLES))
-                Error("object angle below zero obj->angle=%ld obj->obclass=%ld\n",ob->angle,ob->obclass);
-#endif
             ob = temp;
         }
 
@@ -1878,9 +1783,6 @@ void UpdateGameObjects ( void )
             FX_SetReverb( min( numareatiles[ player->areanumber ] >> 1, 90 ) );
         }
     }
-
-    waminot();
-
 }
 
 extern boolean doRescaling;
@@ -1940,9 +1842,6 @@ void PlayLoop
 
     boolean canquit = true;
     int     quittime = 0;
-
-    wami(3);
-
 
     if ( (loadedgame == false) && (timelimitenabled == false) )
     {
@@ -2037,10 +1936,6 @@ fromloadedgame:
         AnimateWalls();
 
         UpdateClientControls();
-
-#if (DEVELOPMENT == 1)
-        Z_CheckHeap();
-#endif
 
         if ( AutoDetailOn == true )
         {
@@ -2179,7 +2074,6 @@ fromloadedgame:
             }
         }
     }
-    waminot();
 }
 
 //******************************************************************************
@@ -2192,7 +2086,6 @@ void CheckRemoteRidicule ( int scancode )
 {
     int num=-1;
 
-    wami(4);
     switch (scancode)
     {
     case sc_F1:
@@ -2237,7 +2130,6 @@ void CheckRemoteRidicule ( int scancode )
         AddRemoteRidiculeCommand ( consoleplayer, MSG_DIRECTED_TO_ALL, num );
         LastScan=0;
     }
-    waminot();
 }
 
 //******************************************************************************
@@ -2265,8 +2157,6 @@ void PollKeyboard
 
 {
     static char autopressed = false;
-
-    wami(5);
 
     if (demoplayback==true)
     {
@@ -2305,13 +2195,6 @@ void PollKeyboard
     {
         autopressed = false;
     }
-
-#if 0
-    if ( modemgame == false )
-    {
-        CheckDevelopmentKeys();
-    }
-#endif
 
     if ( ( MSG.messageon == false ) && ( !quitactive ) )
     {
@@ -2461,14 +2344,12 @@ void PollKeyboard
             }
         }
 
-//#if 0
         if ( ( Keyboard[ sc_F12 ] ) && ( !BATTLEMODE ) )
         {
             Keyboard[ sc_F12 ] = false;
             LastScan = 0;
             DoBossKey();
         }
-//#endif
 
         // Gamma correction
         if ( Keyboard[ sc_F11 ] )
@@ -2483,7 +2364,7 @@ void PollKeyboard
             }
             VL_SetPalette( origpal );
             itoa( gammaindex, str2, 10 );
-            strcat( str, str2 );
+            strncat( str, str2, strlen(str2) );
             AddMessage( str, MSG_SYSTEM );
 
             while( Keyboard[ sc_F11 ] )
@@ -2491,23 +2372,6 @@ void PollKeyboard
                 IN_UpdateKeyboard();
             }
         }
-#if 0
-        if ( Keyboard[ sc_M ] )
-        {
-            char str[ 50 ] = "Mouse Y-Rotation Input Scale ";
-            char str2[ 10 ];
-
-            if ( Keyboard[ sc_RShift ] )
-                mouse_ry_input_scale += 50;
-            else
-                mouse_ry_input_scale -= 50;
-
-            itoa(mouse_ry_input_scale,str2,10);
-            strcat( str, str2 );
-            AddMessage( str, MSG_SYSTEM );
-
-        }
-#endif
         // Increase volume
         if ( Keyboard[ sc_CloseBracket ] )
         {
@@ -2523,7 +2387,7 @@ void PollKeyboard
                 MU_SetVolume( MUvolume );
 
                 itoa( MUvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
             else
@@ -2538,7 +2402,7 @@ void PollKeyboard
                 FX_SetVolume( FXvolume );
 
                 itoa( FXvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
         }
@@ -2558,7 +2422,7 @@ void PollKeyboard
                 MU_SetVolume( MUvolume );
 
                 itoa( MUvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
             else
@@ -2573,22 +2437,12 @@ void PollKeyboard
                 FX_SetVolume( FXvolume );
 
                 itoa( FXvolume, str2, 10 );
-                strcat( str, str2 );
+                strncat( str, str2, strlen(str2) );
                 AddMessage( str, MSG_SYSTEM );
             }
         }
 
 #if SAVE_SCREEN
-#if (DEVELOPMENT == 1)
-        if ( Keyboard[ sc_CapsLock ] && Keyboard[ sc_C ] )
-        {
-            SaveScreen( true );
-        }
-        else if ( Keyboard[ sc_CapsLock ] && Keyboard[ sc_X ] )
-        {
-            SaveScreen( false );
-        }
-#endif
         else if ( Keyboard[ sc_Alt] && Keyboard[ sc_C ] )
         {
             SaveScreen( false );
@@ -2610,244 +2464,7 @@ void PollKeyboard
             Keystate[0x45] = 0;
     }
 #endif
-    waminot();
 }
-
-
-//******************************************************************************
-//
-// CheckDevelopmentKeys ()
-//
-//******************************************************************************
-#if 0
-void CheckDevelopmentKeys
-(
-    void
-)
-
-{
-#if (DEBUG == 1)
-    if ( Keyboard[ sc_CapsLock ] && Keyboard[ sc_T ] )
-    {
-        if ( warp == true )
-        {
-            player->x     = warpx;
-            player->y     = warpy;
-            player->angle = warpa;
-            locplayerstate->anglefrac = warpa << ANGLEBITS;
-            player->momentumx = 0;
-            player->momentumy = 0;
-            player->momentumz = 0;
-        }
-        return;
-    }
-#endif
-
-    // Lower wall height
-    if ( Keyboard[ sc_5 ] )
-    {
-        if ( levelheight > 1 )
-        {
-            levelheight--;
-        }
-
-        while( Keyboard[ sc_5 ] )
-        {
-            IN_UpdateKeyboard ();
-        }
-
-        maxheight = ( levelheight << 6 ) - 32;
-        nominalheight = maxheight - 32;
-    }
-
-    // Raise wall height
-    if ( Keyboard[ sc_6 ] )
-    {
-        levelheight++;
-
-        while( Keyboard[ sc_6 ] )
-        {
-            IN_UpdateKeyboard();
-        }
-
-        maxheight = ( levelheight << 6 ) - 32;
-        nominalheight = maxheight - 32;
-    }
-
-    if ( Keyboard[ sc_8 ] )
-    {
-        char str[ 50 ] = "You are now player ";
-        char str2[ 10 ];
-
-        locplayerstate->player++;
-        if ( locplayerstate->player == 5 )
-        {
-            locplayerstate->player = 0;
-        }
-
-        while( Keyboard[ sc_8 ] )
-        {
-            IN_UpdateKeyboard ();
-        }
-
-        itoa( locplayerstate->player, str2, 10 );
-        strcat( str, str2 );
-        AddMessage( str, MSG_SYSTEM );
-    }
-
-#if 0
-    // Cycle forward through wall textures
-    if (Keyboard[sc_W] && (modemgame==false))
-    {   int i,j;
-
-        for(i=0; i<128; i++)
-            for(j=0; j<128; j++)
-            {   if (IsWall(i,j))
-                {   if (tilemap[i][j] ==
-                            (W_GetNumForName("WALLSTOP")-W_GetNumForName("WALLSTRT")-1))
-                        tilemap[i][j] = 1;
-                    else
-                        tilemap[i][j] ++;
-                }
-            }
-        while(Keyboard[sc_W])
-            IN_UpdateKeyboard ();
-
-    }
-
-
-
-    if (Keyboard[sc_Q] && (modemgame==false))
-    {   int i,j;
-
-        for(i=0; i<128; i++)
-            for(j=0; j<128; j++)
-            {   if (IsWall(i,j))
-                {   if (tilemap[i][j] == 1)
-                        tilemap[i][j] = 74;
-                    else
-                        tilemap[i][j] --;
-                }
-            }
-        while(Keyboard[sc_Q])
-            IN_UpdateKeyboard ();
-
-    }
-
-#endif
-    // Step through cieling/skies
-    if ( Keyboard[ sc_K ] )
-    {
-        if ( sky > 0 )
-        {
-            MAPSPOT( 1, 0, 0 )++;
-            if ( MAPSPOT( 1, 0, 0 ) > 239 )
-            {
-                MAPSPOT( 1, 0, 0 ) = 234;
-            }
-        }
-        else
-        {
-            MAPSPOT( 1, 0, 0 )++;
-            if ( MAPSPOT( 1, 0, 0 ) > 198 + 15 )
-            {
-                MAPSPOT( 1, 0, 0 ) = 198;
-            }
-        }
-
-        SetPlaneViewSize();
-
-        while( Keyboard[ sc_K ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Step through floors
-    if ( Keyboard[ sc_L ] )
-    {
-        MAPSPOT( 0, 0, 0 )++;
-        if ( MAPSPOT( 0, 0, 0 ) > 180 + 15 )
-        {
-            MAPSPOT( 0, 0, 0 ) = 180;
-            SetPlaneViewSize();
-
-            while( Keyboard[ sc_L ] )
-            {
-                IN_UpdateKeyboard();
-            }
-        }
-    }
-
-    // Increase darkness level
-    if ( Keyboard[ sc_M ] )
-    {
-        if ( darknesslevel < 7 )
-        {
-            darknesslevel++;
-        }
-
-        SetLightLevels( darknesslevel );
-
-        while( Keyboard[ sc_M ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Decrease darkness level
-    if ( Keyboard[ sc_N ] )
-    {
-        if ( darknesslevel > 0 )
-        {
-            darknesslevel--;
-        }
-
-        SetLightLevels( darknesslevel );
-
-        while( Keyboard[ sc_N ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Increase light rate
-    if ( Keyboard[ sc_B ] )
-    {
-        SetLightRate( GetLightRate() + 1 );
-        myprintf( "normalshade = %ld\n", normalshade );
-
-        while( Keyboard[ sc_B ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Decrease light rate
-    if ( Keyboard[ sc_V ] )
-    {
-        SetLightRate( GetLightRate() - 1 );
-        myprintf( "normalshade = %ld\n", normalshade );
-
-        while( Keyboard[ sc_V ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-
-    // Toggle light diminishing on/off
-    if ( Keyboard[ sc_T ] )
-    {
-        fulllight ^= 1;
-
-        while( Keyboard[ sc_T ] )
-        {
-            IN_UpdateKeyboard();
-        }
-    }
-}
-#endif
-
 
 #if SAVE_SCREEN
 
@@ -3033,23 +2650,12 @@ void GetFileName (boolean saveLBM)
 
 boolean inhmenu;
 
-#if (BETA == 1)
-#define SSX (160-(46*2))
-#define SSY (17)
-#endif
 void SaveScreen (boolean saveLBM)
 {
     byte *buffer;
     byte * screen;
     boolean oldHUD;
     char filename[ 128 ];
-
-#if (BETA == 1)
-    unsigned tmp;
-    char buf[30];
-    int i;
-#endif
-
 
     oldHUD=HUD;
     HUD=false;
@@ -3066,39 +2672,6 @@ void SaveScreen (boolean saveLBM)
     //buffer = (byte *) SafeMalloc (65000);
     buffer = (byte *) SafeMalloc ((iGLOBAL_SCREENHEIGHT*iGLOBAL_SCREENWIDTH)+4000);
 
-#if (BETA == 1)
-    if (SCREENSHOTS == false)
-    {
-        if (screen!=(byte *)bufferofs)
-        {
-            tmp=bufferofs;
-            bufferofs=displayofs;
-        }
-        CurrentFont=tinyfont;
-
-        VGAMAPMASK(15);
-        for (i=-1; i<6; i++)
-            memset((byte *)bufferofs+(ylookup[i+SSY])+(SSX>>2),0,46);
-        px=SSX;
-        py=SSY;
-        VW_DrawPropString(" Rise of the Triad (c) 1995 Apogee  Version ");
-        VW_DrawPropString(itoa(ROTTMAJORVERSION,&buf[0],10));
-        VW_DrawPropString(".");
-        VW_DrawPropString(itoa(ROTTMINORVERSION,&buf[0],10));
-        px=SSX+13;
-        py=SSY+8;
-        VW_DrawPropString(" Episode ");
-        VW_DrawPropString(itoa(gamestate.episode,&buf[0],10));
-        VW_DrawPropString(" Area ");
-        VW_DrawPropString(itoa(GetLevel(gamestate.episode, gamestate.mapon),&buf[0],10));
-
-        if (screen!=(byte *)bufferofs)
-            bufferofs=tmp;
-    }
-#endif
-
-
-
     GetFileName (saveLBM);
     GetPathFromEnvironment( filename, ApogeePath, savename );
     //
@@ -3108,21 +2681,13 @@ void SaveScreen (boolean saveLBM)
     if (saveLBM)
     {
         WriteLBMfile (filename, buffer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-#if (DEVELOPMENT == 1)
-        while (Keyboard[sc_CapsLock] && Keyboard[sc_C])
-#else
         while (Keyboard[sc_Alt] && Keyboard[sc_V])
-#endif
             IN_UpdateKeyboard ();
     }
     else
     {
         WritePCX (filename, buffer);
-#if (DEVELOPMENT == 1)
-        while (Keyboard[sc_CapsLock] && Keyboard[sc_X])
-#else
         while (Keyboard[sc_Alt] && Keyboard[sc_C])
-#endif
             IN_UpdateKeyboard ();
     }
 

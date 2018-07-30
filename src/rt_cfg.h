@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _rt_cfg_public
 #define _rt_cfg_public
@@ -51,13 +49,7 @@ extern int     threshold;
 extern int     NumVoices;
 extern int     NumChannels;
 extern int     NumBits;
-#ifdef DOS
-extern int     MidiAddress;
-#endif
 extern boolean stereoreversed;
-extern boolean cybermanenabled;
-extern boolean assassinenabled;
-extern boolean spaceballenabled;
 extern boolean AutoDetailOn;
 extern int     DoubleClickSpeed;
 extern int     fulllight;
@@ -67,11 +59,7 @@ extern int     DetailLevel;
 extern int     fandc;
 extern int     blanktime;
 extern char    CodeName[9];
-#ifdef DOS
-extern char   *ApogeePath;
-#else
 extern char   ApogeePath[256];
-#endif
 
 extern int     DefaultDifficulty;
 extern int     DefaultPlayerCharacter;

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 /**********************************************************************
    module: MULTIVOC.C
@@ -34,11 +32,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <time.h>
 
-#ifdef PLAT_DOS
-#include <dos.h>
-#include <conio.h>
-#endif
-
 #include "util.h"
 #include "dpmi.h"
 #include "usrhooks.h"
@@ -47,15 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "linklist.h"
 #include "sndcards.h"
 
-#ifdef PLAT_DOS
-#include "blaster.h"
-#include "sndscape.h"
-#include "sndsrc.h"
-#include "pas16.h"
-#include "guswave.h"
-#else
 #include "dsl.h"
-#endif
 
 #include "pitch.h"
 #include "multivoc.h"
@@ -185,26 +170,6 @@ char *MV_ErrorString
       case MV_VoiceNotFound :
          ErrorString = "No voice with matching handle found.";
          break;
-
-#ifdef PLAT_DOS
-      case MV_BlasterError :
-         ErrorString = BLASTER_ErrorString( BLASTER_Error );
-         break;
-
-      case MV_PasError :
-         ErrorString = PAS_ErrorString( PAS_Error );
-         break;
-
-      case MV_SoundScapeError :
-         ErrorString = SOUNDSCAPE_ErrorString( SOUNDSCAPE_Error );
-         break;
-
-      #ifndef SOUNDSOURCE_OFF
-      case MV_SoundSourceError :
-         ErrorString = SS_ErrorString( SS_Error );
-         break;
-      #endif
-#endif
 
       case MV_DPMI_Error :
          ErrorString = "DPMI Error in Multivoc.";
@@ -418,17 +383,6 @@ void MV_ServiceVoc
    {
    VoiceNode *voice;
    VoiceNode *next;
-   char      *buffer;
-
-#ifdef PLAT_DOS
-   if ( MV_DMAChannel >= 0 )
-      {
-      // Get the currently playing buffer
-      buffer = ( char * )DMA_GetCurrentPos( MV_DMAChannel );
-      MV_MixPage   = ( unsigned )( buffer - MV_MixBuffer[ 0 ] );
-      MV_MixPage >>= MV_BuffShift;
-      }
-#endif
 
    // Toggle which buffer we'll mix next
    MV_MixPage++;
@@ -1860,37 +1814,7 @@ int MV_SetMixMode
       mode |= SIXTEEN_BIT;
       }
 
-#ifdef PLAT_DOS
-   switch( MV_SoundCard )
-      {
-      case UltraSound :
-         MV_MixMode = mode;
-         break;
-
-      case SoundBlaster :
-      case Awe32 :
-         MV_MixMode = BLASTER_SetMixMode( mode );
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         MV_MixMode = PAS_SetMixMode( mode );
-         break;
-
-      case SoundScape :
-         MV_MixMode = SOUNDSCAPE_SetMixMode( mode );
-         break;
-
-      #ifndef SOUNDSOURCE_OFF
-      case SoundSource :
-      case TandySoundSource :
-         MV_MixMode = SS_SetMixMode( mode );
-         break;
-      #endif
-      }
-#else
    MV_MixMode = mode;
-#endif
 
    MV_Channels = 1;
    if ( MV_MixMode & STEREO )
@@ -1967,95 +1891,6 @@ int MV_StartPlayback
 //   return( MV_Ok );
 
    // Start playback
-#ifdef PLAT_DOS
-   switch( MV_SoundCard )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         status = BLASTER_BeginBufferedPlayback( MV_MixBuffer[ 0 ],
-            TotalBufferSize, MV_NumberOfBuffers,
-            MV_RequestedMixRate, MV_MixMode, MV_ServiceVoc );
-
-         if ( status != BLASTER_Ok )
-            {
-            MV_SetErrorCode( MV_BlasterError );
-            return( MV_Error );
-            }
-
-         MV_MixRate = BLASTER_GetPlaybackRate();
-         MV_DMAChannel = BLASTER_DMAChannel;
-         break;
-
-      case UltraSound :
-
-         status = GUSWAVE_StartDemandFeedPlayback( MV_ServiceGus, 1,
-            MV_Bits, MV_RequestedMixRate, 0, ( MV_Channels == 1 ) ?
-            0 : 24, 255, 0xffff, 0 );
-         if ( status < GUSWAVE_Ok )
-            {
-            MV_SetErrorCode( MV_BlasterError );
-            return( MV_Error );
-            }
-
-         if ( MV_Channels == 2 )
-            {
-            status = GUSWAVE_StartDemandFeedPlayback( MV_ServiceRightGus, 1,
-               MV_Bits, MV_RequestedMixRate, 0, 8, 255, 0xffff, 0 );
-            if ( status < GUSWAVE_Ok )
-               {
-               GUSWAVE_KillAllVoices();
-               MV_SetErrorCode( MV_BlasterError );
-               return( MV_Error );
-               }
-            }
-
-         MV_MixRate = MV_RequestedMixRate;
-         MV_DMAChannel = -1;
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         status = PAS_BeginBufferedPlayback( MV_MixBuffer[ 0 ],
-            TotalBufferSize, MV_NumberOfBuffers,
-            MV_RequestedMixRate, MV_MixMode, MV_ServiceVoc );
-
-         if ( status != PAS_Ok )
-            {
-            MV_SetErrorCode( MV_PasError );
-            return( MV_Error );
-            }
-
-         MV_MixRate = PAS_GetPlaybackRate();
-         MV_DMAChannel = PAS_DMAChannel;
-         break;
-
-      case SoundScape :
-         status = SOUNDSCAPE_BeginBufferedPlayback( MV_MixBuffer[ 0 ],
-            TotalBufferSize, MV_NumberOfBuffers, MV_RequestedMixRate,
-            MV_MixMode, MV_ServiceVoc );
-
-         if ( status != SOUNDSCAPE_Ok )
-            {
-            MV_SetErrorCode( MV_SoundScapeError );
-            return( MV_Error );
-            }
-
-         MV_MixRate = SOUNDSCAPE_GetPlaybackRate();
-         MV_DMAChannel = SOUNDSCAPE_DMAChannel;
-         break;
-
-      #ifndef SOUNDSOURCE_OFF
-      case SoundSource :
-      case TandySoundSource :
-         SS_BeginBufferedPlayback( MV_MixBuffer[ 0 ],
-            TotalBufferSize, MV_NumberOfBuffers,
-            MV_ServiceVoc );
-         MV_MixRate = SS_SampleRate;
-         MV_DMAChannel = -1;
-         break;
-      #endif
-      }
-#else
     status = DSL_BeginBufferedPlayback( MV_MixBuffer[ 0 ],
             TotalBufferSize, MV_NumberOfBuffers,
             MV_RequestedMixRate, MV_MixMode, MV_ServiceVoc );
@@ -2067,7 +1902,6 @@ int MV_StartPlayback
        }
 
     MV_MixRate = DSL_GetPlaybackRate();
-#endif
 
    return( MV_Ok );
    }
@@ -2089,38 +1923,7 @@ void MV_StopPlayback
    VoiceNode   *next;
    unsigned    flags;
 
-#ifdef PLAT_DOS
-   // Stop sound playback
-   switch( MV_SoundCard )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         BLASTER_StopPlayback();
-         break;
-
-      case UltraSound :
-         GUSWAVE_KillAllVoices();
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         PAS_StopPlayback();
-         break;
-
-      case SoundScape :
-         SOUNDSCAPE_StopPlayback();
-         break;
-
-      #ifndef SOUNDSOURCE_OFF
-      case SoundSource :
-      case TandySoundSource :
-         SS_StopPlayback();
-         break;
-      #endif
-      }
-#else
    DSL_StopPlayback();
-#endif
 
    // Make sure all callbacks are done.
    flags = DisableInterrupts();
@@ -2154,75 +1957,8 @@ int MV_StartRecording
    )
 
    {
-#ifdef PLAT_DOS
-   int status;
-
-   switch( MV_SoundCard )
-      {
-      case SoundBlaster :
-      case Awe32 :
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         break;
-
-      default :
-         MV_SetErrorCode( MV_UnsupportedCard );
-         return( MV_Error );
-         break;
-      }
-
-   if ( function == NULL )
-      {
-      MV_SetErrorCode( MV_NullRecordFunction );
-      return( MV_Error );
-      }
-
-   MV_StopPlayback();
-
-   // Initialize the buffers
-   ClearBuffer_DW( MV_MixBuffer[ 0 ], SILENCE_8BIT, TotalBufferSize >> 2 );
-
-   // Set the mix buffer variables
-   MV_MixPage  = 0;
-
-   MV_RecordFunc = function;
-
-   // Start playback
-   switch( MV_SoundCard )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         status = BLASTER_BeginBufferedRecord( MV_MixBuffer[ 0 ],
-            TotalBufferSize, NumberOfBuffers, MixRate, MONO_8BIT,
-            MV_ServiceRecord );
-
-         if ( status != BLASTER_Ok )
-            {
-            MV_SetErrorCode( MV_BlasterError );
-            return( MV_Error );
-            }
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         status = PAS_BeginBufferedRecord( MV_MixBuffer[ 0 ],
-            TotalBufferSize, NumberOfBuffers, MixRate, MONO_8BIT,
-            MV_ServiceRecord );
-
-         if ( status != PAS_Ok )
-            {
-            MV_SetErrorCode( MV_PasError );
-            return( MV_Error );
-            }
-         break;
-      }
-
-   MV_Recording = TRUE;
-   return( MV_Ok );
-#else
    MV_SetErrorCode( MV_UnsupportedCard );
    return( MV_Error );
-#endif
    }
 
 
@@ -2238,24 +1974,6 @@ void MV_StopRecord
    )
 
    {
-#ifdef PLAT_DOS
-   // Stop sound playback
-   switch( MV_SoundCard )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         BLASTER_StopPlayback();
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         PAS_StopPlayback();
-         break;
-      }
-
-   MV_Recording = FALSE;
-   MV_StartPlayback();
-#endif
    }
 
 
@@ -3018,91 +2736,7 @@ int MV_TestPlayback
    )
 
    {
-#ifdef PLAT_DOS
-   unsigned flags;
-   long time;
-   int  start;
-   int  status;
-   int  pos;
-
-   if ( MV_SoundCard == UltraSound )
-      {
-      return( MV_Ok );
-      }
-
-   flags = DisableInterrupts();
-   _enable();
-
-   status = MV_Error;
-   start  = MV_MixPage;
-   time   = clock() + CLOCKS_PER_SEC * 2;
-
-   while( clock() < time )
-      {
-      if ( MV_MixPage != start )
-         {
-         status = MV_Ok;
-         }
-      }
-
-   RestoreInterrupts( flags );
-
-   if ( status != MV_Ok )
-      {
-      // Just in case an error doesn't get reported
-      MV_SetErrorCode( MV_DMAFailure );
-
-      switch( MV_SoundCard )
-         {
-         case SoundBlaster :
-         case Awe32 :
-            pos = BLASTER_GetCurrentPos();
-            break;
-
-         case ProAudioSpectrum :
-         case SoundMan16 :
-            pos = PAS_GetCurrentPos();
-            break;
-
-         case SoundScape :
-            pos = SOUNDSCAPE_GetCurrentPos();
-            break;
-
-         #ifndef SOUNDSOURCE_OFF
-         case SoundSource :
-         case TandySoundSource :
-            MV_SetErrorCode( MV_SoundSourceFailure );
-            pos = -1;
-            break;
-         #endif
-
-         default :
-            MV_SetErrorCode( MV_UnsupportedCard );
-            pos = -2;
-            break;
-         }
-
-      if ( pos > 0 )
-         {
-         MV_SetErrorCode( MV_IrqFailure );
-         }
-      else if ( pos == 0 )
-         {
-         if ( MV_Bits == 16 )
-            {
-            MV_SetErrorCode( MV_DMA16Failure );
-            }
-         else
-            {
-            MV_SetErrorCode( MV_DMAFailure );
-            }
-         }
-      }
-
-   return( status );
-#else
    return MV_Ok;
-#endif
    }
 
 
@@ -3192,72 +2826,11 @@ int MV_Init
    MV_SetReverseStereo( FALSE );
 
    // Initialize the sound card
-#ifdef PLAT_DOS
-   switch( soundcard )
-      {
-      case UltraSound :
-         status = GUSWAVE_Init( 2 );
-         if ( status != GUSWAVE_Ok )
-            {
-            //JIM
-            MV_SetErrorCode( MV_BlasterError );
-            }
-         break;
-
-      case SoundBlaster :
-      case Awe32 :
-         status = BLASTER_Init();
-         if ( status != BLASTER_Ok )
-            {
-            MV_SetErrorCode( MV_BlasterError );
-            }
-
-         if ( ( BLASTER_Config.Type == SBPro ) ||
-            ( BLASTER_Config.Type == SBPro2 ) )
-            {
-            MV_SetReverseStereo( TRUE );
-            }
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         status = PAS_Init();
-         if ( status != PAS_Ok )
-            {
-            MV_SetErrorCode( MV_PasError );
-            }
-         break;
-
-      case SoundScape :
-         status = SOUNDSCAPE_Init();
-         if ( status != SOUNDSCAPE_Ok )
-            {
-            MV_SetErrorCode( MV_SoundScapeError );
-            }
-         break;
-
-      #ifndef SOUNDSOURCE_OFF
-      case SoundSource :
-      case TandySoundSource :
-         status = SS_Init( soundcard );
-         if ( status != SS_Ok )
-            {
-            MV_SetErrorCode( MV_SoundSourceError );
-            }
-         break;
-      #endif
-
-      default :
-         MV_SetErrorCode( MV_UnsupportedCard );
-         break;
-      }
-#else
    status = DSL_Init();
    if ( status != DSL_Ok )
       {
       MV_SetErrorCode( MV_BlasterError );
       }
-#endif
 
    if ( MV_ErrorCode != MV_Ok )
       {
@@ -3289,14 +2862,6 @@ int MV_Init
    // Set Mixer to play stereo digitized sound
    MV_SetMixMode( numchannels, samplebits );
    MV_ReverbDelay = MV_BufferSize * 3;
-
-#ifdef PLAT_DOS
-   // Make sure we don't cross a physical page
-   if ( ( ( unsigned long )ptr & 0xffff ) + TotalBufferSize > 0x10000 )
-      {
-      ptr = ( char * )( ( ( unsigned long )ptr & 0xff0000 ) + 0x10000 );
-      }
-#endif
 
    MV_MixBuffer[ MV_NumberOfBuffers ] = ptr;
    for( buffer = 0; buffer < MV_NumberOfBuffers; buffer++ )
@@ -3369,37 +2934,7 @@ int MV_Shutdown
    MV_StopPlayback();
 
    // Shutdown the sound card
-#ifdef PLAT_DOS
-   switch( MV_SoundCard )
-      {
-      case UltraSound :
-         GUSWAVE_Shutdown();
-         break;
-
-      case SoundBlaster :
-      case Awe32 :
-         BLASTER_Shutdown();
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         PAS_Shutdown();
-         break;
-
-      case SoundScape :
-         SOUNDSCAPE_Shutdown();
-         break;
-
-      #ifndef SOUNDSOURCE_OFF
-      case SoundSource :
-      case TandySoundSource :
-         SS_Shutdown();
-         break;
-      #endif
-      }
-#else
    DSL_Shutdown();
-#endif
 
    RestoreInterrupts( flags );
 
@@ -3551,7 +3086,6 @@ int MV_LockMemory
    return( MV_Ok );
    }
 
-#ifndef PLAT_DOS
 void ClearBuffer_DW( void *ptr, unsigned data, int length )
 {
 	unsigned *d = (unsigned *)ptr;
@@ -3562,4 +3096,3 @@ void ClearBuffer_DW( void *ptr, unsigned data, int length )
 		d++;
 	}
 }
-#endif

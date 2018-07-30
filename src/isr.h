@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _isr_public
 #define _isr_public
@@ -51,20 +49,10 @@ extern volatile int Keytail;
 extern volatile int Keyboard[MAXKEYBOARDSCAN];   // Keyboard status array
 extern volatile int Keystate[MAXKEYBOARDSCAN];   // Keyboard state array
 
-#ifdef DOS
-extern volatile int ticcount;     // Current ticcount (usually 70Hz)
-extern volatile int fasttics;
-
-#define GetTicCount()	ticcount
-#define GetFastTics()	fasttics
-
-#define SetFastTics(a) {fasttics=a;}
-#else
 int GetTicCount (void);
 int GetFastTics (void);
 
 void SetFastTics(int);
-#endif
 
 extern int KeyboardStarted;
 

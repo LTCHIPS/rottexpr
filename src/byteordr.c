@@ -38,13 +38,13 @@ void Cvt_##type(void *lmp, int num)       \
     }                                     \
 }
 
-DEFINE_CONVERTER(pic_t);
-DEFINE_CONVERTER(lpic_t);
-DEFINE_CONVERTER(font_t);
-DEFINE_CONVERTER(lbm_t);
-DEFINE_CONVERTER(patch_t);
-DEFINE_CONVERTER(transpatch_t);
-DEFINE_CONVERTER(cfont_t);
+DEFINE_CONVERTER(pic_t)
+DEFINE_CONVERTER(lpic_t)
+DEFINE_CONVERTER(font_t)
+DEFINE_CONVERTER(lbm_t)
+DEFINE_CONVERTER(patch_t)
+DEFINE_CONVERTER(transpatch_t)
+DEFINE_CONVERTER(cfont_t)
 
 
 void CvtNull(void *lmp, int num)

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "rt_def.h"
@@ -51,8 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "modexlib.h"
 #include "rt_cfg.h"
-//MED
-#include "memcheck.h"
 
 int    egacolor[16];
 byte   *  origpal;
@@ -83,10 +79,6 @@ static unsigned char egargb[48]= { 0x00,0x00,0x00,
                                  };
 
 extern const byte * ROTT_ERR;
-
-#if (DEVELOPMENT == 1)
-int TotalStaticMemory=0;
-#endif
 
 #define SWAP(a,b) \
    {              \
@@ -316,15 +308,10 @@ void Error (char *error, ...)
 {
     char msgbuf[300];
     va_list	argptr;
-    char i;
     int size;
     char * sptr;
-    char buf[30];
-    int handle;
-    int x,y;
     int level;
     static int inerror = 0;
-    char filename[ 128 ];
 
 
     inerror++;
@@ -333,9 +320,6 @@ void Error (char *error, ...)
 
 
     SetTextMode ();
-#if defined (ANSIESC)
-    DisplayTextSplash (&ROTT_ERR, 7);
-#endif
     memset (msgbuf, 0, 300);
 
     va_start (argptr, error);
@@ -364,15 +348,11 @@ void Error (char *error, ...)
             sptr = script_p;
         }
 
-        UL_printf (token);
+        printf("%s ", token);
+        
         px++;                //SPACE
         GetToken (true);
     }
-
-#ifdef ANSIESC
-    for (i = 0; i < 8; i++)
-        printf ("\n");
-#endif
 
     if (player!=NULL)
     {
@@ -399,8 +379,6 @@ void Error (char *error, ...)
     exit (1);
 }
 
-//#if (SOFTERROR==1)
-
 /*
 =================
 =
@@ -419,11 +397,6 @@ void SoftwareError (char *error, ...)
     va_end (argptr);
 }
 
-//#endif
-
-
-//#if (DEBUG == 1)
-
 /*
 =================
 =
@@ -441,8 +414,6 @@ void DebugError (char *error, ...)
     vfprintf (debugout, error, argptr);
     va_end (argptr);
 }
-
-//#endif
 
 /*
 =================
@@ -503,17 +474,6 @@ void OpenMapDebug ( void )
 */
 void StartupSoftError ( void )
 {
-#if (DEBUG == 1)
-    if (DebugStarted==false)
-    {
-        debugout = fopen(DEBUGFILE,"wt+");
-        DebugStarted=true;
-    }
-#endif
-#if (SOFTERROR == 1)
-    if (SoftErrorStarted==false)
-        OpenSoftError();
-#endif
 }
 
 /*
@@ -587,8 +547,7 @@ int SafeOpenAppend (char *_filename)
     filename[sizeof (filename) - 1] = '\0';
     FixFilePath(filename);
 
-    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_APPEND
-                  , S_IREAD | S_IWRITE);
+    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_APPEND, S_IRUSR | S_IWUSR );
 
     if (handle == -1)
         Error ("Error opening for append %s: %s",filename,strerror(errno));
@@ -604,8 +563,10 @@ int SafeOpenWrite (char *_filename)
     filename[sizeof (filename) - 1] = '\0';
     FixFilePath(filename);
 
-    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC
-                  , S_IREAD | S_IWRITE);
+    handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
+
+    
+    //handle = open(filename,O_RDWR | O_BINARY | O_CREAT | O_TRUNC );
 
     if (handle == -1)
         Error ("Error opening %s: %s",filename,strerror(errno));
@@ -820,10 +781,7 @@ void FixFilePath(char *filename)
 }
 
 
-#if PLATFORM_DOS
-/* no-op. */
-
-#elif PLATFORM_WIN32
+#if PLATFORM_WIN32
 int _dos_findfirst(char *filename, int x, struct find_t *f)
 {
     long rc = _findfirst(filename, &f->data);
@@ -941,7 +899,6 @@ int _dos_findnext(struct find_t *f)
 #endif
 
 
-#if !PLATFORM_DOS
 void _dos_getdate(struct dosdate_t *date)
 {
     time_t curtime = time(NULL);
@@ -960,7 +917,6 @@ void _dos_getdate(struct dosdate_t *date)
         date->dayofweek = tm->tm_wday + 1;
     }
 }
-#endif
 
 
 void GetPathFromEnvironment( char *fullname, const char *envname, const char *filename )
@@ -1324,36 +1280,6 @@ void VL_FillPalette (int red, int green, int blue)
 /*
 =================
 =
-= VL_SetColor
-=
-=================
-*/
-
-void VL_SetColor  (int color, int red, int green, int blue)
-{
-    STUB_FUNCTION;
-}
-
-//===========================================================================
-
-/*
-=================
-=
-= VL_GetColor
-=
-=================
-*/
-
-void VL_GetColor  (int color, int *red, int *green, int *blue)
-{
-    STUB_FUNCTION;
-}
-
-//===========================================================================
-
-/*
-=================
-=
 = VL_NormalizePalette
 =
 =================
@@ -1438,49 +1364,6 @@ void UL_DisplayMemoryError ( int memneeded )
 {
     STUB_FUNCTION;
     exit (0);
-}
-
-
-/*
-=================
-=
-= UL_printf
-=
-=================
-*/
-
-void UL_printf (byte *str)
-{
-#ifdef ANSIESC
-    printf ("\x1b[%d;%dH%s",py,px,str);
-#else
-    printf ("%s ",str);	// Hackish but works - DDOI
-#endif
-}
-
-/*
-=================
-=
-= UL_ColorBox
-=
-=================
-*/
-
-void UL_ColorBox (int x, int y, int w, int h, int color)
-{
-#if defined (ANSIESC)
-    int i,j;
-
-
-    for (j=0; j<h; j++)
-    {
-        for (i=0; i<w; i++)
-        {
-            printf ("\x1b[%d;%dH",y+j,x+i);
-            put_dos2ansi(color);
-        }
-    }
-#endif
 }
 
 //******************************************************************************
@@ -1636,32 +1519,6 @@ boolean UL_ChangeDirectory (char *path)
 
     return true;
 }
-
-
-
-//******************************************************************************
-//
-// UL_ChangeDrive ()
-//
-// Purpose
-//    To change drives.
-//
-// Parms
-//    drive - The drive to change to.
-//
-// Returns
-//    TRUE  - If drive change successful.
-//    FALSE - If drive change unsuccessful.
-//
-//******************************************************************************
-
-boolean UL_ChangeDrive (char *drive)
-{
-    STUB_FUNCTION;
-
-    return false;
-}
-
 
 /*
 =============

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //***************************************************************************
 //
@@ -97,32 +95,6 @@ typedef struct weaptype
     attack_t attackinfo[14];
 } williamdidthis;
 
-//
-// Interactive input status of device, returned by SWIFT_Get3DStatus
-//
-typedef struct {
-    short	x;
-    short	y;
-    short	z;
-    short	pitch;
-    short	roll;
-    short	yaw;
-    short	buttons;
-} SWIFT_3DStatus;
-
-
-//
-// Static data about device, returned by SWIFT_GetStaticDeviceInfo
-//
-typedef struct
-{
-    unsigned char	deviceType;
-    unsigned char	majorVersion;
-    unsigned char	minorVersion;
-    unsigned char	coordDescriptor[6];
-    unsigned char	reserved[1];
-} SWIFT_StaticData;
-
 typedef struct
 {
     int                lives;
@@ -201,10 +173,6 @@ extern ROTTCHARS  characters[5];
 extern williamdidthis FREE;
 extern statetype s_player;
 extern williamdidthis WEAPONS[MAXWEAPONS];
-extern boolean cybermanenabled;
-extern boolean spaceballenabled;
-extern boolean SpaceBallPresent;
-extern boolean CybermanPresent;
 extern boolean mouseenabled;
 extern boolean joystickenabled;
 extern boolean joypadenabled;
@@ -243,7 +211,6 @@ void     PollKeyboardButtons (void);
 void     PollMouseButtons (void);
 void     PollJoystickButtons (void);
 void     PollKeyboardMove (void);
-void     PollCyberman (void);
 void     PollMouseMove (void);
 void     PollJoystickMove (void);
 void     PollControls (void);
@@ -287,8 +254,6 @@ extern void SaveWeapons(objtype*);
 
 extern int whichpath;
 extern statobj_t *BulletHoles[MAXBULLETS];
-
-extern boolean vrenabled;
 
 void SetupBulletHoleLink (int num, statobj_t * item);
 

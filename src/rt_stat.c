@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "rt_def.h"
@@ -40,8 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h"
 #include "rt_view.h"
 #include "isr.h"
-//MED
-#include "memcheck.h"
 
 
 
@@ -157,7 +153,6 @@ statinfo stats[NUMSTATS] =
     {0,EMPTY_STATUE1,stat_emptystatue,FL_BLOCK|FL_SHOOTABLE,0,0,50,0,0},
     {16,TOMLARVA1,stat_tomlarva,FL_ACTIVE|FL_SHOOTABLE|FL_BLOCK,2,4,150,0,0},
     {0,BULLETHOLE,stat_bullethole,FL_TRANSLUCENT,0,0,0,0,0},
-//MED
 #if (SHAREWARE == 1)
     {0,COLLECTOR1,stat_collector,FL_ACTIVE|FL_BONUS,2,8,-1,0,0},
 #else
@@ -1854,20 +1849,13 @@ void CheckCriticalStatics(void)
 */
 
 void DoSprites(void)
-{   int index,i;
+{   int index;
     statobj_t *temp,*tempnext;
 
 
-#if (0)
-    Debug("\n");
-#endif
-    i=0;
     for(temp = firstactivestat; temp;)
     {   tempnext = temp->nextactive;
 
-#if (0)
-        Debug("\nid: %d, shapenum: %d, numanims: %d",i++,temp->shapenum,temp->numanims);
-#endif
 
         if ((temp->shapenum != NOTHING) && (temp->flags & FL_ACTIVE))
         {   index = temp->itemnumber;

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "rt_view.h"
@@ -41,8 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_str.h"
 #include "watcom.h"
 #include "develop.h"
-//MED
-#include "memcheck.h"
 
 #define LIGHTNINGLEVEL 4
 #define MINLIGHTNINGLEVEL   2
@@ -181,13 +177,8 @@ void SetViewDelta ( void )
 // calculate scale value for vertical height calculations
 // and sprite x calculations
 //
-    if ( iGLOBAL_SCREENWIDTH == 320) {
-        scale = (centerx*focalwidth)/(160);
-    } else if ( iGLOBAL_SCREENWIDTH == 640) {
-        scale = (centerx*focalwidth)/(160);
-    } else if ( iGLOBAL_SCREENWIDTH >= 800) {
-        scale = (centerx*focalwidth)/(160);
-    }
+
+    scale = (centerx*focalwidth)/(160);
 //
 // divide heightnumerator by a posts distance to get the posts height for
 // the heightbuffer.  The pixel height is height>>HEIGHTFRACTION
@@ -285,293 +276,12 @@ void SetViewSize
     }
     */
 
-    if ( iGLOBAL_SCREENWIDTH == 640) {
-        if (iGLOBAL_SCREENHEIGHT == 400)
-        {
-            height = 0;//we use height as dummy cnt
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 32;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400 - 16;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400;
-            
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 400;
-        
-        }
-        else{
-            height = 0;//we use height as dummy cnt
-            viewsizes[height++]= 380;
-            viewsizes[height++]= 336;
-            viewsizes[height++]= 428;
-            viewsizes[height++]= 352;
-            viewsizes[height++]= 460;
-            viewsizes[height++]= 368;
-            viewsizes[height++]= 492;
-            viewsizes[height++]= 384;
-            viewsizes[height++]= 524;
-            viewsizes[height++]= 400;
-            viewsizes[height++]= 556;
-            viewsizes[height++]= 416;
-            viewsizes[height++]= 588;
-            viewsizes[height++]= 432;
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 448;
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 464;
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 480;
-            viewsizes[height++]= 640;
-            viewsizes[height++]= 480;
-        }
 
-    } else if ( iGLOBAL_SCREENWIDTH == 800) {
-        height = 0;
-        viewsizes[height++]= 556;
-        viewsizes[height++]= 488;
-        
-        viewsizes[height++]= 588;
-        viewsizes[height++]= 504;
-        
-        viewsizes[height++]= 620;
-        viewsizes[height++]= 520;
-        
-        viewsizes[height++]= 652;
-        viewsizes[height++]= 536;
-        
-        viewsizes[height++]= 684;
-        viewsizes[height++]= 552;
-        
-        viewsizes[height++]= 716;
-        viewsizes[height++]= 568;
-        
-        viewsizes[height++]= 748;
-        viewsizes[height++]= 584;
-        
-        viewsizes[height++]= 800;
-        viewsizes[height++]= 600;
-        
-        viewsizes[height++]= 800;
-        viewsizes[height++]= 600;
-        
-        viewsizes[height++]= 800;
-        viewsizes[height++]= 600;
-        
-        viewsizes[height++]= 800;
-        viewsizes[height++]= 600;
-        
-    }
-    else if ( iGLOBAL_SCREENWIDTH == 1024) {
-	height = 0;
-	viewsizes[height++]= 556; 
-        viewsizes[height++]= 488;
-        
-        viewsizes[height++]= 588; 
-        viewsizes[height++]= 504;
-        
-        viewsizes[height++]= 620; 
-        viewsizes[height++]= 520;
-        
-        viewsizes[height++]= 816; 
-        viewsizes[height++]= 704;
-        
-        viewsizes[height++]= 868; 
-        viewsizes[height++]= 720;
-        
-        viewsizes[height++]= 920; 
-        viewsizes[height++]= 736;
-        
-        viewsizes[height++]= 972; 
-        viewsizes[height++]= 752;
-        
-        viewsizes[height++]= 1024; 
-        viewsizes[height++]= 768;
-        
-        viewsizes[height++]= 1024; 
-        viewsizes[height++]= 768;
-        
-        viewsizes[height++]= 1024; 
-        viewsizes[height++]= 768;
-        
-        viewsizes[height++]= 1024; 
-        viewsizes[height++]= 768;
-	}
-    else if ( iGLOBAL_SCREENWIDTH == 1280)
+    height = 0;
+    for (height = 0; height < 21;)
     {
-        height = 0;
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-        
-        viewsizes[height++]= 1280; 
-        viewsizes[height++]= 1024;
-    }
-    else if ( iGLOBAL_SCREENWIDTH == 1400)
-    {
-        height = 0;
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-        
-        viewsizes[height++]= 1400; 
-        viewsizes[height++]= 1050;
-    }
-    else if ( iGLOBAL_SCREENWIDTH == 1920)
-    {
-        height = 0;
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-        
-        viewsizes[height++]= 1920;
-        viewsizes[height++]= 1080;
-    }
-    else if ( iGLOBAL_SCREENWIDTH == 3840)
-    {
-        height = 0;
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-        
-        viewsizes[height++]= 3840;
-        viewsizes[height++]= 2160;
-    }
-    else
-    {
-        height = 0;
-        for (height = 0; height < 21;)
-        {
-            viewsizes[height++] = iGLOBAL_SCREENWIDTH;
-            viewsizes[height++] = iGLOBAL_SCREENHEIGHT;
-        }
+        viewsizes[height++] = iGLOBAL_SCREENWIDTH;
+        viewsizes[height++] = iGLOBAL_SCREENHEIGHT;
     }
 
 
@@ -770,12 +480,20 @@ void SetupScreen ( boolean flip )
     {
         DrawCPUJape();
     }
-
-    DrawPlayScreen (true);
-    if (flip==true)
-    {
+    if (flip == true){
+        boolean wasStretched = false;
+        
+        if(StretchScreen)
+        {
+            wasStretched = true;
+        }
+        DisableScreenStretch();
+        DrawPlayScreen (true);
         ThreeDRefresh();
-        VL_CopyDisplayToHidden();
+        if (wasStretched == true)
+        {
+            EnableScreenStretch();
+        }
     }
 }
 
@@ -1019,16 +737,6 @@ void UpdateLightLevel (int area)
         maxshade-=1;
     else if (maxshade<targetmax)
         maxshade+=1;
-
-#if 0
-    targetlevel=baseminshade+(GENERALNUMLIGHTS-numlights);
-    if (abs(minshade-targetlevel)==1)
-        minshade=targetlevel;
-    else if (minshade>targetlevel)
-        minshade-=2;
-    else if (minshade<targetlevel)
-        minshade+=2;
-#endif
 }
 
 /*

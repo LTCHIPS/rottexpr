@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // RT_FLOOR.C
 
@@ -40,8 +38,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_playr.h"
 #include "rt_sound.h"
 #include "rt_rand.h"
-//MED
-#include "memcheck.h"
 
 /*
 =============================================================================
@@ -138,7 +134,6 @@ void DrawFullSky( void )
 
     byte * src;
     int dest;
-    int plane;
     int ang;
     int angle;
     int ofs;
@@ -482,14 +477,12 @@ void SetFCLightLevel (int height)
 
 void DrawHLine (int xleft, int xright, int yp)
 {
-    int plane;
     byte * buf;
     byte * dest;
     int startxfrac;
     int startyfrac;
     int height;
 //   int length;
-    int ofs;
 
     if (yp==centery)
         return;

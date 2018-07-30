@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // Z_zone.c
 
@@ -30,11 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "develop.h"
 #include "rt_net.h"
 
-#if (DEVELOPMENT == 1)
-#include "rt_main.h"
-#endif
-//MED
-#include "memcheck.h"
 
 int lowmemory=0;
 
@@ -63,19 +56,6 @@ int zonememorystarted=0;
 static memzone_t       *mainzone;
 static memzone_t       *levelzone;
 static int levelzonesize=LEVELZONESIZE;
-static struct meminfo
-{
-    unsigned LargestBlockAvail;
-    unsigned MaxUnlockedPage;
-    unsigned LargestLockablePage;
-    unsigned LinAddrSpace;
-    unsigned NumFreePagesAvail;
-    unsigned NumPhysicalPagesFree;
-    unsigned TotalPhysicalPages;
-    unsigned FreeLinAddrSpace;
-    unsigned SizeOfPageFile;
-    unsigned Reserved[3];
-} MemInfo;
 
 /*
 ========================
@@ -269,10 +249,6 @@ void Z_Free (void *ptr)
 ========================
 */
 
-#if (DEVELOPMENT == 1)
-int totallevelsize=0;
-#endif
-
 void *Z_Malloc (int size, int tag, void *user)
 {
     int             extra;
@@ -353,12 +329,6 @@ void *Z_Malloc (int size, int tag, void *user)
     base->tag = tag;
 
     mainzone->rover = base->next;   // next allocation will start looking here
-
-
-#if (MEMORYCORRUPTIONTEST==1)
-    base->posttag=MEMORYPOSTTAG;
-    base->pretag=MEMORYPRETAG;
-#endif
 
     return (void *) ((byte *)base + sizeof(memblock_t));
 }
@@ -453,11 +423,6 @@ void *Z_LevelMalloc (int size, int tag, void *user)
     base->tag = tag;
 
     levelzone->rover = base->next;   // next allocation will start looking here
-
-#if (MEMORYCORRUPTIONTEST==1)
-    base->posttag=MEMORYPOSTTAG;
-    base->pretag=MEMORYPRETAG;
-#endif
 
     return (void *) ((byte *)base + sizeof(memblock_t));
 }
@@ -685,15 +650,6 @@ void Z_CheckHeap (void)
             Error ("Z_CheckHeap: next block doesn't have proper back link\n");
         if (!block->user && !block->next->user)
             Error ("Z_CheckHeap: two consecutive free blocks\n");
-#if (MEMORYCORRUPTIONTEST==1)
-        if ((block->tag>0) && (block->user>0))
-        {
-            if (block->posttag!=MEMORYPOSTTAG)
-                Error("Z_CheckHeap: Corrupted posttag\n");
-            if (block->pretag!=MEMORYPRETAG)
-                Error("Z_CheckHeap: Corrupted pretag\n");
-        }
-#endif
     }
 
     // Check levelzone
@@ -708,15 +664,6 @@ void Z_CheckHeap (void)
             Error ("Z_CheckHeap: next block doesn't have proper back link\n");
         if (!block->user && !block->next->user)
             Error ("Z_CheckHeap: two consecutive free blocks\n");
-#if (MEMORYCORRUPTIONTEST==1)
-        if ((block->tag>0) && (block->user>0))
-        {
-            if (block->posttag!=MEMORYPOSTTAG)
-                Error("Z_CheckHeap: Corrupted posttag\n");
-            if (block->pretag!=MEMORYPRETAG)
-                Error("Z_CheckHeap: Corrupted pretag\n");
-        }
-#endif
     }
 }
 

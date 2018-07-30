@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <stdio.h>
@@ -37,8 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_net.h"
 #include "rt_draw.h"
 //#include "rt_ser.h"
-//MED
-#include "memcheck.h"
 
 // GLOBAL VARIABLES
 
@@ -58,8 +54,6 @@ void SyncTime( int client );
 void SetTransitTime( int client, int time );
 
 #ifdef PLATFORM_UNIX
-
-static int sock = -1;
 
 static void ReadUDPPacket()
 {
@@ -83,7 +77,6 @@ static void WriteUDPPacket()
 void InitROTTNET (void)
 {
     int netarg;
-    long netaddress;
 
     if (ComStarted==true)
         return;
@@ -241,14 +234,6 @@ boolean ReadPacket (void)
 
 //      SoftError( "ReadPacket: time=%ld size=%ld src=%ld type=%d\n",GetTicCount(), rottcom->datalength,rottcom->remotenode,rottcom->data[0]);
 
-#if 0
-        rottcom->command=CMD_OUTQUEBUFFERSIZE;
-        int386(rottcom->intnum,&comregs,&comregs);
-        SoftError( "outque size=%ld\n",*((short *)&(rottcom->data[0])));
-        rottcom->command=CMD_INQUEBUFFERSIZE;
-        int386(rottcom->intnum,&comregs,&comregs);
-        SoftError( "inque size=%ld\n",*((short *)&(rottcom->data[0])));
-#endif
         return true;
     }
     else // Not ready yet....
@@ -304,15 +289,6 @@ void WritePacket (void * buffer, int len, int destination)
     // Send It !
 #ifdef PLATFORM_UNIX
     WriteUDPPacket();
-#endif
-
-#if 0
-    rottcom->command=CMD_OUTQUEBUFFERSIZE;
-    int386(rottcom->intnum,&comregs,&comregs);
-    SoftError( "outque size=%ld\n",*((short *)&(rottcom->data[0])));
-    rottcom->command=CMD_INQUEBUFFERSIZE;
-    int386(rottcom->intnum,&comregs,&comregs);
-    SoftError( "inque size=%ld\n",*((short *)&(rottcom->data[0])));
 #endif
 }
 

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include <string.h>
@@ -44,13 +42,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_floor.h"
 #include "engine.h"
 #include "develop.h"
-#include "rt_spbal.h"
 #include "rt_menu.h"
 #include "rt_net.h"
 #include "rt_str.h"
 #include "watcom.h"
-//MED
-#include "memcheck.h"
 
 //===========================================================================
 
@@ -145,7 +140,6 @@ void FixMapSeen( void )
 void DrawMap_Wall (int x, int y, int tile)
 {
     byte * buf;
-    int p;
     byte * b;
     byte * source;
     byte * s;
@@ -195,7 +189,6 @@ void DrawMap_AnimatedWall (int x, int y, int tile)
 void DrawMap_SkyTile (int x, int y)
 {
     byte * buf;
-    int p;
     byte * b;
     byte * s;
     int i;
@@ -714,20 +707,23 @@ void DrawFullMap( void )
 void DrawMapInfo ( void )
 {
     char temp[80];
+    
     int width,height;
 
     CurrentFont=tinyfont;
 
     PrintX = 2;
     PrintY = 2;
-    strcpy (&temp[0], &(LevelName[0]));
+    strncpy (&temp[0], LevelName, strlen(LevelName));
     US_MeasureStr (&width, &height, "%s", &temp[0]);
 
     VWB_TBar (0, 0, 320, height+4);
 
     US_BufPrint (&temp[0]);
+    
+    strncpy (&temp[0], "", strlen(LevelName)); //reset temp
 
-    strcpy (&temp[0], "TAB=EXIT");
+    strncpy (&temp[0], "TAB=EXIT", 8);
     US_MeasureStr (&width, &height, "%s", &temp[0]);
 
     PrintX = 316-width;
@@ -735,7 +731,9 @@ void DrawMapInfo ( void )
 
     US_BufPrint (&temp[0]);
 
-    strcpy (&temp[0], "< > CHANGE BACKGROUND COLOR");
+    strncpy (&temp[0], "", strlen(LevelName)); //reset temp
+    
+    strncpy (&temp[0], "< > CHANGE BACKGROUND COLOR", 27);
     US_MeasureStr (&width, &height, "%s", &temp[0]);
 
     PrintX = (320-width)>>1;
@@ -859,10 +857,6 @@ void DoMap (int cx, int cy)
 
     while (Keyboard[sc_Tab])
         IN_UpdateKeyboard ();
-    if (SpaceBallPresent && spaceballenabled)
-    {
-        while (GetSpaceBallButtons()) ;
-    }
 
     x=(cx-(xscale>>1))<<16;
     y=(cy-(yscale>>1))<<16;
@@ -883,11 +877,6 @@ void DoMap (int cx, int cy)
             else
                 quitkey=sc_Escape;
             done=true;
-        }
-        if (SpaceBallPresent && spaceballenabled)
-        {
-            if (GetSpaceBallButtons()!=0)
-                done=true;
         }
         if ( Keyboard[ sc_Home ] )
         {
@@ -969,13 +958,6 @@ void DoMap (int cx, int cy)
             if (control.dir==dir_North)
                 dy=-(tics<<17)/(5-mapscale);
         }
-#if (DEVELOPMENT == 1)
-        if (Keyboard[sc_M])
-        {
-            CheatMap();
-            ChangeMapScale( &x, &y, mapscale );
-        }
-#endif
 
         x+=dx;
         y+=dy;

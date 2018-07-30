@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // RT_BUILD.C
 
@@ -45,8 +43,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_sound.h"
 #include "modexlib.h"
 #include "rt_str.h"
-//MED
-#include "memcheck.h"
 
 byte * intensitytable;
 
@@ -230,15 +226,13 @@ void   DrawPlanePosts (void)
 {
     int height;
     char * buf;
-    byte * shape;
+    byte * shape = NULL;
     int lastwall=-2;
-    int plane;
     int i;
 
     shadingtable=colormap+(16<<8);
     {
-        VGAWRITEMAP(plane);
-        buf=(byte *)(bufferofs);
+        buf=(char *)(bufferofs);
 
         for (i=0; i<viewwidth; i++,buf++)
         {
@@ -253,7 +247,7 @@ void   DrawPlanePosts (void)
                 else
                     shape=W_CacheLumpNum(lastwall,PU_CACHE, Cvt_patch_t, 1);
             }
-            DrawRotPost (height,shape+posts[i].texture,buf,posts[i].offset);
+            DrawRotPost (height,shape+posts[i].texture,(byte*)buf,posts[i].offset);
         }
     }
 }
@@ -367,7 +361,7 @@ void DrawTransformedPlanes ( void )
     int greatest;
     int height;
     int i;
-    visobj_t * closest;
+    visobj_t * closest = NULL;
 
     numvisible = visptr-&vislist[0];
     if (!numvisible)
@@ -535,11 +529,6 @@ void PositionMenuBuf( int angle, int distance, boolean drawbackground )
     titleshade+=titleshadedir;
     if (abs(titleshade-16)>6)
         titleshadedir=-titleshadedir;
-    if (BackgroundDrawn==false)
-    {
-        VL_CopyDisplayToHidden();
-        BackgroundDrawn=true;
-    }
 }
 
 //******************************************************************************
@@ -867,7 +856,6 @@ void DrawTMenuBufPic (int x, int y, int shapenum)
     int plane;
     int pixel;
     byte *shape;
-    byte *src;
     pic_t *p;
 
     if (MenuBufStarted==false)
@@ -885,7 +873,6 @@ void DrawTMenuBufPic (int x, int y, int shapenum)
 
     buffer = (byte*)menubuf+(x*TEXTUREHEIGHT)+y;
 
-    src=(byte *)&p->data;
     for (plane=0; plane<4; plane++,buffer+=TEXTUREHEIGHT)
     {
         for (yy = 0; yy < p->height; yy++)

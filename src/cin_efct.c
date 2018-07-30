@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "cin_glob.h"
@@ -30,9 +28,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 
 #include "modexlib.h"
-#include "fli_glob.h"
-//MED
-#include "memcheck.h"
 
 static int cin_sprtopoffset;
 static int cin_invscale;
@@ -87,7 +82,6 @@ spriteevent * SpawnCinematicSprite ( char * name,
                                    )
 {
     spriteevent * sprite;
-    patch_t *p;
 
     sprite = SafeMalloc ( sizeof (spriteevent) );
 
@@ -102,8 +96,6 @@ spriteevent * SpawnCinematicSprite ( char * name,
     sprite->framedelay = framedelay;
     sprite->frame=0;
     sprite->frametime=framedelay;
-
-    p=(patch_t *)W_CacheLumpNum( W_GetNumForName(sprite->name), PU_CACHE, Cvt_patch_t, 1);
 
     sprite->x=x << FRACTIONBITS;
     sprite->y=y << FRACTIONBITS;
@@ -274,7 +266,6 @@ void ScaleFilmPost (byte * src, byte * buf)
 void DrawFlic ( flicevent * flic )
 {
     byte * curpal;
-    byte * buf;
     char flicname[40];
 
     curpal = SafeMalloc (768);
@@ -285,7 +276,6 @@ void DrawFlic ( flicevent * flic )
 
     if (flic->usefile==false)
     {
-        buf=W_CacheLumpName(flic->name,PU_CACHE, CvtNull, 1);
         strcpy(flicname,flic->name);
     }
     else
@@ -360,8 +350,6 @@ void DrawCinematicBackground ( backevent * back )
         buf=(byte *)bufferofs+ylookup[back->yoffset];
         offset=(back->currentoffset>>FRACTIONBITS)+plane;
 
-        VGAWRITEMAP(plane);
-
         for (i=0; i<iGLOBAL_SCREENWIDTH; i++,offset++,buf++)
         {
             if (offset>=back->backdropwidth)
@@ -404,8 +392,6 @@ void DrawCinematicMultiBackground ( backevent * back )
     {
         buf=(byte *)bufferofs+ylookup[back->yoffset];
         offset=(back->currentoffset>>FRACTIONBITS)+plane;
-
-        VGAWRITEMAP(plane);
 
         for (i=0; i<iGLOBAL_SCREENWIDTH; i++,offset++,buf++)
         {
@@ -451,8 +437,6 @@ void DrawCinematicBackdrop ( backevent * back )
     {
         buf=(byte *)bufferofs;
         offset=(back->currentoffset>>FRACTIONBITS)+plane;
-
-        VGAWRITEMAP(plane);
 
         for (i=0; i<iGLOBAL_SCREENWIDTH; i++,offset++,buf++)
         {
@@ -548,7 +532,6 @@ void DrawCinematicSprite ( spriteevent * sprite )
 
     for (; x1<=x2 ; x1++, frac += cin_iscale)
     {
-        VGAWRITEMAP(x1&3);
         ScaleFilmPost(((p->collumnofs[frac>>FRACTIONBITS])+shape),buf+x1);
     }
 }
@@ -847,17 +830,13 @@ void ProfileDisplay ( void )
 {
     byte * buf;
     int i;
-    int plane;
     byte src[200];
     int width = StretchScreen? 320:iGLOBAL_SCREENWIDTH;
 
     DrawClearBuffer ();
 
-    plane = 0;
-
     {
         buf=(byte *)bufferofs;
-        VGAWRITEMAP(plane);
 
         for (i=0; i<width; i++,buf++)
         {
@@ -894,8 +873,6 @@ void DrawPostPic ( int lumpnum )
         buf=(byte *)bufferofs;
 
         src=&(pic->data) + (plane*pic->height);
-
-        VGAWRITEMAP(plane);
 
         for (i=0; i<width; i++,src+=pic->height,buf++)
         {

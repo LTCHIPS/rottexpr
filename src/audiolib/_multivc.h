@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 /**********************************************************************
    file:   _MULTIVC.H
@@ -219,30 +217,7 @@ static void       MV_SetVoicePitch( VoiceNode *voice, unsigned long rate, int pi
 static void       MV_CalcVolume( int MaxLevel );
 static void       MV_CalcPanTable( void );
 
-#ifdef PLAT_DOS
-#define ATR_INDEX               0x3c0
-#define STATUS_REGISTER_1       0x3da
-
-#define SetBorderColor(color) \
-   { \
-   inp  (STATUS_REGISTER_1); \
-   outp (ATR_INDEX,0x31);    \
-   outp (ATR_INDEX,color);   \
-   }
-#endif
-
 void ClearBuffer_DW( void *ptr, unsigned data, int length );
-
-#ifdef PLAT_DOS
-#pragma aux ClearBuffer_DW = \
-   "cld",                    \
-   "push   es",              \
-   "push   ds",              \
-   "pop    es",              \
-   "rep    stosd",           \
-   "pop    es",              \
-parm [ edi ] [ eax ] [ ecx ] modify exact [ ecx edi ];
-#endif
 
 void MV_Mix8BitMono( unsigned long position, unsigned long rate,
    const char *start, unsigned long length );
@@ -275,12 +250,5 @@ void MV_8BitReverb( const signed char *src, signed char *dest, const VOLUME16 *v
 void MV_16BitReverbFast( const char *src, char *dest, int count, int shift );
 
 void MV_8BitReverbFast( const signed char *src, signed char *dest, int count, int shift );
-
-#ifdef PLAT_DOS
-#pragma aux MV_16BitReverb parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#pragma aux MV_8BitReverb parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#pragma aux MV_16BitReverbFast parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#pragma aux MV_8BitReverbFast parm [eax] [edx] [ebx] [ecx] modify exact [eax ebx ecx edx esi edi]
-#endif
 
 #endif

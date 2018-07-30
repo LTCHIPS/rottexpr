@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //***************************************************************************
 //
@@ -127,14 +125,11 @@ struct find_t
 int _dos_findfirst(char *filename, int x, struct find_t *f);
 int _dos_findnext(struct find_t *f);
 
-#elif PLATFORM_DOS
-/* no-op */
 #else
 #error please define for your platform.
 #endif
 
 
-#if !PLATFORM_DOS
 struct dosdate_t
 {
     unsigned char day;
@@ -144,66 +139,18 @@ struct dosdate_t
 };
 
 void _dos_getdate(struct dosdate_t *date);
-#endif
-
-
-#if (SOFTERROR==1)
 
 void  SoftwareError (char *error, ...) __attribute__((format(printf,1,2)));
-#define SoftError  SoftwareError
-
-#else
-void  SoftwareError (char *error, ...) __attribute__((format(printf,1,2)));
-//#define SoftError  SoftwareError
 
 #define SoftError  if (1) {} else SoftwareError
-
-//#define SoftError
-
-#endif
-
-#if (DEBUG==1)
-
-void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
-#define Debug  DebugError
-
-#else
 
 void  DebugError (char *error, ...) __attribute__((format(printf,1,2)));
 #define Debug  DebugError
 //#define Debug
 
-#endif
-
 void Square (void);
 
-#ifdef __WATCOMC__
-#pragma aux Square=\
-   "mov edx,03c4h",  \
-   "mov eax,0100h",  \
-	"out dx,ax",      \
-   "mov eax,0e3h",    \
-   "mov edx,03c2h",  \
-   "out dx,ax",      \
-   "mov eax,0300h",  \
-   "mov edx,03c4h",  \
-   "out dx,ax"      \
-   modify exact [eax edx]
-#endif
-
-
-#ifdef DOS
-void my_outp(int port, int data);
-#else
 #define my_outp(a,b)
-#endif
-
-#ifdef __WATCOMC__
-#pragma aux my_outp =  \
-        "out dx,al",                     \
-        parm    [edx] [eax] \
-        modify exact []
-#endif
 
 #define OUTP                              my_outp
 

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,8 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_view.h"
 #include "cin_efct.h"
 #include "w_wad.h"
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************
@@ -56,18 +52,6 @@ unsigned blockstarts[UPDATEWIDE*UPDATEHIGH];
 byte     update[UPDATESIZE];
 byte     palette1[256][3], palette2[256][3];
 boolean  screenfaded;
-
-
-//******************************************************************************
-//
-// LOCALS
-//
-//******************************************************************************
-
-static byte  pixmasks[4] = {1,2,4,8};
-static byte  leftmasks[4] = {15,14,12,8};
-static byte  rightmasks[4] = {1,3,7,15};
-
 
 
 //******************************************************************************
@@ -176,7 +160,6 @@ void DrawTiledRegion
     int    sourcey;
     int    sourcewidth;
     int    sourceheight;
-    int    mask;
     int    plane;
     int    planesize;
     byte  *start;
@@ -206,8 +189,6 @@ void DrawTiledRegion
     plane = 4;
     while( plane > 0 )
     {
-        VGAMAPMASK( mask );
-
         origdest = start+(4-plane);
 
         sourcey     = offy;
@@ -793,6 +774,8 @@ void VL_FadeIn (int start, int end, byte *palette, int steps)
 //
     VL_SetPalette (palette);
     screenfaded = false;
+    VH_UpdateScreen();
+    
 }
 
 
@@ -816,56 +799,6 @@ void SwitchPalette (byte * newpal, int steps)
 
     VL_FadeIn(0,255,newpal,steps>>1);
 }
-
-
-#if 0
-
-/*
-=================
-=
-= VL_TestPaletteSet
-=
-= Sets the palette with outsb, then reads it in and compares
-= If it compares ok, fastpalette is set to true.
-=
-=================
-*/
-
-void VL_TestPaletteSet (void)
-{
-    int   i;
-
-    for (i=0; i<768; i++)
-        palette1[0][i] = i;
-
-    fastpalette = true;
-    VL_SetPalette (&palette1[0][0]);
-    VL_GetPalette (&palette2[0][0]);
-    if (_fmemcmp (&palette1[0][0],&palette2[0][0],768))
-        fastpalette = false;
-}
-
-
-/*
-==================
-=
-= VL_ColorBorder
-=
-==================
-*/
-
-void VL_ColorBorder (int color)
-{
-    _AH=0x10;
-    _AL=1;
-    _BH=color;
-    geninterrupt (0x10);
-    bordercolor = color;
-}
-
-
-#endif
-
 
 //==========================================================================
 
@@ -1085,7 +1018,6 @@ void DrawXYPic (int x, int y, int shapenum)
 
     for (plane=x; plane<x+4; plane++)
     {
-        VGAWRITEMAP((plane&3));
         for (yy = 0; yy < p->height; yy++)
         {
             buf=buffer+ylookup[yy];

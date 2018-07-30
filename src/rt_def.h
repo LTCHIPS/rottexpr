@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _rt_def_public
 #define _rt_def_public
@@ -50,7 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #error please define your platform.
 #endif
 
-#if PLATFORM_DOS || PLATFORM_WIN32
+#if PLATFORM_WIN32
 #define PATH_SEP_CHAR '\\'
 #define PATH_SEP_STR  "\\"
 #elif PLATFORM_UNIX
@@ -115,7 +113,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define max(a, b)  (((a) > (b)) ? (a) : (b))
 #endif
 
-#if !PLATFORM_DOS
 #if PLATFORM_WIN32
 #define strcmpi(x, y) stricmp(x, y)
 #define _fstricmp(x, y) stricmp(x, y)
@@ -142,15 +139,10 @@ long filelength(int handle);
 #error please define for your platform.
 #endif
 
-#if !defined(ANSIESC)
 #define STUB_FUNCTION fprintf(stderr,"STUB: %s at " __FILE__ ", line %d, thread %d\n",__FUNCTION__,__LINE__,getpid())
-#else
-#define STUB_FUNCTION
-#endif
 
 #define far
 #define cdecl
-#endif
 
 //***************************************************************************
 //
@@ -270,32 +262,6 @@ long filelength(int handle);
 #define  ANGLEBITS      16
 #define  ANGLEFRACMAX   (FINEANGLES<<ANGLEBITS)
 
-
-//***************************************************************************
-//
-//    SWIFT Constants
-//
-//***************************************************************************
-
-//
-// device type codes, returned in deviceType field (SWIFT_StaticData)
-//
-#define SWIFT_DEV_NONE		0
-#define SWIFT_DEV_CYBERMAN	1
-
-//
-// Dynamic device data
-//
-#define SDD_EXTERNAL_POWER_CONNECTED	1
-#define SDD_EXTERNAL_POWER_TOO_HIGH	   2
-
-#define AX(r) ((r).x.eax)
-#define BX(r) ((r).x.ebx)
-#define CX(r) ((r).x.ecx)
-#define DX(r) ((r).x.edx)
-#define SI(r) ((r).x.esi)
-#define DI(r) ((r).x.edi)
-
 //***************************************************************************
 //
 //    Global Types
@@ -316,23 +282,12 @@ typedef int fixed;
 
 //////////////////      GLOBAL ENUMERATED TYPES    ///////////////////////
 
-#ifdef __WATCOMC__
-typedef enum
-{   false,
-    true
-}
-boolean;
-#else
 /* boolean is serialized at the moment, and watcomc made it a byte. */
 
 typedef unsigned char boolean;
 enum {
     false, true
 };
-#endif
-
-
-
 
 typedef enum {
     east,

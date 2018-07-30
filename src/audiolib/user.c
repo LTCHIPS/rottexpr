@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 /**********************************************************************
    module: USER.C
@@ -28,20 +26,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
    (c) Copyright 1994 James R. Dose.  All Rights Reserved.
 **********************************************************************/
 
-#ifdef PLAT_DOS
-#include <dos.h>
-#endif
-
 #include <string.h>
 #include "user.h"
 
 #define TRUE  ( 1 == 1 )
 #define FALSE ( !TRUE )
-
-#ifdef PLAT_DOS
-extern int   _argc;
-extern char **_argv;
-#endif
 
 /*---------------------------------------------------------------------
    Function: USER_CheckParameter
@@ -55,35 +44,7 @@ int USER_CheckParameter
    )
 
    {
-#ifdef PLAT_DOS
-   int i;
-   int found;
-   char *ptr;
-
-   found = FALSE;
-   i = 1;
-   while( i < _argc )
-      {
-      ptr = _argv[ i ];
-
-      // Only check parameters preceded by - or /
-      if ( ( *ptr == '-' ) || ( *ptr == '/' ) )
-         {
-         ptr++;
-         if ( stricmp( parameter, ptr ) == 0 )
-            {
-            found = TRUE;
-            break;
-            }
-         }
-
-      i++;
-      }
-
-   return( found );
-#else
    return FALSE;
-#endif
    }
 
 
@@ -100,34 +61,5 @@ char *USER_GetText
    )
 
    {
-#ifdef PLAT_DOS
-   int i;
-   char *text;
-   char *ptr;
-
-   text = NULL;
-   i = 1;
-   while( i < _argc )
-      {
-      ptr = _argv[ i ];
-
-      // Only check parameters preceded by - or /
-      if ( ( *ptr == '-' ) || ( *ptr == '/' ) )
-         {
-         ptr++;
-         if ( stricmp( parameter, ptr ) == 0 )
-            {
-            i++;
-            text = _argv[ i ];
-            break;
-            }
-         }
-
-      i++;
-      }
-
-   return( text );
-#else
    return NULL;
-#endif
    }

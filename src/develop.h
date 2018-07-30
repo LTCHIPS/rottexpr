@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,31 +12,15 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _develop_public
 #define _develop_public
 
 #define NOMEMCHECK
-#define DEBUG 0
-#define DEVELOPMENT 0
-#define BETA 0
-#define SOUNDTEST 0
-#define PRECACHETEST 0
-#define ELEVATORTEST 0
-#define TEAMTEST     0
-#define LOADSAVETEST 0
 #define WEAPONCHEAT  1
-#define MEMORYCORRUPTIONTEST  0
 #define SYNCCHECK    1
-#define DATACORRUPTIONTEST    0
-#define BATTLECHECK 0 // This should be turned off for release, on for beta
-#define BATTLEINFO  0 // This should be turned off for release
 
 #define DELUXE   0
 #define LOWCOST  0
@@ -51,32 +37,5 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // okay?
 
 #define TEDLAUNCH   0
-#define SOFTERROR   0
-#define RANDOMTEST  0
-#define WHEREAMI    0
-
-
-
-
-#if (WHEREAMI==1)
-
-#define wami(val)      \
-   {                   \
-   programlocation=val;\
-   }
-
-#define waminot()
-/*
-   {                  \
-   programlocation=-1;\
-   }
-*/
-
-#else
-
-#define wami(val)
-#define waminot()
-
-#endif
 
 #endif

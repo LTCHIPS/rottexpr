@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 /**********************************************************************
    module: FX_MAN.C
@@ -33,15 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "sndcards.h"
 #include "multivoc.h"
 
-#ifdef PLAT_DOS
-#include "blaster.h"
-#include "pas16.h"
-#include "sndscape.h"
-#include "guswave.h"
-#include "sndsrc.h"
-#else
 #include "dsl.h"
-#endif
 
 #include "ll_man.h"
 #include "user.h"
@@ -91,42 +81,8 @@ char *FX_ErrorString
             "(c) Copyright 1995 James R. Dose.  All Rights Reserved.\n";
          break;
 
-#ifdef PLAT_DOS
-      case FX_BlasterError :
-         ErrorString = BLASTER_ErrorString( BLASTER_Error );
-         break;
-#endif
-
       case FX_SoundCardError :
-#ifdef PLAT_DOS
-         switch( FX_SoundDevice )
-         {
-            case SoundBlaster :
-            case Awe32 :
-               ErrorString = BLASTER_ErrorString( BLASTER_Error );
-               break;
-
-            case ProAudioSpectrum :
-            case SoundMan16 :
-               ErrorString = PAS_ErrorString( PAS_Error );
-               break;
-
-            case SoundScape :
-               ErrorString = SOUNDSCAPE_ErrorString( SOUNDSCAPE_Error );
-               break;
-
-            case UltraSound :
-               ErrorString = GUSWAVE_ErrorString( GUSWAVE_Error );
-               break;
-
-            case SoundSource :
-            case TandySoundSource :
-               ErrorString = SS_ErrorString( SS_Error );
-               break;
-            }
-#else
          ErrorString = DSL_ErrorString( DSL_Error );
-#endif
          break;
 
       case FX_InvalidCard :
@@ -177,88 +133,6 @@ int FX_SetupCard
    status = FX_Ok;
    FX_SetErrorCode( FX_Ok );
 
-#ifdef PLAT_DOS
-   switch( SoundCard )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         DeviceStatus = BLASTER_Init();
-         if ( DeviceStatus != BLASTER_Ok )
-            {
-            FX_SetErrorCode( FX_SoundCardError );
-            status = FX_Error;
-            break;
-            }
-
-         device->MaxVoices = 32;
-         BLASTER_GetCardInfo( &device->MaxSampleBits, &device->MaxChannels );
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         DeviceStatus = PAS_Init();
-         if ( DeviceStatus != PAS_Ok )
-            {
-            FX_SetErrorCode( FX_SoundCardError );
-            status = FX_Error;
-            break;
-            }
-
-         device->MaxVoices = 32;
-         PAS_GetCardInfo( &device->MaxSampleBits, &device->MaxChannels );
-         break;
-
-      case GenMidi :
-      case SoundCanvas :
-      case WaveBlaster :
-         device->MaxVoices     = 0;
-         device->MaxSampleBits = 0;
-         device->MaxChannels   = 0;
-         break;
-
-      case SoundScape :
-         device->MaxVoices = 32;
-         DeviceStatus = SOUNDSCAPE_GetCardInfo( &device->MaxSampleBits,
-            &device->MaxChannels );
-         if ( DeviceStatus != SOUNDSCAPE_Ok )
-            {
-            FX_SetErrorCode( FX_SoundCardError );
-            status = FX_Error;
-            }
-         break;
-
-      case UltraSound :
-         if ( GUSWAVE_Init( 8 ) != GUSWAVE_Ok )
-            {
-            FX_SetErrorCode( FX_SoundCardError );
-            status = FX_Error;
-            break;
-            }
-
-         device->MaxVoices     = 8;
-         device->MaxSampleBits = 0;
-         device->MaxChannels   = 0;
-         break;
-
-      case SoundSource :
-      case TandySoundSource :
-         DeviceStatus = SS_Init( SoundCard );
-         if ( DeviceStatus != SS_Ok )
-            {
-            FX_SetErrorCode( FX_SoundCardError );
-            status = FX_Error;
-            break;
-            }
-         SS_Shutdown();
-         device->MaxVoices     = 32;
-         device->MaxSampleBits = 8;
-         device->MaxChannels   = 1;
-         break;
-      default :
-         FX_SetErrorCode( FX_InvalidCard );
-         status = FX_Error;
-      }
-#else
       DeviceStatus = DSL_Init();
       if ( DeviceStatus != DSL_Ok )
          {
@@ -271,7 +145,6 @@ int FX_SetupCard
          device->MaxSampleBits = 0;
          device->MaxChannels   = 0;
          }
-#endif
 
    return( status );
    }
@@ -289,27 +162,6 @@ int FX_GetBlasterSettings
    )
 
    {
-#ifdef PLAT_DOS
-   int status;
-   BLASTER_CONFIG Blaster;
-
-   FX_SetErrorCode( FX_Ok );
-
-   status = BLASTER_GetEnv( &Blaster );
-   if ( status != BLASTER_Ok )
-      {
-      FX_SetErrorCode( FX_BlasterError );
-      return( FX_Error );
-      }
-
-   blaster->Type      = Blaster.Type;
-   blaster->Address   = Blaster.Address;
-   blaster->Interrupt = Blaster.Interrupt;
-   blaster->Dma8      = Blaster.Dma8;
-   blaster->Dma16     = Blaster.Dma16;
-   blaster->Midi      = Blaster.Midi;
-   blaster->Emu       = Blaster.Emu;
-#endif
 
    return( FX_Ok );
    }
@@ -330,34 +182,6 @@ int FX_SetupSoundBlaster
    )
 
    {
-#ifdef PLAT_DOS
-   int DeviceStatus;
-   BLASTER_CONFIG Blaster;
-
-   FX_SetErrorCode( FX_Ok );
-
-   FX_SoundDevice = SoundBlaster;
-
-   Blaster.Type      = blaster.Type;
-   Blaster.Address   = blaster.Address;
-   Blaster.Interrupt = blaster.Interrupt;
-   Blaster.Dma8      = blaster.Dma8;
-   Blaster.Dma16     = blaster.Dma16;
-   Blaster.Midi      = blaster.Midi;
-   Blaster.Emu       = blaster.Emu;
-
-   BLASTER_SetCardSettings( Blaster );
-
-   DeviceStatus = BLASTER_Init();
-   if ( DeviceStatus != BLASTER_Ok )
-      {
-      FX_SetErrorCode( FX_SoundCardError );
-      return( FX_Error );
-      }
-
-   *MaxVoices = 8;
-   BLASTER_GetCardInfo( MaxSampleBits, MaxChannels );
-#endif
 
    return( FX_Ok );
    }
@@ -541,53 +365,7 @@ void FX_SetVolume
    )
 
    {
-   int status;
-
-#ifdef PLAT_DOS
-   switch( FX_SoundDevice )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         if ( BLASTER_CardHasMixer() )
-            {
-            BLASTER_SetVoiceVolume( volume );
-            }
-         else
-            {
-            MV_SetVolume( volume );
-            }
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         status = PAS_SetPCMVolume( volume );
-         if ( status != PAS_Ok )
-            {
-            MV_SetVolume( volume );
-            }
-         break;
-
-      case GenMidi :
-      case SoundCanvas :
-      case WaveBlaster :
-         break;
-
-      case SoundScape :
-         MV_SetVolume( volume );
-         break;
-
-      case UltraSound :
-         GUSWAVE_SetVolume( volume );
-         break;
-
-      case SoundSource :
-      case TandySoundSource :
-         MV_SetVolume( volume );
-         break;
-      }
-#else
    MV_SetVolume( volume );
-#endif
    }
 
 
@@ -605,55 +383,7 @@ int FX_GetVolume
    {
    int volume;
 
-#ifdef PLAT_DOS
-   switch( FX_SoundDevice )
-      {
-      case SoundBlaster :
-      case Awe32 :
-         if ( BLASTER_CardHasMixer() )
-            {
-            volume = BLASTER_GetVoiceVolume();
-            }
-         else
-            {
-            volume = MV_GetVolume();
-            }
-         break;
-
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         volume = PAS_GetPCMVolume();
-         if ( volume == PAS_Error )
-            {
-            volume = MV_GetVolume();
-            }
-         break;
-
-      case GenMidi :
-      case SoundCanvas :
-      case WaveBlaster :
-         volume = 255;
-         break;
-
-      case SoundScape :
-         volume = MV_GetVolume();
-         break;
-
-      case UltraSound :
-         volume = GUSWAVE_GetVolume();
-         break;
-
-      case SoundSource :
-      case TandySoundSource :
-         volume = MV_GetVolume();
-         break;
-
-      default :
-         volume = 0;
-      }
-#else
    volume = MV_GetVolume();
-#endif
 
    return( volume );
    }
@@ -1316,34 +1046,8 @@ int FX_StartRecording
    {
    int status;
 
-#ifdef PLAT_DOS
-   switch( FX_SoundDevice )
-      {
-      case SoundBlaster :
-      case Awe32 :
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         status = MV_StartRecording( MixRate, function );
-         if ( status != MV_Ok )
-            {
-            FX_SetErrorCode( FX_MultiVocError );
-            status = FX_Warning;
-            }
-         else
-            {
-            status = FX_Ok;
-            }
-         break;
-
-      default :
-         FX_SetErrorCode( FX_InvalidCard );
-         status = FX_Warning;
-         break;
-      }
-#else
    FX_SetErrorCode( FX_InvalidCard );
    status = FX_Warning;
-#endif
 
    return( status );
    }
@@ -1361,16 +1065,4 @@ void FX_StopRecord
    )
 
    {
-#ifdef PLAT_DOS
-   // Stop sound playback
-   switch( FX_SoundDevice )
-      {
-      case SoundBlaster :
-      case Awe32 :
-      case ProAudioSpectrum :
-      case SoundMan16 :
-         MV_StopRecord();
-         break;
-      }
-#endif
    }

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <stdarg.h>
@@ -28,15 +26,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <sys/stat.h>
 #include <SDL2/SDL_video.h>
 #include "modexlib.h"
-//MED
-#include "memcheck.h"
 #include "rt_util.h"
 #include "rt_net.h" // for GamePaused
 #include "myprint.h"
 #include "rt_view.h"
 #include "queue.h"
 #include "lumpy.h"
-#include "SDL2/SDL2_rotozoom.h"
+//#include "SDL2/SDL2_rotozoom.h"
 //#include <SDL2/SDL_image.h>
 
 
@@ -85,11 +81,7 @@ void DrawCenterAim ();
 #ifndef STUB_FUNCTION
 
 /* rt_def.h isn't included, so I just put this here... */
-#if !defined(ANSIESC)
 #define STUB_FUNCTION fprintf(stderr,"STUB: %s at " __FILE__ ", line %d, thread %d\n",__FUNCTION__,__LINE__,getpid())
-#else
-#define STUB_FUNCTION
-#endif
 
 #endif
 
@@ -165,17 +157,6 @@ void SetTextMode ( void )
 /*
 ====================
 =
-= TurnOffTextCursor
-=
-====================
-*/
-void TurnOffTextCursor ( void )
-{
-}
-
-/*
-====================
-=
 = WaitVBL
 =
 ====================
@@ -225,10 +206,10 @@ void VL_SetVGAPlaneMode ( void )
     iG_X_center = iGLOBAL_SCREENWIDTH / 2;
     iG_Y_center = (iGLOBAL_SCREENHEIGHT / 2)+10 ;//+10 = move aim down a bit
 
-    iG_buf_center = bufferofs + (screensize/2);//(iG_Y_center*iGLOBAL_SCREENWIDTH);//+iG_X_center;
+    iG_buf_center = (char *)(bufferofs + (screensize/2));//(iG_Y_center*iGLOBAL_SCREENWIDTH);//+iG_X_center;
 
-    bufofsTopLimit =  bufferofs + screensize - iGLOBAL_SCREENWIDTH;
-    bufofsBottomLimit = bufferofs + iGLOBAL_SCREENWIDTH;
+    bufofsTopLimit =  (char *) (bufferofs + screensize - iGLOBAL_SCREENWIDTH);
+    bufofsBottomLimit = (char *) (bufferofs + iGLOBAL_SCREENWIDTH);
 
     // start stretched
     EnableScreenStretch();
@@ -257,30 +238,6 @@ void VL_CopyPlanarPage ( byte * src, byte * dest )
 void VL_CopyPlanarPageToMemory ( byte * src, byte * dest )
 {
     memcpy(dest,src,screensize);
-}
-
-/*
-=======================
-=
-= VL_CopyBufferToAll
-=
-=======================
-*/
-void VL_CopyBufferToAll ( byte *buffer )
-{
-    //STUB_FUNCTION;
-}
-
-/*
-=======================
-=
-= VL_CopyDisplayToHidden
-=
-=======================
-*/
-void VL_CopyDisplayToHidden ( void )
-{
-    VL_CopyBufferToAll ( displayofs );
 }
 
 /*
@@ -313,18 +270,6 @@ void VL_ClearVideo (byte color)
     memset (sdl_surface->pixels, color, iGLOBAL_SCREENWIDTH*iGLOBAL_SCREENHEIGHT);
 }
 
-/*
-=================
-=
-= VL_DePlaneVGA
-=
-=================
-*/
-
-void VL_DePlaneVGA (void)
-{
-}
-
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
     SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
@@ -338,71 +283,6 @@ void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect
 }
 
 int hudRescaleFactor = 1;
-
-/*
-void DrawObjsInSDLQueue(SDL_Texture * tex)
-{
-    SDL_SetRenderTarget(renderer, tex);
-    //SDL_LockTexture(tex,NULL, sdl_surface->pixels, iGLOBAL_SCREENBWIDE);
-    
-    while(sdl_draw_obj_queue->sizeOfQueue != 0)
-    {   
-        SDLDrawObj * thing = sdl_draw_obj_queue->head->data;
-        
-        
-        SDL_Surface * tempSurf = SDL_CreateRGBSurfaceWithFormatFrom( thing->data, (int) thing->shape->width,
-                                (int) thing->shape->height, 8, (int)thing->shape->width, sdl_surface->format->format);
-        
-        //SDL_LockSurface(tempSurf);
-        
-        
-        //tempSurf->pixels = (byte *) &thing->data;
-        
-        //SDL_UnlockSurface(tempSurf);
-        
-        if(tempSurf == NULL)
-        {
-            Error("Failed to make temporary Surface when rendering things in SDL");
-            exit(1);
-        }
-        
-        SDL_Texture * tempTex = SDL_CreateTextureFromSurface(renderer, tempSurf);
-        
-        if(tempTex == NULL)
-        {
-            Error("Failed to make temporary Texture when rendering things in SDL");
-            exit(1);
-        }
-        
-        SDL_Rect newCoords = (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor};
-        
-        SDL_RenderCopy(renderer, tempTex, NULL, &newCoords);
-        
-        SDL_FreeSurface(tempSurf);
-        
-        SDL_DestroyTexture(tempTex);
-        
-        dequeue(sdl_draw_obj_queue, thing);
-        
-    
-    }
-    //SDL_SetRenderTarget(renderer, NULL);
-    
-    //SDL_RenderCopy(renderer, tex, NULL, NULL);
-    
-    
-    //SDL_UnlockTexture(tex);
-    
-    SDL_SetRenderTarget(renderer, NULL);
-    
-    //SDL_RenderPresent(renderer);
-    
-
-}
-*/
-
-
-
 
 void RenderSurface(void)
 {
@@ -472,8 +352,6 @@ void XFlipPage ( void )
 
 void EnableScreenStretch(void)
 {
-    int i,offset;
-
     if (iGLOBAL_SCREENWIDTH <= 320 || StretchScreen) return;
 
     if (unstretch_sdl_surface == NULL)
@@ -560,7 +438,7 @@ void DrawCenterAim ()
                 x = iG_playerTilt;
                 iG_playerTilt=x/2;
             }
-            iG_buf_center = bufferofs + ((iG_Y_center-iG_playerTilt)*iGLOBAL_SCREENWIDTH);//+iG_X_center;
+            iG_buf_center = (char *)(bufferofs + ((iG_Y_center-iG_playerTilt)*iGLOBAL_SCREENWIDTH));//+iG_X_center;
 
             for (x=iG_X_center-10; x<=iG_X_center-4; x++) {
                 if ((iG_buf_center+x < bufofsTopLimit)&&(iG_buf_center+x > bufofsBottomLimit)) {
@@ -646,7 +524,7 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float sca
     output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
         
     output.y = (iGLOBAL_SCREENHEIGHT - output.h)>>1;
-        
+    
     SDL_RenderCopyEx(renderer, tex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
         
     SDL_RenderPresent(renderer);

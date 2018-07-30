@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // CRC lib
 
@@ -23,8 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include	<stdlib.h>
 #include	<string.h>
 #include "rt_crc.h"
-//MED
-#include "memcheck.h"
 
 /* variables */
 static const unsigned short int crc16tab[256] =
@@ -62,35 +58,6 @@ static const unsigned short int crc16tab[256] =
     0x4400, 0x84C1, 0x8581, 0x4540, 0x8701, 0x47C0, 0x4680, 0x8641,
     0x8201, 0x42C0, 0x4380, 0x8341, 0x4100, 0x81C1, 0x8081, 0x4040
 };
-
-/* driver */
-#if 0
-main(argc,argv)
-int argc;
-char **argv;
-{
-    if(argc>2) perr("Usage:  crcfast [filename]");
-    if(argc==2) strcpy(filename,argv[1]);
-    else
-    {
-        printf("\nEnter filename:  ");
-        gets(filename);
-    }
-    if((fp=fopen(filename,"rb"))==NULL) perr("Can't open file");
-    num=0L;
-    crc16=crctt=0;
-    while((ch=fgetc(fp))!=EOF)
-    {
-        num++;
-        crc16=updatecrc(crc16,ch);
-//		crctt=updcrc(crctt,ch);
-    }
-    fclose(fp);
-    printf("\nNumber of bytes = %lu\nCRC16 = %04X\nCRCTT = %04X",
-           num,crc16,crctt);
-}
-
-#endif
 
 /* update crc reverse */
 int updatecrc(int crc, int c)

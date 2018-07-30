@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "_rt_rand.h"
@@ -24,11 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_util.h"
 #include <time.h>
 
-#if (DEVELOPMENT == 1)
-#include "rt_main.h"
-#endif
-//MED
-#include "memcheck.h"
 
 //****************************************************************************
 //
@@ -72,9 +65,7 @@ void  InitializeRNG ( void )
 void  SetRNGindex ( int i )
 {
     rndindex=i;
-//#if (DEVELOPMENT == 1)
     SoftError("RNG index set at %d\n",i);
-//#endif
 }
 
 //****************************************************************************
@@ -89,19 +80,6 @@ int GetRNGindex ( void )
 }
 
 
-#if (RANDOMTEST==1)
-//****************************************************************************
-//
-// int GameRNG ( char * string, int val )
-//
-//****************************************************************************
-int   GameRNG ( char * string, int val )
-{
-    rndindex = (rndindex+1)&(SIZE_OF_RANDOM_TABLE-1);
-    SoftError("RNG - num=%3d called from=%s val=%d\n",RandomTable[rndindex],string,val);
-    return RandomTable[rndindex];
-}
-#else
 //****************************************************************************
 //
 // int GameRNG (void)
@@ -113,24 +91,9 @@ int   GameRNG ( void )
 
     return RandomTable[rndindex];
 }
-#endif
 
 
 
-#if (RANDOMTEST==1)
-//****************************************************************************
-//
-// int RNG ( char * string, int val )
-//
-//****************************************************************************
-
-int   RNG ( char * string, int val )
-{
-    sndindex = (sndindex+1)&(SIZE_OF_RANDOM_TABLE-1);
-//   SoftError("SRNG - num=%3ld called from=%s val=%ld\n",RandomTable[sndindex],string,val);
-    return RandomTable[sndindex];
-}
-#else
 //****************************************************************************
 //
 // int RNG (void)
@@ -143,5 +106,4 @@ int   RNG( void )
 
     return RandomTable[sndindex];
 }
-#endif
 

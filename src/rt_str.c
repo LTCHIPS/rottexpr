@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //******************************************************************************
 //
@@ -51,8 +49,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_playr.h"
 #include "rt_sound.h"
 #include "myprint.h"
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************
@@ -103,7 +99,6 @@ void VW_DrawClippedString (int x, int y, const char *string)
             if ((x>=0) && (x<iGLOBAL_SCREENWIDTH))
             {
                 y=oy;
-                VGAWRITEMAP(x&3);
                 height = ht;
                 while (height--)
                 {
@@ -132,12 +127,10 @@ void US_ClippedPrint (int x, int y, const char *string)
     char  c,
           *se;
     char  *s;
-    int   startx;
 
     strcpy(strbuf, string);
     s = strbuf;
 
-    startx=x;
     while (*s)
     {
         se = s;
@@ -171,7 +164,7 @@ void VW_DrawPropString (const char *string)
     byte  pix;
     int   width,step,height,ht;
     byte  *source, *dest, *origdest;
-    int   ch,mask;
+    int   ch;
 
     ht = CurrentFont->height;
     dest = origdest = (byte *)(bufferofs+ylookup[py]+px);
@@ -236,15 +229,10 @@ void VW_DrawIPropString (const char *string)
     byte  pix;
     int   width,step,height,ht;
     byte  *source, *dest, *origdest;
-    int   ch,mask;
-
+    int   ch;
 
     ht = CurrentFont->height;
     dest = origdest = (byte *)(bufferofs+ylookup[py]+px);
-
-
-    mask = 1<<(px&3);
-
 
     while ((ch = (unsigned char)*string++)!=0)
     {
@@ -253,8 +241,6 @@ void VW_DrawIPropString (const char *string)
         source = ((byte *)CurrentFont)+CurrentFont->charofs[ch];
         while (width--)
         {
-            VGAMAPMASK(mask);
-
             height = ht;
             while (height--)
             {
@@ -597,7 +583,7 @@ void US_CPrint (const char *string)
           *se,
           *s;
 
-    strcpy(strbuf, string);
+    strncpy(strbuf, string, strlen(string));
     s = strbuf;
 
     while (*s)
@@ -644,7 +630,7 @@ static void USL_XORICursor (int x, int y, const char *s, int cursor, int color)
     int      oldx = px;
     int      oldy = py;
 
-    strcpy (buf,s);
+    strncpy (buf,s, strlen(s));
     buf[cursor] = '\0';
     USL_MeasureString (buf, &w, &h, CurrentFont);
 
@@ -726,7 +712,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
 
     if (def)
-        strcpy (s, def);
+        strncpy (s, def, strlen(def));
     else
         *s = '\0';
 
@@ -810,7 +796,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
 
         case sc_Return:
-            strcpy (buf,s);
+            strncpy (buf,s, strlen(s));
             done = true;
             result = true;
             lastkey = key_None;
@@ -831,7 +817,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (cursor)
             {
-                strcpy (s + cursor - 1,s + cursor);
+                strncpy (s + cursor - 1,s + cursor, strlen(s + cursor));
                 cursor--;
                 redraw = true;
                 cursormoved = true;
@@ -846,7 +832,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (s[cursor])
             {
-                strcpy (s + cursor,s + cursor + 1);
+                strncpy (s + cursor,s + cursor + 1, strlen(s + cursor + 1));
                 redraw = true;
                 cursormoved = true;
                 MN_PlayMenuSnd (SD_MOVECURSORSND);
@@ -910,7 +896,7 @@ boolean US_LineInput (int x, int y, char *buf, const char *def, boolean escok,
             else
                 EraseMenuBufRegion (x, y, BKw, BKh);
 
-            strcpy (olds, s);
+            strncpy (olds, s, strlen(s));
 
             px = x;
             py = y;
@@ -1020,7 +1006,7 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
 
 
     if (def)
-        strcpy (s, def);
+        strncpy (s, def, strlen(def));
     else
         *s = '\0';
 
@@ -1103,7 +1089,7 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
             break;
 
         case sc_Return:
-            strcpy (buf,s);
+            strncpy (buf,s, strlen(s));
             done = true;
             result = true;
             lastkey = key_None;
@@ -1124,8 +1110,8 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (cursor)
             {
-                strcpy (s + cursor - 1,s + cursor);
-                strcpy (xx + cursor - 1,xx + cursor);
+                strncpy (s + cursor - 1,s + cursor, strlen(s + cursor));
+                strncpy (xx + cursor - 1,xx + cursor, strlen(xx + cursor));
                 cursor--;
                 redraw = true;
                 MN_PlayMenuSnd (SD_MOVECURSORSND);
@@ -1140,8 +1126,8 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
 
             if (s[cursor])
             {
-                strcpy (s + cursor,s + cursor + 1);
-                strcpy (xx + cursor,xx + cursor + 1);
+                strncpy (s + cursor,s + cursor + 1, strlen(s + cursor + 1));
+                strncpy (xx + cursor,xx + cursor + 1, strlen(xx + cursor + 1));
                 redraw = true;
                 cursormoved = true;
                 MN_PlayMenuSnd (SD_MOVECURSORSND);
@@ -1205,7 +1191,7 @@ boolean US_lineinput (int x, int y, char *buf, const char *def, boolean escok,
             else
                 EraseMenuBufRegion (x, y, BKw, BKh);
 
-            strcpy (olds, s);
+            strncpy (olds, s, strlen(s));
 
             px = x;
             py = y;
@@ -1313,7 +1299,6 @@ void US_DrawWindow (int x, int y, int w, int h)
     pic_t *Win2;
     pic_t *Win3;
     pic_t *Win4;
-    pic_t *Win5;
     pic_t *Win6;
     pic_t *Win7;
     pic_t *Win8;
@@ -1328,8 +1313,6 @@ void US_DrawWindow (int x, int y, int w, int h)
     Win3 = (pic_t *) shape;
     shape = W_CacheLumpNum (W_GetNumForName ("window4"), PU_CACHE, Cvt_pic_t, 1);
     Win4 = (pic_t *) shape;
-    shape = W_CacheLumpNum (W_GetNumForName ("window5"), PU_CACHE, Cvt_pic_t, 1);
-    Win5 = (pic_t *) shape;
     shape = W_CacheLumpNum (W_GetNumForName ("window6"), PU_CACHE, Cvt_pic_t, 1);
     Win6 = (pic_t *) shape;
     shape = W_CacheLumpNum (W_GetNumForName ("window7"), PU_CACHE, Cvt_pic_t, 1);
@@ -1430,17 +1413,12 @@ void DrawIntensityChar  ( char ch )
 {
 
     byte  pix;
-    int   px1,py1;
-    int   width,w1;
-    int   height,h1;
+    int   width;
+    int   height;
     int   ht;
-    byte  *source,*src1;
+    byte  *source;
     byte  *dest;
-    byte  *origdest,*orgdst1;
-    int   mask;
-
-    px1 = px;
-    py1 = py;
+    byte  *origdest;
 
     ht = IFont->height;
 
@@ -1452,13 +1430,9 @@ void DrawIntensityChar  ( char ch )
     width = IFont->width[ (unsigned char)ch ];
     source = ( ( byte * )IFont ) + IFont->charofs[ (unsigned char)ch ];
 
-    mask = 1 << ( px & 3 );
-
     if ((iGLOBAL_SCREENWIDTH <= 320)||(StretchScreen == true)) {
         while( width-- )
         {
-            VGAMAPMASK( mask );
-
             height = ht;
             while( height-- )
             {
@@ -1477,14 +1451,8 @@ void DrawIntensityChar  ( char ch )
             dest = origdest;
         }
     } else { //strech letter in x any direction
-        w1 = width;
-        h1 = ht;
-        orgdst1 = origdest;
-        src1 = source;
         while( width-- )
         {
-            VGAMAPMASK( mask );
-
             height = ht;
             while( height-- )
             {

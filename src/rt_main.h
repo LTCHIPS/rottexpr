@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //***************************************************************************
 //
@@ -145,10 +143,6 @@ void InitCharacter(void);
 void ShutDown ( void );
 void UpdateGameObjects ( void );
 
-#if (WHEREAMI==1)
-extern int programlocation;
-#endif
-
 extern  int polltime;
 extern  int oldpolltime;
 extern  volatile int oldtime;
@@ -160,18 +154,11 @@ void SaveScreen (boolean saveLBM);
 void SetupWads( void );
 
 extern boolean SCREENSHOTS;
-extern boolean MEMORYTEST;
-extern boolean MODEMTEST;
-extern boolean STATICMEMORYTEST;
-extern boolean STATICMEMORYPREVIEWTEST;
 extern boolean COMPUTELEVELSIZE;
 extern boolean MONOPRESENT;
 extern boolean MAPSTATS;
 extern boolean TILESTATS;
 extern boolean HUD;
-#ifdef DOS
-extern boolean SOUNDSETUP;
-#endif
 
 extern char CWD[40];
 

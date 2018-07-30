@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _rt_menu_private
 #define _rt_menu_private
@@ -194,7 +192,7 @@ enum {MOUSE, JOYSTICK, KEYBOARDBTNS, KEYBOARDMOVE, SPECIAL1, SPECIAL2};
 //
 //******************************************************************************
 
-static byte *ScanNames[] =    // Scan code names with single chars
+static char *ScanNames[] =    // Scan code names with single chars
 {
     "?","?","1","2","3","4","5","6","7","8","9","0","-","+","?","?",
     "Q","W","E","R","T","Y","U","I","O","P","[","]","|","?","A","S",
@@ -215,7 +213,7 @@ static byte ExtScanCodes[] = // Scan codes with >1 char names
     0x50, 0x4b, 0x4d, 0x00
 };
 
-static byte *ExtScanNames[] = // Names corresponding to ExtScanCodes
+static char *ExtScanNames[] = // Names corresponding to ExtScanCodes
 {
     "Esc","BkSp","Tab","Ctrl","Space","CapLk","F1","F2","F3","F4",
     "F5","F6","F7","F8","F9","F10","F11","F12","SclLk","Enter","Shift",

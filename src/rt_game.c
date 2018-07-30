@@ -56,8 +56,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_msg.h"
 #include "rt_scale.h"
 #include "develop.h"
-//MED
-#include "memcheck.h"
 #include "queue.h"
 
 #if (SHAREWARE == 1)
@@ -373,6 +371,8 @@ void GameMemToScreen(pic_t *source, int x, int y, int bufferofsonly)
                         source->height, x, y );
     }
 }
+
+
 int topBarCenterOffsetX;
 extern int hudRescaleFactor;
 
@@ -386,7 +386,6 @@ void DrawPlayScreen (boolean bufferofsonly)
     pic_t *shape;
     
     int    shapenum;
-    int ShowKillsYoffset = 0;//bna++
 
     //figure out where the middle point of the status bar should be for top bar
     topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320) >> 1;
@@ -414,10 +413,6 @@ void DrawPlayScreen (boolean bufferofsonly)
     {
         shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
 
-        if ( SHOW_KILLS() )
-        {
-            ShowKillsYoffset = KILLS_HEIGHT;
-        }
         if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
@@ -432,10 +427,15 @@ void DrawPlayScreen (boolean bufferofsonly)
             
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
             
+            
+            
+            
             //enqueue(sdl_draw_obj_queue, shape);
             
             //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
         }
+        
+        
         
         GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
@@ -447,16 +447,9 @@ void DrawPlayScreen (boolean bufferofsonly)
         if ( demoplayback )
         {
             shape = ( pic_t * )W_CacheLumpName( "demo", PU_CACHE, Cvt_pic_t, 1 );
-            if (iGLOBAL_SCREENWIDTH == 640) {
-                DrawPPic( 148*2, 465, shape->width, shape->height,
-                          ( byte * )&shape->data, 1, true, bufferofsonly );
-            } else if (iGLOBAL_SCREENWIDTH == 800) {
-                DrawPPic( 380, 585, shape->width, shape->height,
-                          ( byte * )&shape->data, 1, true, bufferofsonly );
-            } else {
-                DrawPPic( 148, 185, shape->width, shape->height,
-                          ( byte * )&shape->data, 1, true, bufferofsonly );
-            }
+            
+            DrawPPic( (iGLOBAL_SCREENWIDTH-(shape->width<<2)), (iGLOBAL_SCREENHEIGHT-shape->height)>>1, 
+                    shape->width, shape->height, ( byte * )&shape->data, 1, true, bufferofsonly );
         }
     }
 
@@ -483,21 +476,11 @@ void DrawPlayScreen (boolean bufferofsonly)
 
         // Draw player's name
         
-        if (iGLOBAL_SCREENWIDTH == 800)
-        {
-            DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
-            VW_MeasurePropString( LastNames[ character ], &width, &height );
-            DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
-                         LastNames[ character ], bufferofsonly );
-        }
-        else
-        {  
-            DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
-            VW_MeasurePropString( LastNames[ character ], &width, &height );
-            DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
-                         LastNames[ character ], bufferofsonly );
+        DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
+        VW_MeasurePropString( LastNames[ character ], &width, &height );
+        DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
+                     LastNames[ character ], bufferofsonly );
         
-        }
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
         DrawTriads( bufferofsonly );
@@ -1665,17 +1648,12 @@ void DrawMPPic (int xpos, int ypos, int width, int height, int heightmod, byte *
     int x;
     int y;
     int planes;
-    byte mask;
     byte pixel;
-
-    mask = 1 << (xpos&3);
 
     olddest = ylookup[ypos] + xpos;
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -1734,20 +1712,15 @@ void DrawColoredMPPic (int xpos, int ypos, int width, int height, int heightmod,
     int x;
     int y;
     int planes;
-    byte mask;
     byte pixel;
     byte * cmap;
 
     cmap=playermaps[color]+(1<<12);
 
-    mask = 1 << (xpos&3);
-
     olddest = ylookup[ypos] + xpos;
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -1908,8 +1881,6 @@ void DrawPPic (int xpos, int ypos, int width, int height, byte *src, int num, bo
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -2110,8 +2081,6 @@ void SingleDrawPPic (int xpos, int ypos, int width, int height, byte *src, int n
 
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         dest += planes;
@@ -2390,11 +2359,8 @@ void GM_DrawBonus
 )
 
 {
-    int    x;
-
     if ( which < stat_gasmask )
     {
-        x = POWERUP1X;
         poweruptime = GetBonusTimeForItem(which);
         poweradjust = (poweruptime >> 4);
         powerupheight  = 0;
@@ -2403,7 +2369,6 @@ void GM_DrawBonus
     }
     else
     {
-        x = POWERUP2X;
         protectiontime = GetBonusTimeForItem(which);
         poweradjust = (protectiontime >> 4);
         protectionheight = 0;
@@ -2588,8 +2553,6 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
     
     for (planes = 0; planes < 4; planes++)
     {
-        VGAMAPMASK (mask);
-
         dest = olddest;
 
         for (y = 0; y < height; y++)
@@ -2708,7 +2671,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
     byte *dest1, *dest2, *dest3, mask;
     byte *screen1, *screen2, *screen3;
     int  plane;
-    int w;
 
     dest = ylookup[y]+x;
 
@@ -2720,8 +2682,6 @@ void GM_MemToScreen (byte *source, int width, int height, int x, int y)
 
     for (plane = 0; plane<4; plane++)
     {
-        VGAMAPMASK (mask);
-
         screen1 = dest1;
         screen2 = dest2;
         screen3 = dest3;
@@ -4778,11 +4738,9 @@ boolean SaveTheGame (int num, gamestorage_t * game)
     char   filename[MAX_PATH];
     byte   * altbuffer;
     int    size;
-    int    avail;
     int    savehandle;
     int    crc;
     int    i;
-    char   letter;
     int myticcount;
 
     if (num > 15 || num < 0)
@@ -4808,40 +4766,6 @@ boolean SaveTheGame (int num, gamestorage_t * game)
 
 
     GetPathFromEnvironment( filename, ApogeePath, loadname );
-
-#if PLATFORM_DOS
-    {
-        struct diskfree_t dfree;
-        // Determine available disk space
-        letter = toupper(filename[0]);
-        if (
-            (letter >= 'A') &&
-            (letter <= 'Q')
-        )
-        {
-            if (_dos_getdiskfree ((letter-'A'+1), &dfree))
-                Error ("Error in _dos_getdiskfree call\n");
-        }
-        else
-        {
-            if (_dos_getdiskfree (0, &dfree))
-                Error ("Error in _dos_getdiskfree call\n");
-        }
-
-        avail = (int) dfree.avail_clusters *
-                dfree.bytes_per_sector *
-                dfree.sectors_per_cluster;
-        avail -= 8192;
-
-        // Check to see if we have enough
-
-        if (avail < MAXSAVEDGAMESIZE)
-        {
-            CP_DisplayMsg ("There is not enough\nspace on your disk\nto Save Game!\nPress any key to continue", 13);
-            return (false);
-        }
-    }
-#endif
 
     // Open the savegame file
 
@@ -5266,17 +5190,6 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     size=LoadBuffer(&altbuffer,&bufptr);
     LoadPushWalls(altbuffer,size);
     SafeFree(altbuffer);
-#if 0
-    // Animated Walls Tag
-
-    size=5;
-    LoadTag(&bufptr,"AWALL",size);
-
-    // Animated Walls
-    size=LoadBuffer(&altbuffer,&bufptr);
-    LoadAnimWalls(altbuffer,size);
-    SafeFree(altbuffer);
-#endif
 
     // MaskedWalls Tag
 

@@ -23,8 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 //****************************************************************************
 
-#define _ROTT_
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -33,16 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <string.h>
 #include <ctype.h>
 
-#ifdef _ROTT_
 #include "rt_def.h"
-#else
-#include "st_def.h"
-#endif
 
 #include "rt_cfg.h"
 #include "version.h"
-
-#ifdef _ROTT_
 
 #include "scriplib.h"
 #include "rt_playr.h"
@@ -62,18 +54,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "isr.h"
 #include "fx_man.h"
 #include "develop.h"
-
-#else
-
-#include "st_def.h"
-#include "rt_cfg.h"
-#include "scriplib.h"
-#include "rt_sound.h"
-#include "st_util.h"
-
-#endif
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************
@@ -122,9 +102,6 @@ int     threshold        = 1;
 int     NumVoices        = 4;
 int     NumChannels      = 1;
 int     NumBits          = 8;
-boolean cybermanenabled  = false;
-boolean assassinenabled  = false;
-boolean spaceballenabled = false;
 boolean AutoDetailOn     = true;
 int     DoubleClickSpeed = 20;
 boolean BobbinOn         = true;
@@ -140,12 +117,6 @@ int     DefaultPlayerCharacter = 0;
 int     DefaultPlayerColor     = 0;
 byte    passwordstring[20];
 
-#ifndef _ROTT_
-
-int     fulllight        = 0;
-int     viewsize         = 7;
-
-#endif
 MacroList CommbatMacros[MAXMACROS];
 
 char ApogeePath[256];
@@ -158,8 +129,6 @@ char ApogeePath[256];
 
 static char SoundName[13]  = "sound.rot";
 
-#ifdef _ROTT_
-
 static char *ConfigName = "config.rot";
 static char *ScoresName = "scores.rot";
 static char *ROTT       = "rott.rot";
@@ -171,11 +140,6 @@ AlternateInformation RemoteSounds;
 AlternateInformation GameLevels;
 AlternateInformation BattleLevels;
 char CodeName[MAXCODENAMELENGTH];
-
-#endif
-
-
-#ifdef _ROTT_
 
 //******************************************************************************
 //
@@ -198,8 +162,6 @@ void ReadScores (void)
     else
         gamestate.violence = 0;
 }
-
-#endif
 
 //******************************************************************************
 //
@@ -317,12 +279,9 @@ void SetSoundDefaultValues
 )
 
 {
-    int status;
-
     //
     //  no config file, so select default values
     //
-#if !defined(PLATFORM_DOS)
     // icculus' SDL_mixer driver looks like a soundscape to us
     MusicMode   = 6;
     FXMode      = 6;
@@ -330,31 +289,7 @@ void SetSoundDefaultValues
     NumChannels = 2;
     NumBits     = 16;
     stereoreversed = false;
-#else
-    MusicMode   = 0;
-    FXMode      = 0;
-    NumVoices   = 4;
-    NumChannels = 1;
-    NumBits     = 8;
-    MidiAddress = 0x330;
-    stereoreversed = false;
-
-    status = FX_GetBlasterSettings( &blaster );
-    if ( status == FX_Ok )
-    {
-        SBSettings.Type      = blaster.Type;
-        SBSettings.Address   = blaster.Address;
-        SBSettings.Interrupt = blaster.Interrupt;
-        SBSettings.Dma8      = blaster.Dma8;
-        SBSettings.Dma16     = blaster.Dma16;
-        SBSettings.Midi      = blaster.Midi;
-        SBSettings.Emu       = blaster.Emu;
-    }
-#endif
 }
-
-
-#ifdef _ROTT_
 
 extern char    pword[ 13 ];
 //******************************************************************************
@@ -662,15 +597,6 @@ boolean ParseConfigFile (void)
             ConvertStringToPasswordString ( &name[0] );
         }
 
-        if (!CybermanPresent)
-            cybermanenabled = false;
-
-        if (!AssassinPresent)
-            assassinenabled = false;
-
-        if (!SpaceBallPresent)
-            spaceballenabled = false;
-
         if (!MousePresent)
             mouseenabled = false;
 
@@ -954,7 +880,6 @@ void SetConfigDefaultValues (void)
     passwordstring[11]=0x23;
     passwordstring[12]=0x1c;
 }
-#endif
 
 //******************************************************************************
 //
@@ -995,8 +920,6 @@ void ReadConfig (void)
         Z_Free (scriptbuffer);
     }
 
-
-#ifdef _ROTT_
     ReadScores();
 
     GetPathFromEnvironment( filename, ApogeePath, ConfigName );
@@ -1026,7 +949,6 @@ void ReadConfig (void)
 
         Z_Free(scriptbuffer);
     }
-#endif
     ConfigLoaded = true;
 }
 
@@ -1134,8 +1056,6 @@ void WriteParameterHex (int file, const char * s1, int val)
 
 
 
-#ifdef _ROTT_
-
 //******************************************************************************
 //
 // WriteScores ()
@@ -1173,8 +1093,7 @@ void WriteBattleConfig
 
     // Write Battle File
     GetPathFromEnvironment( filename, ApogeePath, BattleName );
-    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
-                 S_IREAD | S_IWRITE );
+    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
 
     if ( file == -1 )
     {
@@ -1509,8 +1428,6 @@ void WriteBattleConfig
     close( file );
 }
 
-#endif
-
 //******************************************************************************
 //
 // WriteSoundConfig ()
@@ -1532,8 +1449,9 @@ void WriteSoundConfig
     }
 
     GetPathFromEnvironment( filename, ApogeePath, SoundName );
-    file = open ( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
-                  S_IREAD | S_IWRITE);
+    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
+
+    //file = open ( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC );
 
     if (file == -1)
         Error ("Error opening %s: %s", filename, strerror(errno));
@@ -1642,13 +1560,14 @@ void WriteConfig (void)
     WriteSoundConfig();
 
     // Write Config, Battle and Score files
-#ifdef _ROTT_
     WriteScores();
     WriteBattleConfig();
 
     GetPathFromEnvironment( filename, ApogeePath, ConfigName );
-    file = open( filename,O_RDWR | O_TEXT | O_CREAT | O_TRUNC
-                 , S_IREAD | S_IWRITE);
+    
+    file = open( filename, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR );
+
+    //file = open( filename,O_RDWR | O_TEXT | O_CREAT | O_TRUNC );
 
     if (file == -1)
         Error ("Error opening %s: %s",filename,strerror(errno));
@@ -1839,20 +1758,6 @@ void WriteConfig (void)
     SafeWriteString(file,"; (smallest) 1 - 15 (largest)\n");
     WriteParameter(file,"Threshold        ",threshold);
 
-    // Write in Cyberman Enabled
-
-//   SafeWriteString(file,"\n;\n");
-//   SafeWriteString(file,"; 1 - Cyberman Enabled\n");
-//   SafeWriteString(file,"; 0 - Cyberman Disabled\n");
-//   WriteParameter(file,"CybermanEnabled  ",cybermanenabled);
-
-    // Write in Spaceball Enabled
-
-//   SafeWriteString(file,"\n;\n");
-//   SafeWriteString(file,"; 1 - Spaceball Enabled\n");
-//   SafeWriteString(file,"; 0 - Spaceball Disabled\n");
-//   WriteParameter(file,"SpaceballEnabled ",spaceballenabled);
-
     // Write in Auto Detail
 
     SafeWriteString(file,"\n;\n");
@@ -2033,11 +1938,8 @@ void WriteConfig (void)
     SafeWriteString(file,&passwordtemp[0]);
 
     close (file);
-#endif
     inconfig--;
 }
-
-#ifdef _ROTT_
 
 
 //****************************************************************************
@@ -2053,7 +1955,7 @@ void GetAlternatePath (char * tokenstr, AlternateInformation *info)
     if (!stricmp (token, tokenstr))
     {
         GetTokenEOL (false);
-        memset (&info->path[0], 0, sizeof (info->path));
+        memset (&info->path[0], 0, sizeof (&info->path));
         strcpy (&info->path[0], &name[0]);
     }
 }
@@ -2080,7 +1982,7 @@ void GetAlternateFile (char * tokenstr, AlternateInformation *info)
             {
 #if (SHAREWARE == 0)
                 info->avail = true;
-                memset (&info->file[0], 0, sizeof (info->file));
+                memset (&info->file[0], 0, sizeof (&info->file));
                 strcpy (&info->file[0], &token[0]);
 #else
                 printf("Alternate file %s ignored.\n",token);
@@ -2183,6 +2085,4 @@ void ReadSETUPFiles (void)
         unlink (filename);          // Delete ROTT.ROT
     }
 }
-
-#endif
 

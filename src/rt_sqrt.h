@@ -1,5 +1,8 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +13,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #ifndef _rt_sqrt_public
 #define _rt_sqrt_public
@@ -40,70 +39,5 @@ DESCRIPTION:
 long FixedSqrtLP(long n);  // Low  Precision (8.8)
 long FixedSqrtHP(long n);  // High Precision (8.16)
 
-#ifdef __WATCOMC__
-#pragma aux FixedSqrtLP =            \
-    "         xor eax, eax"          \
-    "         mov ebx, 40000000h"    \
-    "sqrtLP1: mov edx, ecx"          \
-    "         sub edx, ebx"          \
-    "         jl  sqrtLP2"           \
-    "         sub edx, eax"          \
-    "         jl  sqrtLP2"           \
-    "         mov ecx,edx"           \
-    "         shr eax, 1"            \
-    "         or  eax, ebx"          \
-    "         shr ebx, 2"            \
-    "         jnz sqrtLP1"           \
-    "         shl eax, 8"            \
-    "         jmp sqrtLP3"           \
-    "sqrtLP2: shr eax, 1"            \
-    "         shr ebx, 2"            \
-    "         jnz sqrtLP1"           \
-    "         shl eax, 8"            \
-    "sqrtLP3: nop"                   \
-    parm caller [ecx]                \
-    value [eax]                      \
-    modify [eax ebx ecx edx];
-
-
-#pragma aux FixedSqrtHP =            \
-    "         xor eax, eax"          \
-    "         mov ebx, 40000000h"    \
-    "sqrtHP1: mov edx, ecx"          \
-    "         sub edx, ebx"          \
-    "         jb  sqrtHP2"           \
-    "         sub edx, eax"          \
-    "         jb  sqrtHP2"           \
-    "         mov ecx,edx"           \
-    "         shr eax, 1"            \
-    "         or  eax, ebx"          \
-    "         shr ebx, 2"            \
-    "         jnz sqrtHP1"           \
-    "         jz  sqrtHP5"           \
-    "sqrtHP2: shr eax, 1"            \
-    "         shr ebx, 2"            \
-    "         jnz sqrtHP1"           \
-    "sqrtHP5: mov ebx, 00004000h"    \
-    "         shl eax, 16"           \
-    "         shl ecx, 16"           \
-    "sqrtHP3: mov edx, ecx"          \
-    "         sub edx, ebx"          \
-    "         jb  sqrtHP4"           \
-    "         sub edx, eax"          \
-    "         jb  sqrtHP4"           \
-    "         mov ecx, edx"          \
-    "         shr eax, 1"            \
-    "         or  eax, ebx"          \
-    "         shr ebx, 2"            \
-    "         jnz sqrtHP3"           \
-    "         jmp sqrtHP6"           \
-    "sqrtHP4: shr eax, 1"            \
-    "         shr ebx, 2"            \
-    "         jnz sqrtHP3"           \
-    "sqrtHP6: nop"                   \
-    parm caller [ecx]                \
-    value [eax]                      \
-    modify [eax ebx ecx edx];
-#endif
 
 #endif

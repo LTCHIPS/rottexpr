@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //******************************************************************************
 //
@@ -66,13 +64,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "modexlib.h"
 #include "rt_msg.h"
 #include "rt_net.h"
-#include "rt_spbal.h"
 #include "rt_scale.h"
 
 #include "rt_battl.h"
 #include "develop.h"
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************
@@ -313,9 +308,6 @@ static int MenuNum = 0;
 static int handlewhich;
 static int CSTactive = 0;
 static boolean INFXSETUP = false;
-static int MaxVoices;
-static int MaxBits;
-static int MaxChannels;
 
 //
 // MENU CURSOR SHAPES
@@ -345,8 +337,6 @@ typedef enum
     JOYENABLE,
     USEPORT2,
     PADENABLE,
-    SPACEBALLENABLE,
-    CYBERMANENABLE,
     THRESSENS,
     MOUSESENS,
     CUSTOMIZE
@@ -421,22 +411,18 @@ CP_MenuNames CtlMenuNames[] =
     "JOYSTICK ENABLED",
     "USE JOYSTICK PORT 2",
     "GAMEPAD ENABLED",
-    "SPACEBALL ENABLED",
-    "CYBERMAN ENABLED",
     "ADJUST THRESHOLD",
     "MOUSE SENSITIVITY",
     "CUSTOMIZE CONTROLS"
 };
 
-CP_iteminfo CtlItems  = { CTL_X, MENU_Y, 9, -1, 36, CtlMenuNames, mn_largefont };
+CP_iteminfo CtlItems  = { CTL_X, MENU_Y, 7, -1, 36, CtlMenuNames, mn_largefont };
 CP_itemtype CtlMenu[] =
 {
     { CP_Inactive, "ctl_mic\0", 'M', NULL },
     { CP_Inactive, "ctl_jen\0", 'J', NULL },
     { CP_Inactive, "ctl_jp2\0", 'U', NULL },
     { CP_Inactive, "ctl_gpd\0", 'G', NULL },
-    { CP_Inactive, "spball\0",  'S', NULL },
-    { CP_Inactive, "cyberman\0",'C', NULL },
     { CP_Inactive, "ctl_thr\0", 'A', (menuptr)DoThreshold },
     { CP_Inactive, "ctl_mse\0", 'M', (menuptr)MouseSensitivity },
     { CP_Active,   "ctl_cus\0", 'C', (menuptr)CP_Custom }
@@ -1552,7 +1538,7 @@ void ScanForSavedGames ()
     // SEE WHICH SAVE GAME FILES ARE AVAILABLE & READ STRING IN
     //
     memset (&SaveGamesAvail[0], 0, sizeof (SaveGamesAvail));
-#if PLATFORM_DOS || PLATFORM_WIN32
+#if PLATFORM_WIN32
     GetPathFromEnvironment( filename, ApogeePath, SaveName );
 #else
     strncpy (filename, SaveName, 256);
@@ -1582,7 +1568,7 @@ void ScanForSavedGames ()
     }
     else
         MainMenu[loadgame].active = CP_Inactive;
-#if ((!PLATFORM_DOS) && (!PLATFORM_WIN32))
+#if !PLATFORM_WIN32
     chdir (pathsave);
     free (pathsave);
 #endif
@@ -1779,9 +1765,6 @@ void CleanUpControlPanel (void)
     if (mouseenabled)
         PollMouseMove ();    // Trying to kill movement
 
-    if (cybermanenabled)
-        PollCyberman ();
-
     RefreshPause = true;
 }
 
@@ -1902,6 +1885,11 @@ void ControlPanel
         CP_Quit( -1 );
         break;
 
+    }
+    
+    if (playstate == ex_stillplaying)
+    {
+        DisableScreenStretch();
     }
 
     CleanUpControlPanel();
@@ -3740,11 +3728,19 @@ void CP_Control (void)
             if (MousePresent)
             {
                 mouseenabled^=1;
+                if (mouseenabled)
+                    SDL_SetRelativeMouseMode(SDL_TRUE);
+                else
+                    SDL_SetRelativeMouseMode(SDL_FALSE);
+                
                 DrawCtlButtons ();
                 CusItems.curpos=-1;
             }
             else
+            {
                 mouseenabled = 0;
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+            }
             break;
 
         case JOYENABLE:
@@ -3808,16 +3804,6 @@ void CP_Control (void)
             {
                 DrawCtlButtons ();
             }
-            break;
-
-        case SPACEBALLENABLE:
-            spaceballenabled ^= 1;
-            DrawCtlButtons ();
-            break;
-
-        case CYBERMANENABLE:
-            cybermanenabled ^= 1;
-            DrawCtlButtons ();
             break;
 
         case THRESSENS:
@@ -3972,7 +3958,7 @@ void DefineKey
             buttonscan[ (unsigned int)order[ handlewhich ] ] = key;
 
             strcpy( &NormalKeyNames[ handlewhich ][ KEYNAMEINDEX ],
-                    IN_GetScanName( key ) );
+                    (char *)IN_GetScanName( key ) );
 
             picked = true;
 
@@ -4747,12 +4733,6 @@ void DrawCtlButtons (void)
             mouseenabled = 0;
         }
 
-        if (SpaceBallPresent)
-            CtlMenu[SPACEBALLENABLE].active = CP_Active;
-
-        if (CybermanPresent)
-            CtlMenu[CYBERMANENABLE].active = CP_Active;
-
         for (x = 0; x < CtlItems.amount; x++)
         {
             if (CtlMenu[x].active)
@@ -4801,25 +4781,6 @@ void DrawCtlButtons (void)
         EraseMenuBufRegion (x, y, 16, 16);
         DrawMenuBufItem (x, y, button_off);
     }
-
-    y += 14;
-    if (spaceballenabled)
-        DrawMenuBufItem (x, y, button_on);
-    else
-    {
-        EraseMenuBufRegion (x, y, 16, 16);
-        DrawMenuBufItem (x, y, button_off);
-    }
-
-    y += 14;
-    if (cybermanenabled)
-        DrawMenuBufItem (x, y, button_on);
-    else
-    {
-        EraseMenuBufRegion (x, y, 16, 16);
-        DrawMenuBufItem (x, y, button_off);
-    }
-
 
     if ((CtlItems.curpos < 0) || (!CtlMenu[CtlItems.curpos].active))
         for (i = 0; i < CtlItems.amount; i++)
@@ -4946,33 +4907,6 @@ void ReadAnyControl (ControlInfo *ci)
                 ci->button2=ci->button3=false;
         }
     }
-
-
-#if 0
-    if (SpaceBallPresent && spaceballenabled)
-    {
-        SP_Get(&packet);
-
-        if (packet.button)
-        {
-            if (packet.button & SP_BTN_1)
-                ci->button0 = true;
-
-            if (packet.button & SP_BTN_2)
-                ci->button1 = true;
-        }
-
-        if (packet.ty >  MENU_AMT)
-            ci->dir = dir_North;
-        else if (packet.ty < -MENU_AMT)
-            ci->dir = dir_South;
-
-        if (packet.tx < (-MENU_AMT* 6))
-            ci->dir = dir_West;
-        else if (packet.tx > (MENU_AMT * 6))
-            ci->dir = dir_East;
-    }
-#endif
 }
 
 
@@ -5137,10 +5071,6 @@ void FXVolume
 )
 
 {
-    int oldvolume;
-
-    oldvolume = FXvolume;
-
     SliderMenu( &FXvolume, 254, 0, 33, 81, 225, 8, "block3", FX_SetVolume,
                 "Sound Volume", "Low", "High" );
 

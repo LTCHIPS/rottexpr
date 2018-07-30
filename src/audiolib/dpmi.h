@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 /**********************************************************************
    module: DPMI.H
@@ -74,29 +72,5 @@ int  DPMI_UnlockMemoryRegion( void *start, void *end );
 
 #define DPMI_Unlock( variable ) \
    ( DPMI_UnlockMemory( (void *) &( variable ), sizeof( variable ) ) )
-
-#ifdef PLAT_DOS
-#pragma aux DPMI_GetDOSMemory = \
-   "mov    eax, 0100h",         \
-   "add    ebx, 15",            \
-   "shr    ebx, 4",             \
-   "int    31h",                \
-   "jc     DPMI_Exit",          \
-   "movzx  eax, ax",            \
-   "shl    eax, 4",             \
-   "mov    [ esi ], eax",       \
-   "mov    [ edi ], edx",       \
-   "sub    eax, eax",           \
-   "DPMI_Exit:",                \
-   parm [ esi ] [ edi ] [ ebx ] modify exact [ eax ebx edx ];
-
-#pragma aux DPMI_FreeDOSMemory = \
-   "mov    eax, 0101h",          \
-   "int    31h",                 \
-   "jc     DPMI_Exit",           \
-   "sub    eax, eax",            \
-   "DPMI_Exit:",                 \
-   parm [ edx ] modify exact [ eax ];
-#endif
 
 #endif
