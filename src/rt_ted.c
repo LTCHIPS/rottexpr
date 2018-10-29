@@ -5313,7 +5313,7 @@ void SetupZomROTTStuff()
             //clearQueue(enemiesToRes[x]);
         //}
         Queue * enemyQueue = malloc(sizeof(Queue));
-        queueInit(enemyQueue, sizeof(objtype));
+        InitQueue(enemyQueue, sizeof(objtype));
         enemiesToRes[x] = enemyQueue;
     }
 }

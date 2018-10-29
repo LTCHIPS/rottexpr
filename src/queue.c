@@ -1,102 +1,94 @@
-#include <stdio.h>
+//Copyright (C) 2017-2018  Steven LeVesque
+
 #include <stdlib.h>
-#include <string.h>
+#include <stdio.h>
 #include "queue.h"
+#include <string.h>
 
-//Fetched from https://codereview.stackexchange.com/questions/141238/implementing-a-generic-queue-in-c
 
-
-void queueInit(Queue *q, size_t memSize)
+void InitQueue(Queue* queue,size_t sizeOfItem)
 {
-   q->sizeOfQueue = 0;
-   q->memSize = memSize;
-   q->head = q->tail = NULL;
+    queue->NumOfItems = 0;
+    queue->SizeOfItem = sizeOfItem;
+    queue->Head = NULL;
+    queue->Tail = queue->Head;
+
 }
 
-int enqueue(Queue *q, const void *data)
+void Enqueue(Queue* queue, const void  * item)
 {
-    node *newNode = (node *)malloc(sizeof(node));
-
-    if(newNode == NULL)
-    {
-        return -1;
-    }
-
-    newNode->data = malloc(q->memSize);
-
-    if(newNode->data == NULL)
-    {
-        free(newNode);
-        return -1;
-    }
-
+    Node * newNode = (Node *) malloc(sizeof(Node));
+    
     newNode->next = NULL;
-
-    memcpy(newNode->data, data, q->memSize);
-
-    if(q->sizeOfQueue == 0)
+    
+    newNode->data =  malloc(queue->SizeOfItem);
+    
+    memcpy(newNode->data, item, queue->SizeOfItem);
+    
+    if (queue->NumOfItems == 0)
     {
-        q->head = q->tail = newNode;
+        queue->Head = newNode;
+        queue->Tail = newNode;
     }
-    else
+    else if (queue->Head != NULL)
     {
-        q->tail->next = newNode;
-        q->tail = newNode;
+        newNode->next = queue->Head;
+        if (queue->Tail == queue->Head)
+            queue->Tail = newNode->next;
+        queue->Head = newNode;
     }
-
-    q->sizeOfQueue++;
-    return 0;
+    
+    queue->NumOfItems++;
+    
 }
 
-void dequeue(Queue *q, void *data)
+void Dequeue(Queue* queue)
 {
-    if(q->sizeOfQueue > 0)
+    if (queue->NumOfItems == 0)
     {
-        node *temp = q->head;
-        memcpy(data, temp->data, q->memSize);
-
-        if(q->sizeOfQueue > 1)
-        {
-            q->head = q->head->next;
-        }
-        else
-        {
-            q->head = NULL;
-            q->tail = NULL;
-        }
-
-        q->sizeOfQueue--;
-        free(temp->data);
-        free(temp);
+        return;
     }
-}
-
-void queuePeek(Queue *q, void *data)
-{
-    if(q->sizeOfQueue > 0)
+    else if (queue->NumOfItems == 1)
     {
-       node *temp = q->head;
-       memcpy(data, temp->data, q->memSize);
+        
+        free(queue->Head->data);
+        free(queue->Head);
+        queue->Head = NULL;
+        queue->Tail = NULL;
+        
+        queue->NumOfItems--;
     }
+    else 
+    {
+        
+        Node * tempNode = queue->Head;
+        
+        queue->Head = queue->Head->next;
+        
+        free(tempNode->data);
+        free(tempNode);
+        
+        queue->NumOfItems--;
+        
+    }    
+
 }
 
-void clearQueue(Queue *q)
+void ClearQueue(Queue* queue)
 {
-  node *temp;
+    Node * currNode = queue->Head;
+    
+    Node * tempNode = NULL;
+    while(queue->NumOfItems > 0)
+    {
+        tempNode = currNode;
+        currNode = tempNode->next;
+        //free(tempNode->data);
+        free(tempNode);
+        queue->NumOfItems--;
+        
+    }
+    queue->Head = NULL;
+    queue->Tail = NULL;
 
-  while(q->sizeOfQueue > 0)
-  {
-      temp = q->head;
-      q->head = temp->next;
-      free(temp->data);
-      free(temp);
-      q->sizeOfQueue--;
-  }
-
-  q->head = q->tail = NULL;
-}
-
-int getQueueSize(Queue *q)
-{
-    return q->sizeOfQueue;
 }
