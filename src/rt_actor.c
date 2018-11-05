@@ -3627,30 +3627,30 @@ void AddEnemyToResurrectList(objtype * ob)
     switch(ob->obclass)
     {
         case lowguardobj:
-            enqueue(enemiesToRes[0], ob);
+            Enqueue(enemiesToRes[0], ob);
             break;
         case highguardobj:
-            enqueue(enemiesToRes[1], ob);
+            Enqueue(enemiesToRes[1], ob);
             break;
 
         case strikeguardobj:
-            enqueue(enemiesToRes[2], ob);
+            Enqueue(enemiesToRes[2], ob);
             break;
         case blitzguardobj:
-            enqueue(enemiesToRes[3], ob);
+            Enqueue(enemiesToRes[3], ob);
             break;
         case triadenforcerobj:
-            enqueue(enemiesToRes[4], ob);
+            Enqueue(enemiesToRes[4], ob);
             break;
     #if (SHAREWARE == 0)
         case overpatrolobj:
-            enqueue(enemiesToRes[5], ob);
+            Enqueue(enemiesToRes[5], ob);
             break;
         case deathmonkobj:
-            enqueue(enemiesToRes[6], ob);
+            Enqueue(enemiesToRes[6], ob);
             break;
         case dfiremonkobj:
-            enqueue(enemiesToRes[7], ob);
+            Enqueue(enemiesToRes[7], ob);
             break;
     #endif
         default:
@@ -3665,7 +3665,7 @@ void FreeUpResurrectList()
     int x = 0;
     for (x = 0; x < 8; x++)
     {
-        clearQueue(enemiesToRes[x]);
+        ClearQueue(enemiesToRes[x]);
     }
 }
 
@@ -3736,16 +3736,17 @@ void ResurrectEnemies()
     
     for (index = 0; index < 8; index++)
     {
-        if (enemiesToRes[index]->sizeOfQueue == 0)
+        if (enemiesToRes[index]->NumOfItems == 0)
         {
             continue;
         }
-        actor = enemiesToRes[index]->head->data;
+        actor = enemiesToRes[index]->Head->data;
+        
         if (currTime >= actor->resurrectAtTime)
         {
             SD_PlaySoundRTP(SD_PLAYERSPAWNSND, actor->x, actor->y);
             SpawnDuringGameWithState (actor->obclass,actor->tilex,actor->tiley,actor->dir, 1, actor->state);
-            dequeue(enemiesToRes[index], actor);
+            Dequeue(enemiesToRes[index]);
             gamestate.killcount--;
         }
     }
