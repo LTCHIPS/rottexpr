@@ -251,17 +251,56 @@ int   MUSIC_StopSong( void )
 // ROTT Special - SBF
 //int   MUSIC_PlaySongROTT(unsigned char *song, int size, int loopflag);
 
-void  MUSIC_SetContext( int context ){Error("%s Not implmented yet", __func__);}
-int   MUSIC_GetContext( void ) {Error("%s Not implmented yet", __func__); return 0;} 
-void  MUSIC_SetSongTick( unsigned long PositionInTicks ) {Error("%s Not implmented yet", __func__);}
-void  MUSIC_SetSongTime( unsigned long milliseconds ) {Error("%s Not implmented yet", __func__);}
-void  MUSIC_SetSongPosition( int measure, int beat, int tick ) {Error("%s Not implmented yet", __func__);}
-void  MUSIC_GetSongPosition( songposition *pos ) {Error("%s Not implmented yet", __func__);}
-void  MUSIC_GetSongLength( songposition *pos ) {Error("%s Not implmented yet", __func__);}
-int   MUSIC_FadeVolume( int tovolume, int milliseconds ) {Error("%s Not implmented yet", __func__); return 0;}
-int   MUSIC_FadeActive( void ) {Error("%s Not implmented yet", __func__); return 0;}
-void  MUSIC_StopFade( void ) {Error("%s Not implmented yet", __func__);}
+void  MUSIC_SetContext( int context )
+{
+    Error("%s Not implmented yet", __func__);
+}
+
+int   MUSIC_GetContext( void ) 
+{
+    Error("%s Not implmented yet", __func__); 
+    return 0;
+}
+
+void  MUSIC_SetSongTick( unsigned long PositionInTicks ) 
+{
+    Error("%s Not implmented yet", __func__);
+}
+void  MUSIC_SetSongTime( unsigned long milliseconds ) 
+{
+    Error("%s Not implmented yet", __func__);
+}
+void  MUSIC_SetSongPosition( int measure, int beat, int tick ) 
+{
+    Error("%s Not implmented yet", __func__);
+}
+void  MUSIC_GetSongPosition( songposition *pos ) 
+{
+    Error("%s Not implmented yet", __func__);
+}
+void  MUSIC_GetSongLength( songposition *pos ) 
+{
+    Error("%s Not implmented yet", __func__);
+}
+
+int   MUSIC_FadeVolume( int tovolume, int milliseconds ) 
+{
+    Error("%s Not implmented yet", __func__); 
+    return 0;
+}
+int   MUSIC_FadeActive( void ) 
+{
+    Error("%s Not implmented yet", __func__); 
+    return 0;
+}
+void  MUSIC_StopFade( void ) 
+{
+    Error("%s Not implmented yet", __func__);
+}
 /*
 //void  MUSIC_RerouteMidiChannel( int channel, int cdecl ( *function )( int event, int c1, int c2 ) ){}
 */
-void  MUSIC_RegisterTimbreBank( unsigned char *timbres ) {Error("Not implmented yet");}
+void  MUSIC_RegisterTimbreBank( unsigned char *timbres ) 
+{
+    Error("Not implmented yet");
+}

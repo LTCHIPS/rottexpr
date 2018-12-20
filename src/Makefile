@@ -30,6 +30,7 @@ LDFLAGS += $(EXTRALDFLAGS)
 
 LDLIBS += $(shell sdl2-config --libs)
 LDLIBS += -lSDL2_mixer
+LDLIBS += -lfluidsynth
 LDLIBS += $(EXTRALDLIBS)
 
 OBJS :=
@@ -79,7 +80,7 @@ OBJS += w_wad.o
 OBJS += watcom.o
 OBJS += z_zone.o
 OBJS += byteordr.o
-OBJS += dukemusc.o
+OBJS += fluidsynth.o
 OBJS += winrott.o
 OBJS += queue.o
 OBJS += HashTable.o
