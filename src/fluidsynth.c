@@ -25,8 +25,53 @@ static fluid_synth_t * fsynth = NULL;
 static fluid_audio_driver_t * faudiodriver = NULL;
 static fluid_player_t * fplayer = NULL;
 
-char *MUSIC_ErrorString( int ErrorNumber ){}
+char *MUSIC_ErrorString(int ErrorNumber)
+{
+    char warningMessage[80];
+    char errorMessage[80];
+    
+    switch (ErrorNumber)
+    {
+    case MUSIC_Warning:
+        return(warningMessage);
 
+    case MUSIC_Error:
+        return(errorMessage);
+
+    case MUSIC_Ok:
+        return("OK; no error.");
+
+    case MUSIC_ASSVersion:
+        return("Incorrect sound library version.");
+
+    case MUSIC_SoundCardError:
+        return("General sound card error.");
+
+    case MUSIC_InvalidCard:
+        return("Invalid sound card.");
+
+    case MUSIC_MidiError:
+        return("MIDI error.");
+
+    case MUSIC_MPU401Error:
+        return("MPU401 error.");
+
+    case MUSIC_TaskManError:
+        return("Task Manager error.");
+
+    case MUSIC_FMNotDetected:
+        return("FM not detected error.");
+
+    case MUSIC_DPMI_Error:
+        return("DPMI error.");
+
+    default:
+        return("Unknown error.");
+    } // switch
+
+    assert(0);    // shouldn't hit this point.
+    return(NULL);
+} // MUSIC_ErrorString
 
 int   MUSIC_Init( int SoundCard, int Address )
 {
@@ -182,22 +227,30 @@ int   MUSIC_FadeVolume( int tovolume, int milliseconds )
     fluid_settings_getnum(fsettings, "synth.gain", &curVol);
     
     toVol = ((double)tovolume) * 0.00390625;
-    fadeRate = (double)abs(((curVol - tovolume)/milliseconds));
+    fadeRate = (double)((curVol - tovolume)/milliseconds);
         
     fadeActive = 1;
     
     toVol = ((double)tovolume) * 0.00390625;
-    while(curVol > toVol)
+    if (toVol > curVol)
     {
-        if (toVol > curVol)
+        while(curVol > toVol)
+        {
             curVol+=fadeRate;
-        else if (curVol < toVol)
-            curVol-=fadeRate;
+            fluid_settings_setnum(fsettings, "synth.gain", curVol);
         
-        
-        fluid_settings_setnum(fsettings, "synth.gain", curVol);
-        
+        }
     }
+    else if (toVol < curVol)
+    {
+        while(curVol > toVol)
+        {
+            curVol-=fadeRate;
+            fluid_settings_setnum(fsettings, "synth.gain", curVol);
+        
+        }    
+    }
+        
     
     fadeActive = 0;
     
