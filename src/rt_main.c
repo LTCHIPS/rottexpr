@@ -230,7 +230,7 @@ int main (int argc, char *argv[])
 
     Z_Init(50000,10000000);
 
-    
+    IN_Startup ();
 
     InitializeGameCommands();
     if (standalone==false)
@@ -242,8 +242,6 @@ int main (int argc, char *argv[])
         BuildTables ();
         GetMenuInfo ();
     }
-    
-    IN_Startup ();
 
     SetRottScreenRes (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
 
