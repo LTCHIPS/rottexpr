@@ -227,8 +227,8 @@ int main (int argc, char *argv[])
     CheckCommandLineParameters();
 
     // Start up Memory manager with a certain amount of reserved memory
-
-    Z_Init(50000,10000000);
+ 
+    Z_Init(50000,1000000);
 
     IN_Startup ();
 
@@ -793,10 +793,13 @@ void SetupWads( void )
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
             tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
+            
+            
+            snprintf(tempstr, "%s", _argv[arg+1], strlen(_argv[arg+1]));
+            //strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
-                    strncat (tempstr,".rtc", 4);//non exists, try add .rtc
+                    strncat (tempstr,".rtl", 4);//non exists, try add .rtc
                     if (access (tempstr, 0) != 0) { //try open again
                         //stil no useful filename
                         
@@ -838,9 +841,11 @@ NoRTL:
     {
         FILE *f;
         char *buf = malloc(32);
+        
         if (_argv[arg+1] != 0) { //are there a filename included
             tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
+            snprintf(tempstr, "%s", _argv[arg+1], strlen(_argv[arg+1]));
+            //strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
                     strncat (tempstr,".rtc", 4);//non exists, try add .rtc
@@ -849,15 +854,13 @@ NoRTL:
                         char notfoundRTC[] = " not found, skipping RTC file ";
                         
                         strncat (tempstr,notfoundRTC, strlen(notfoundRTC));
-                        printf("%s \n", tempstr);
-                        goto NoRTL;
+                        goto NoRTC;
                     }
                 }
                 if((f = fopen( tempstr, "r" )) == NULL ) { //try opening file
                     char cannotOpenRTC[] = " could not be opened, skipping RTC file ";
                     
                     strncat (tempstr,cannotOpenRTC, strlen(cannotOpenRTC));
-                    printf("%s \n", tempstr);
                     goto NoRTL;
                 } else {
                     fread(buf,3,3,f);//is the 3 first letters RTL (RTC)
@@ -867,7 +870,7 @@ NoRTL:
                         buf = realloc(buf, 32 + strlen(tempstr));
                         strncpy (buf,"Adding ", 7);
                         strncat (buf,tempstr, strlen(tempstr) + 32);
-                        printf("%s", buf);
+                        printf("%s \n", buf);
                     }
                     fclose(f);
                 }
