@@ -1343,7 +1343,7 @@ void CheckRTLVersion
     // Check the version number
     //
     SafeRead( filehandle, &RTLVersion, sizeof( RTLVersion ) );
-    SwapIntelLong(&RTLVersion);
+    SwapIntelLong((int*)&RTLVersion);
     if ( RTLVersion > RTL_VERSION )
     {
         Error(

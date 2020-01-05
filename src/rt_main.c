@@ -792,10 +792,11 @@ void SetupWads( void )
         FILE *f;
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
-            tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
+            int templen = 129 + strlen(_argv[arg+1]);
+            tempstr = realloc(tempstr, templen);
             
             
-            snprintf(tempstr, "%s", _argv[arg+1], strlen(_argv[arg+1]));
+            snprintf(tempstr, templen,"%s", _argv[arg+1]);
             //strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
@@ -823,7 +824,7 @@ void SetupWads( void )
                         GameLevels.avail++;
                         buf = realloc(buf, 32 + strlen(tempstr));
                         strncpy (buf,"Adding ", 7);
-                        strncat (buf,tempstr, strlen(&tempstr) + 32);
+                        strncat (buf,tempstr, strlen(tempstr) + 32);
                         printf("%s \n", buf);
                     }
                     fclose(f);
@@ -843,8 +844,9 @@ NoRTL:
         char *buf = malloc(32);
         
         if (_argv[arg+1] != 0) { //are there a filename included
-            tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            snprintf(tempstr, "%s", _argv[arg+1], strlen(_argv[arg+1]));
+            int templen = 129 + strlen(_argv[arg+1]);
+            tempstr = realloc(tempstr, templen);
+            snprintf(tempstr, templen, "%s", _argv[arg+1]);
             //strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
@@ -1128,7 +1130,7 @@ void GameLoop (void)
                     byte *tempbuf;
                     MenuFadeOut();
                     ClearGraphicsScreen();
-                    SetPalette(&dimpal[0]);
+                    SetPalette((char*)&dimpal[0]);
                     PlayMovie ("shartitl", true);
                     if ( ( LastScan ) || ( IN_GetMouseButtons() ) )
                     {
@@ -1414,7 +1416,7 @@ void GameLoop (void)
                 lbm_t * LBM;
                 byte *s;
                 patch_t *p;
-                char * str = '\0';
+                char * str = NULL;
                 int width, height;
 
                 LBM = (lbm_t *) W_CacheLumpName( "deadboss", PU_CACHE, Cvt_lbm_t, 1);
@@ -1588,8 +1590,7 @@ boolean CheckForQuickLoad  (void )
 
 void ShutDown ( void )
 {
-    if ( ( standalone == false )
-       )
+    if (standalone == false)
     {
         WriteConfig ();
     }
