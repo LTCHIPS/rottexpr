@@ -77,5 +77,8 @@ void  XFlipPage ( void );
 void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float scale);
 void  WaitVBL( void );
 void  TurnOffTextCursor ( void );
+void EnableHudStretch(void);
+void DisableHudStretch(void);
+void sdl_handle_window_events(void);
 
 #endif

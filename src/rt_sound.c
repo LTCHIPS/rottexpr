@@ -307,12 +307,12 @@ int SD_PlayIt ( int sndnum, int angle, int distance, int pitch )
 
     if ( *snd == 'C' )
     {
-        voice = FX_PlayVOC3D( snd, pitch, angle, distance,
+        voice = FX_PlayVOC3D( (char*)snd, pitch, angle, distance,
                               sounds[sndnum].priority, (unsigned long) sndnum );
     }
     else
     {
-        voice = FX_PlayWAV3D( snd, pitch, angle, distance,
+        voice = FX_PlayWAV3D( (char*)snd, pitch, angle, distance,
                               sounds[sndnum].priority, (unsigned long) sndnum );
     }
 
@@ -797,7 +797,7 @@ static song_t rottsongs[MAXSONGS] = {
 };
 #endif
 
-static byte * currentsong;
+static char * currentsong;
 static int MU_Started=false;
 static int lastsongnumber=-1;
 int storedposition=0;

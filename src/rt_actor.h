@@ -418,6 +418,7 @@ void     RayShoot (objtype * shooter, int damage, int accuracy);
 void FindEmptyTile(int *stilex, int *stiley);
 void T_Wind( objtype *ob );
 void StopWind( void );
+void SetReverseDeathState(objtype * actor);
 
 void ResurrectEnemies();
 

@@ -4107,7 +4107,7 @@ void BattleLevelCompleted ( int localplayer )
             {
                 ReadAnyControl (&ci);
             }
-            while( ci.dir == (dirtype)key );
+            while( ci.dir == (Direction)key );
         }
 
         LastScreen = Screen;

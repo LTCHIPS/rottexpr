@@ -87,6 +87,7 @@ boolean autoAimMissileWeps = 0;
 boolean autoAim = 1;
 boolean enableExtraPistolDrops = 0;
 boolean allowMovementWithMouseYAxis = 1;
+boolean enableZomROTT = 0;
 int FocalWidthOffset = 0;
 int ScreenHeightToWriteToCfg = 0;
 

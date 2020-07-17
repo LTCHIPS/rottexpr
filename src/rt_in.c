@@ -41,6 +41,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "rt_cfg.h"
 #include "keyb.h"
 #include "HashTable.h"
+#include "modexlib.h"
 
 #define MAXMESSAGELENGTH      (COM_MAXTEXTSTRINGLENGTH-1)
 

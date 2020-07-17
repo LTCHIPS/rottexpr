@@ -28,6 +28,7 @@ extern double dGLOBAL_FPFOCALWIDTH;
 void EnableScreenStretch(void);
 void DisableScreenStretch(void);
 void WriteNewResolution(void);
+void RecalculateFocalWidth(void);
 /*
 double dYZANGLELIMIT;
 
