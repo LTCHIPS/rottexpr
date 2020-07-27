@@ -4631,8 +4631,8 @@ void MouseSensitivity
 )
 
 {
-    SliderMenu( &mouseadjustment, 11, 0, 21, 81, 240, 1, "block1", NULL,
-                "Mouse Sensitivity", "Slow", "Fast" );
+    SliderMenu( &mouseadjustment, 30, 0, 21, 81, 240, 1, "block1", NULL,
+                "Mouse Sensitivity", "Slow", "Stupid Fast" );
 }
 
 //******************************************************************************
