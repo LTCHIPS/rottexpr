@@ -4618,7 +4618,6 @@ int CalibrateJoystick
     return( status );
 }
 
-
 //******************************************************************************
 //
 // ADJUST MOUSE SENSITIVITY
@@ -4631,8 +4630,8 @@ void MouseSensitivity
 )
 
 {
-    SliderMenu( &mouseadjustment, 30, 0, 21, 81, 240, 1, "block1", NULL,
-                "Mouse Sensitivity", "Slow", "Stupid Fast" );
+    SliderMenu( &mouseadjustment, 480, 1, 21, 81, 240, 1, "block1", NULL,
+                "Mouse Sensitivity", "Slow", "Ludicrous" );
 }
 
 //******************************************************************************
@@ -6351,7 +6350,6 @@ void MN_PlayMenuSnd (int which)
     SD_Play (which);
 }
 
-
 //******************************************************************************
 //
 // SliderMenu ()
@@ -6422,6 +6420,8 @@ boolean SliderMenu
     moved = false;
     timer = GetTicCount();
     lastdir = dir_None;
+
+    
 
     do
     {
@@ -6512,7 +6512,6 @@ boolean SliderMenu
     WaitKeyUp ();
     return( returnval );
 }
-
 
 //******************************************************************************
 //
