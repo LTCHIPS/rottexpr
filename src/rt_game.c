@@ -200,6 +200,10 @@ static  SDL_Texture * mercurymodePicTex;
 
 static  SDL_Texture * gasmaskPicTex;
 
+static SDL_Texture * firstnameTex;
+
+static SDL_Texture * lastnameTex;
+
 
 static int powerpics;
 static int poweradjust;
@@ -433,7 +437,7 @@ extern boolean tempHasStuff;
 
 extern SDL_Renderer * renderer;
 
-boolean playScreenIsReady = false;
+extern boolean playScreenIsReady = false;
 
 void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int height);
 
@@ -507,6 +511,78 @@ void Pic_tToSDLTexture(pic_t * source, SDL_Texture ** destTex, int scaleFactor, 
     SDL_FreeSurface (destSurf);
 }
 
+void PropStringToSDLTexture(const char * string, SDL_Texture ** destTex, int scaleFactor)
+{
+    SDL_Surface * destSurf;
+
+    PropStringToSDLSurface(string, destSurf, scaleFactor);
+
+    destTex = SDL_CreateTextureFromSurface(renderer, destSurf);
+
+    SDL_FreeSurface(destSurf);
+
+}
+
+void PropStringToSDLSurface(const char * string, SDL_Surface ** destSurf, int scaleFactor)
+{
+ // Draw player's name
+        
+        //VW_MeasurePropString(Names[character],&width, &height);
+
+        //DrawGameString ( MEN_X + 3, MEN_Y + 2, Names[ character ], bufferofsonly );
+       //VW_MeasurePropString( LastNames[ character ], &width, &height );
+        //DrawGameString ( MEN_X + 44 - width, MEN_Y + 8,
+           //          LastNames[ character ], bufferofsonly );
+
+    //before rescaling
+    int width, height = 0;
+
+    VW_MeasurePropString(string, &width, &height);
+    
+    SDL_Surface * temp;
+    
+    temp = SDL_CreateRGBSurface(0, width, height,8,0,0,0,0);
+
+    if(temp == NULL)
+    {
+        printf("In function PropStringToSDLSurface: %s \n", SDL_GetError());
+    }
+    
+    if(SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette) == -1)
+    {
+        printf("In function PropStringToSDLSurface: %s \n", SDL_GetError());
+    }
+
+    DrawPropStringToSDLSurface(string, temp);
+
+    SDL_PixelFormat * pixfmt; 
+    
+    pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+    
+    SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
+    
+    int translucentpix = SDL_MapRGB(temp2->format, 152, 0, 136); //152, 0, 136 is the RGB combo for the translucent pi pixel
+    
+    destSurf = SDL_CreateRGBSurface(0, temp2->w*scaleFactor, temp2->h*scaleFactor, temp2->format->BitsPerPixel, 0, 0, 0, 0 );
+    
+    SDL_FillRect(destSurf, NULL, translucentpix);
+    
+    SDL_SetColorKey(destSurf, SDL_TRUE, translucentpix);
+    
+    SDL_SetColorKey(temp2, SDL_TRUE, translucentpix);
+
+    if(SDL_BlitScaled(temp2,NULL, destSurf, NULL) < 0)
+    {
+        printf("In function PropStringToSDLSurface: %s \n", SDL_GetError());
+        exit(1);
+    }
+
+    SDL_FreeSurface(temp2);
+    SDL_FreeSurface(temp);
+    SDL_FreeFormat(pixfmt);
+
+}
+
 void CleanUpPlayScreenSDLTextures()
 {    
     SDL_DestroyTexture(eraseTex);
@@ -552,6 +628,9 @@ void CleanUpPlayScreenSDLTextures()
     for(count = 0; count < 26; count++)
         SDL_DestroyTexture(ammoTex[count]);
     
+    SDL_DestroyTexture(firstnameTex);
+    SDL_DestroyTexture(lastnameTex);
+
     playScreenIsReady = false;
     
 }
@@ -603,6 +682,13 @@ void SetupPlayScreenSDLTexture( void )
         {
             Pic_tToSDLTexture(men[locplayerstate->player], &menTex[count], hudRescaleFactor, -1);  
         }
+        int character;
+
+        character = locplayerstate->player;
+
+        PropStringToSDLTexture(Names[character], firstnameTex, hudRescaleFactor);
+        PropStringToSDLTexture(LastNames[character], lastnameTex, hudRescaleFactor);
+
         
         //CacheLumpGroup( "scnum0", scorenums, 10 );
 
@@ -1043,19 +1129,24 @@ void DrawPlayScreenToSDLTexture(SDL_Texture * dest)
         //TODO: Scale Game strings....
         
         int character;
-/*
         int width;
         int height;
-*/
 
         character = locplayerstate->player;
         
         DrawTextureOntoTexture(menTex[character], dest, bottStatusBarStartX + MEN_X*hudRescaleFactor, MEN_Y);
 
-        //CurrentFont = tinyfont;
+        CurrentFont = tinyfont;
 
         // Draw player's name
         
+        //VW_MeasurePropString(Names[character],&width, &height);
+
+        DrawTextureOntoTexture(firstnameTex, dest, (MEN_X + 3) *hudRescaleFactor, (MEN_Y + 2)*hudRescaleFactor);
+
+        int lastNameW, lastNameH;
+        GetTextureDimensions(lastnameTex, &lastNameW, &lastNameH);
+        DrawTextureOntoTexture(lastnameTex, dest, (MEN_X + 44)*hudRescaleFactor - lastNameW, (MEN_Y + 8)*hudRescaleFactor - lastNameH);
         //DrawGameString ( MEN_X + 3, MEN_Y + 2, Names[ character ], bufferofsonly );
        //VW_MeasurePropString( LastNames[ character ], &width, &height );
         //DrawGameString ( MEN_X + 44 - width, MEN_Y + 8,

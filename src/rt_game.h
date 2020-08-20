@@ -80,6 +80,7 @@ extern int damagecount;
 
 extern HighScore   Scores[MaxScores];
 extern int SaveTime;
+extern boolean playScreenIsReady;
 
 //***************************************************************************
 //

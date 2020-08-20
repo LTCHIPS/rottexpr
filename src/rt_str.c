@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include "SDL2\SDL.h"
 
 #include <string.h>
 #include <ctype.h>
@@ -198,6 +199,40 @@ void VW_DrawPropString (const char *string)
     }
     bufferheight = ht;
     bufferwidth = ((dest+1)-origdest);
+}
+
+void DrawPropStringToSDLSurface(const char * string, SDL_Surface * destSurf)
+{
+    byte  pix;
+    int   width,step,height,ht;
+    byte  *source, *dest, *origdest;
+    int   ch;
+
+    ht = CurrentFont->height;
+    dest = origdest = (byte *)destSurf->pixels;
+
+    while ((ch = (unsigned char)*string++)!=0)
+    {
+        ch -= 31;
+        width = step = CurrentFont->width[ch];
+        source = ((byte *)CurrentFont)+CurrentFont->charofs[ch];
+        while (width--)
+        {
+            height = ht;
+            while (height--)
+            {
+                pix = *source;
+                if (pix)
+                    *dest = pix;
+
+                source++;
+                dest += destSurf->w;
+            }
+            px++;
+            origdest++;
+            dest = origdest;
+        }
+    }
 }
 
 

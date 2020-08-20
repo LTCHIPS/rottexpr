@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #define _rt_str_public
 
 #include "lumpy.h"
+#include "SDL2\SDL.h"
 
 
 //***************************************************************************
@@ -81,6 +82,7 @@ void VW_MeasurePropString (const char *string, int *width, int *height);
 void US_MeasureStr (int *width, int *height, const char * s, ...) __attribute__((format(printf,3,4)));
 
 void VW_DrawPropString (const char *string);
+void DrawPropStringToSDLSurface(const char * string, SDL_Surface * dest);
 
 void US_SetPrintRoutines (void (*measure)(const char *, int *, int *, font_t *),
                           void (*print)(const char *));
