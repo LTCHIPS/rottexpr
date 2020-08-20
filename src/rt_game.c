@@ -505,11 +505,7 @@ void Pic_tToSDLTexture(pic_t * source, SDL_Texture ** destTex, int scaleFactor, 
     *destTex = SDL_CreateTextureFromSurface(renderer, destSurf);
     
     SDL_FreeSurface (destSurf);
-       
 }
-
-
-
 
 void CleanUpPlayScreenSDLTextures()
 {    
@@ -563,7 +559,7 @@ void CleanUpPlayScreenSDLTextures()
 void SetupPlayScreenSDLTexture( void )
 {  
     if (playScreenIsReady)
-        return;
+        CleanUpPlayScreenSDLTextures();
     
     Pic_tToSDLTexture(erase, &eraseTex, hudRescaleFactor, -1);
     
