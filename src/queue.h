@@ -1,28 +1,35 @@
-#ifndef QUEUE_H_INCLUDED
-#define QUEUE_H_INCLUDED
+//Copyright (C) 2017-2018  Steven LeVesque
 
-//Fetched from https://codereview.stackexchange.com/questions/141238/implementing-a-generic-queue-in-c
+#ifndef QUEUE_H
+#define QUEUE_H
 
-
-typedef struct Node
+typedef struct Node 
 {
-  void *data;
-  struct Node *next;
-}node;
+    void * data;
+    struct Node * next;
 
-typedef struct QueueList
+} Node;
+
+typedef struct Queue 
 {
-    int sizeOfQueue;
-    size_t memSize;
-    node *head;
-    node *tail;
-}Queue;
+    int NumOfItems;
+    size_t SizeOfItem;
+    Node * Head;
+    Node * Tail;
 
-void queueInit(Queue *q, size_t memSize);
-int enqueue(Queue *, const void *);
-void dequeue(Queue *, void *);
-void queuePeek(Queue *, void *);
-void clearQueue(Queue *);
-int getQueueSize(Queue *);
+} Queue;
 
-#endif /* QUEUE_H_INCLUDED */
+void InitQueue(Queue*,size_t);
+
+void Enqueue(Queue*, const void  *);
+
+void Dequeue(Queue*);
+
+void ClearQueue(Queue*);
+
+//void PrintQueue(Queue*);
+
+
+
+#endif /* QUEUE_H */
+

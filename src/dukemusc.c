@@ -286,7 +286,7 @@ int MUSIC_StopSong(void)
 } // MUSIC_StopSong
 
 
-int MUSIC_PlaySong(unsigned char *song, int loopflag)
+int MUSIC_PlaySong(char *song, int loopflag)
 {
     //SDL_RWops *rw;
 
@@ -381,7 +381,7 @@ void PlayMusic(char *_filename)
 
 #ifdef ROTT
 // ROTT Special - SBF
-int MUSIC_PlaySongROTT(unsigned char *song, int size, int loopflag)
+int MUSIC_PlaySongROTT(char *song, int size, int loopflag)
 {
     char filename[MAX_PATH];
     int handle;

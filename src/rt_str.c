@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //******************************************************************************
 //
@@ -52,8 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_playr.h"
 #include "rt_sound.h"
 #include "myprint.h"
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************
@@ -1782,36 +1778,36 @@ void TextFrame
     }
     if ( type == SINGLE_FRAME )
     {
-        DrawRottText( x1, y1, '�', foreground, background );
-        DrawRottText( x2, y1, '�', foreground, background );
-        DrawRottText( x1, y2, '�', foreground, background );
-        DrawRottText( x2, y2, '�', foreground, background );
+        DrawRottText( x1, y1, '\xDA', foreground, background );
+        DrawRottText( x2, y1, '\xBF', foreground, background );
+        DrawRottText( x1, y2, '\xC0', foreground, background );
+        DrawRottText( x2, y2, '\xD9', foreground, background );
         for( x = x1 + 1; x < x2; x++ )
         {
-            DrawRottText( x, y1, '�', foreground, background );
-            DrawRottText( x, y2, '�', foreground, background );
+            DrawRottText( x, y1, '\xC4', foreground, background );
+            DrawRottText( x, y2, '\xC4', foreground, background );
         }
         for( y = y1 + 1; y < y2; y++ )
         {
-            DrawRottText( x1, y, '�', foreground, background );
-            DrawRottText( x2, y, '�', foreground, background );
+            DrawRottText( x1, y, '\xB3', foreground, background );
+            DrawRottText( x2, y, '\xB3', foreground, background );
         }
     }
     if ( type == DOUBLE_FRAME )
     {
-        DrawRottText( x1, y1, '�', foreground, background );
-        DrawRottText( x2, y1, '�', foreground, background );
-        DrawRottText( x1, y2, '�', foreground, background );
-        DrawRottText( x2, y2, '�', foreground, background );
+        DrawRottText( x1, y1, '\xC9', foreground, background );
+        DrawRottText( x2, y1, '\xBB', foreground, background );
+        DrawRottText( x1, y2, '\xC8', foreground, background );
+        DrawRottText( x2, y2, '\xBC', foreground, background );
         for( x = x1 + 1; x < x2; x++ )
         {
-            DrawRottText( x, y1, '�', foreground, background );
-            DrawRottText( x, y2, '�', foreground, background );
+            DrawRottText( x, y1, '\xCD', foreground, background );
+            DrawRottText( x, y2, '\xCD', foreground, background );
         }
         for( y = y1 + 1; y < y2; y++ )
         {
-            DrawRottText( x1, y, '�', foreground, background );
-            DrawRottText( x2, y, '�', foreground, background );
+            DrawRottText( x1, y, '\xBA', foreground, background );
+            DrawRottText( x2, y, '\xBA', foreground, background );
         }
     }
 }

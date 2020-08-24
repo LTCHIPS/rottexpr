@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "lumpy.h"
@@ -73,8 +71,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "music.h"
 #include "fx_man.h"
-//MED
-#include "memcheck.h"
 
 volatile int    oldtime;
 volatile int    gametime;
@@ -233,8 +229,8 @@ int main (int argc, char *argv[])
     CheckCommandLineParameters();
 
     // Start up Memory manager with a certain amount of reserved memory
-
-    Z_Init(50000,10000000);
+ 
+    Z_Init(50000,1000000);
 
     IN_Startup ();
 
@@ -248,6 +244,8 @@ int main (int argc, char *argv[])
         BuildTables ();
         GetMenuInfo ();
     }
+    
+   
 
     SetRottScreenRes (iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
 
@@ -325,10 +323,19 @@ int main (int argc, char *argv[])
     if (standalone==true)
         ServerLoop();
 
+    
+    
     VL_SetVGAPlaneMode();
     VL_SetPalette(origpal);
     
+<<<<<<< HEAD
     //SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette);
+=======
+    if (mouseenabled)
+    {
+        SDL_SetRelativeMouseMode(SDL_TRUE);
+    }
+>>>>>>> master
 
 //   SetTextMode();
 //   GraphicsMode();
@@ -411,7 +418,6 @@ void DrawRottTitle ( void )
             
             strncat (title,itoa(ROTTMAJORVERSION,&buf[0],10), CountDigits(ROTTMAJORVERSION));
             strncat (title,".", 1);
-//MED
 #if (SHAREWARE==1)||(DOPEFISH==0)
             strncat (title,itoa(ROTTMINORVERSION,&buf[0],10), CountDigits(ROTTMINORVERSION));
 #else
@@ -653,7 +659,6 @@ void CheckCommandLineParameters( void )
         case 10:
             SetTextMode ();
             printf ("Rise of the Triad  (c) 1995 Apogee Software\n");
-//MED
             if (gamestate.Product == ROTT_SHAREWARE)
             {
 #if (DELUXE==1)
@@ -793,11 +798,15 @@ void SetupWads( void )
         FILE *f;
         char *buf = malloc(32);
         if (_argv[arg+1] != 0) { //are there a filename included
-            tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
+            int templen = 129 + strlen(_argv[arg+1]);
+            tempstr = realloc(tempstr, templen);
+            
+            
+            snprintf(tempstr, templen,"%s", _argv[arg+1]);
+            //strncpy (tempstr,_argv[arg+1], strlen(_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
-                    strncat (tempstr,".rtc", 4);//non exists, try add .rtc
+                    strncat (tempstr,".rtl", 4);//non exists, try add .rtc
                     if (access (tempstr, 0) != 0) { //try open again
                         //stil no useful filename
                         
@@ -821,7 +830,7 @@ void SetupWads( void )
                         GameLevels.avail++;
                         buf = realloc(buf, 32 + strlen(tempstr));
                         strncpy (buf,"Adding ", 7);
-                        strncat (buf,tempstr, strlen(&tempstr) + 32);
+                        strncat (buf,tempstr, strlen(tempstr) + 32);
                         printf("%s \n", buf);
                     }
                     fclose(f);
@@ -839,9 +848,12 @@ NoRTL:
     {
         FILE *f;
         char *buf = malloc(32);
+        
         if (_argv[arg+1] != 0) { //are there a filename included
-            tempstr = realloc(tempstr, 129 + strlen(_argv[arg+1]));
-            strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
+            int templen = 129 + strlen(_argv[arg+1]);
+            tempstr = realloc(tempstr, templen);
+            snprintf(tempstr, templen, "%s", _argv[arg+1]);
+            //strncpy (tempstr,_argv[arg+1], sizeof(&_argv[arg+1]));//copy it to tempstr
             if (strlen (tempstr) < MAX_PATH) {
                 if (access (tempstr, 0) != 0) { //try open
                     strncat (tempstr,".rtc", 4);//non exists, try add .rtc
@@ -850,15 +862,13 @@ NoRTL:
                         char notfoundRTC[] = " not found, skipping RTC file ";
                         
                         strncat (tempstr,notfoundRTC, strlen(notfoundRTC));
-                        printf("%s \n", tempstr);
-                        goto NoRTL;
+                        goto NoRTC;
                     }
                 }
                 if((f = fopen( tempstr, "r" )) == NULL ) { //try opening file
                     char cannotOpenRTC[] = " could not be opened, skipping RTC file ";
                     
                     strncat (tempstr,cannotOpenRTC, strlen(cannotOpenRTC));
-                    printf("%s \n", tempstr);
                     goto NoRTL;
                 } else {
                     fread(buf,3,3,f);//is the 3 first letters RTL (RTC)
@@ -868,7 +878,7 @@ NoRTL:
                         buf = realloc(buf, 32 + strlen(tempstr));
                         strncpy (buf,"Adding ", 7);
                         strncat (buf,tempstr, strlen(tempstr) + 32);
-                        printf("%s", buf);
+                        printf("%s \n", buf);
                     }
                     fclose(f);
                 }
@@ -1126,7 +1136,7 @@ void GameLoop (void)
                     byte *tempbuf;
                     MenuFadeOut();
                     ClearGraphicsScreen();
-                    SetPalette(&dimpal[0]);
+                    SetPalette((char*)&dimpal[0]);
                     PlayMovie ("shartitl", true);
                     if ( ( LastScan ) || ( IN_GetMouseButtons() ) )
                     {
@@ -1412,7 +1422,7 @@ void GameLoop (void)
                 lbm_t * LBM;
                 byte *s;
                 patch_t *p;
-                char * str = '\0';
+                char * str = NULL;
                 int width, height;
 
                 LBM = (lbm_t *) W_CacheLumpName( "deadboss", PU_CACHE, Cvt_lbm_t, 1);
@@ -1586,8 +1596,7 @@ boolean CheckForQuickLoad  (void )
 
 void ShutDown ( void )
 {
-    if ( ( standalone == false )
-       )
+    if (standalone == false)
     {
         WriteConfig ();
     }

@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 //******************************************************************************
 //
@@ -70,8 +68,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include "rt_battl.h"
 #include "develop.h"
-//MED
-#include "memcheck.h"
 
 
 //******************************************************************************
@@ -3732,11 +3728,19 @@ void CP_Control (void)
             if (MousePresent)
             {
                 mouseenabled^=1;
+                if (mouseenabled)
+                    SDL_SetRelativeMouseMode(SDL_TRUE);
+                else
+                    SDL_SetRelativeMouseMode(SDL_FALSE);
+                
                 DrawCtlButtons ();
                 CusItems.curpos=-1;
             }
             else
+            {
                 mouseenabled = 0;
+                SDL_SetRelativeMouseMode(SDL_FALSE);
+            }
             break;
 
         case JOYENABLE:
@@ -4918,11 +4922,11 @@ byte * IN_GetScanName (ScanCode scan)
     byte     **p;
     ScanCode *s;
 
-    for (s = ExtScanCodes, p = ExtScanNames; *s; p++, s++)
+    for (s = ExtScanCodes, p = (byte**)ExtScanNames; *s; p++, s++)
         if (*s == scan)
             return (*p);
 
-    return(ScanNames[scan]);
+    return((byte*)ScanNames[scan]);
 }
 
 
@@ -5028,7 +5032,7 @@ void DrawCustomKeyboard (void)
     for( i = 0; i < NormalKeyItems.amount; i++ )
     {
         strcpy( &NormalKeyNames[ i ][ KEYNAMEINDEX ],
-                IN_GetScanName( buttonscan[ (unsigned int)order[ i ] ] ) );
+                (char*)IN_GetScanName( buttonscan[ (unsigned int)order[ i ] ] ) );
     }
 
     MN_GetCursorLocation( &NormalKeyItems, &NormalKeyMenu[ 0 ] );
@@ -5763,7 +5767,7 @@ void DrawExtOptionsButtons (void)
 }
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
-extern boolean enableZomROTT = 0;
+extern boolean enableZomROTT;
 extern boolean enableExtraPistolDrops;
 static char *ExtGameOptionsDesc[ sizeof(ExtGameOptionsItems)] =
 {
@@ -5844,7 +5848,7 @@ void DrawExtGameMenu (void)
     ClearMenuBuf();
     SetMenuTitle ("Extended Game Options");
 
-    MN_GetCursorLocation( &ExtGameOptionsItems, &ExtGameOptionsNames[0]);
+    MN_GetCursorLocation( &ExtGameOptionsItems, &ExtGameMenu[0]);
 
     DrawMenu(&ExtGameOptionsItems, &ExtGameMenu[0]);
 

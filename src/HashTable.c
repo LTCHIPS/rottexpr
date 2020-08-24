@@ -64,7 +64,7 @@ void Delete(HashTable * hashTable, int key)
 void ClearHashTable (HashTable * hashTable)
 { 
     int x = 0;
-    for (x; x < ARRAY_SIZE(hashTable->table); x++)
+    for (x = 0; x < ARRAY_SIZE(hashTable->table); x++)
     {
         if (hashTable->table[x] != NULL)
         {

@@ -56,8 +56,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_msg.h"
 #include "rt_scale.h"
 #include "develop.h"
-//MED
-#include "memcheck.h"
 #include "queue.h"
 
 #if (SHAREWARE == 1)
@@ -5126,7 +5124,7 @@ void BattleLevelCompleted ( int localplayer )
             {
                 ReadAnyControl (&ci);
             }
-            while( ci.dir == (dirtype)key );
+            while( ci.dir == (Direction)key );
         }
 
         LastScreen = Screen;
@@ -5992,18 +5990,18 @@ boolean SaveTheGame (int num, gamestorage_t * game)
         for (z = 0; z < 8; z++)
         {
             size = sizeof(int);
-            SafeWrite(savehandle,&enemiesToRes[z]->sizeOfQueue, size);
-            if (enemiesToRes[z]->sizeOfQueue == 0)
+            SafeWrite(savehandle,&enemiesToRes[z]->NumOfItems, size);
+            if (enemiesToRes[z]->NumOfItems == 0)
             {
                 continue;
             }
             
             int x;
-            node * thingToSave = enemiesToRes[z]->head;
+            Node * thingToSave = enemiesToRes[z]->Head;
             size = sizeof(objtype);
-            for (x = 0; x < enemiesToRes[z]->sizeOfQueue; x++)
+            for (x = 0; x < enemiesToRes[z]->NumOfItems; x++)
             {
-                SafeWrite(savehandle, (objtype *) thingToSave->data, size);
+                SafeWrite(savehandle, thingToSave->data, size);
                 thingToSave = thingToSave->next;
             }
         }
@@ -6408,7 +6406,7 @@ boolean LoadTheGame (int num, gamestorage_t * game)
             origQueueSize = 0;
                 
             enemyQueue = malloc(sizeof(Queue));
-            queueInit(enemyQueue, sizeof(objtype));
+            InitQueue(enemyQueue, sizeof(objtype));
                 
             memcpy(&origQueueSize, bufptr, size);
             bufptr+=size;
@@ -6426,8 +6424,11 @@ boolean LoadTheGame (int num, gamestorage_t * game)
                 objtype * item = (objtype *) malloc(sizeof(objtype));
             
                 memcpy(item, bufptr, size);
+                
+                //fix for crash that occurs after something tries to respawn after the game is loaded
+                SetReverseDeathState(item);
             
-                enqueue(enemyQueue, item);
+                Enqueue(enemyQueue, item);
             
                 bufptr+=size;
             

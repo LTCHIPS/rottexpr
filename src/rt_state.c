@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "sprites.h"
@@ -23,8 +21,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "rt_actor.h"
 #include "develop.h"
 #define SPRINGDELAY 3
-//MED
-#include "memcheck.h"
 
 
 extern void T_ReallyDead(objtype*ob);
@@ -941,7 +937,6 @@ statetype s_guts3 = {false,GUTS3,3,T_Collide,SF_GUTS,&s_guts4};
 statetype s_guts2 = {false,GUTS2,3,T_Collide,SF_GUTS,&s_guts3};
 statetype s_guts1 = {false,GUTS1,3,T_Collide,SF_GUTS,&s_guts2};
 
-//MED
 #if (SHAREWARE == 1) || (DOPEFISH == 0)
 statetype s_collectorwander8 = {false,COLLECTOR15,0,T_CollectorWander,0,&s_collectorwander1};
 statetype s_collectorwander7 = {false,COLLECTOR13,1,T_CollectorWander,0,&s_collectorwander8};
@@ -964,7 +959,6 @@ statetype s_collectorwander1 = {false,DOPE1,2,T_CollectorWander,0,&s_collectorwa
 #endif
 
 
-//MED
 #if (SHAREWARE == 1) || (DOPEFISH == 0)
 statetype s_collectorfdoor8 = {false,COLLECTOR15,0,T_CollectorFindDoor,0,&s_collectorfdoor1};
 statetype s_collectorfdoor7 = {false,COLLECTOR13,1,T_CollectorFindDoor,0,&s_collectorfdoor8};
@@ -1062,7 +1056,6 @@ statetype s_superparticles = {false,NOTHING,0,T_ParticleGenerate,0,&s_superparti
 
 statetype s_gibsdone8 = {false,PARTICLE12,2,NULL,0,NULL};
 statetype s_gibsdone7 = {false,PARTICLE11,2,NULL,0,&s_gibsdone8};
-//MED
 statetype s_gibsdone6 = {false,PARTICLE10,2,NULL,0,&s_gibsdone7};
 statetype s_gibsdone5 = {false,PARTICLE09,2,NULL,0,&s_gibsdone6};
 statetype s_gibsdone4 = {false,PARTICLE08,2,NULL,0,&s_gibsdone5};

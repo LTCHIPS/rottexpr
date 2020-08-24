@@ -1,5 +1,7 @@
 /*
-Copyright (C) 1994-1995 Apogee Software, Ltd.
+Copyright (C) 1994-1995  Apogee Software, Ltd.
+Copyright (C) 2002-2015  icculus.org, GNU/Linux port
+Copyright (C) 2017-2018  Steven LeVesque
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -10,12 +12,8 @@ This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-See the GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 #include "rt_def.h"
 #include "rt_sound.h"
@@ -47,8 +45,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #else
 #include "snd_shar.h"
 #endif
-//MED
-#include "memcheck.h"
 
 // Local Variables
 
@@ -311,12 +307,12 @@ int SD_PlayIt ( int sndnum, int angle, int distance, int pitch )
 
     if ( *snd == 'C' )
     {
-        voice = FX_PlayVOC3D( snd, pitch, angle, distance,
+        voice = FX_PlayVOC3D( (char*)snd, pitch, angle, distance,
                               sounds[sndnum].priority, (unsigned long) sndnum );
     }
     else
     {
-        voice = FX_PlayWAV3D( snd, pitch, angle, distance,
+        voice = FX_PlayWAV3D( (char*)snd, pitch, angle, distance,
                               sounds[sndnum].priority, (unsigned long) sndnum );
     }
 
@@ -801,7 +797,7 @@ static song_t rottsongs[MAXSONGS] = {
 };
 #endif
 
-static byte * currentsong;
+static char * currentsong;
 static int MU_Started=false;
 static int lastsongnumber=-1;
 int storedposition=0;
