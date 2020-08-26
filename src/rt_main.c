@@ -328,14 +328,10 @@ int main (int argc, char *argv[])
     VL_SetVGAPlaneMode();
     VL_SetPalette(origpal);
     
-<<<<<<< HEAD
-    //SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette);
-=======
     if (mouseenabled)
     {
         SDL_SetRelativeMouseMode(SDL_TRUE);
     }
->>>>>>> master
 
 //   SetTextMode();
 //   GraphicsMode();

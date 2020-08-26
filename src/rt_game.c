@@ -443,170 +443,208 @@ void GM_ColoredPicToSDLSurface (byte *source, SDL_Surface * destSurf, int width,
 
 void Pic_tToSDLSurface(pic_t * source, SDL_Surface ** destSurf, int scaleFactor, int color)
 {
-    
+
     SDL_Surface * temp;
-    
+
     temp = SDL_CreateRGBSurface(0, source->width*4, source->height,8,0,0,0,0);
-    
-    
-    
+
+
+
     //int translucentpix = SDL_MapRGB(sdl_surface->format, sdl_surface->format->palette->colors[255].r, sdl_surface->format->palette->colors[255].g,sdl_surface->format->palette->colors[255].b); //152, 0, 136 is the RGB combo for the translucent pixel
-    
+
     //SDL_FillRect(temp, NULL, translucentpix);
-    
+
     if(temp == NULL)
     {
         printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
     }
-    
+
     if(SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette) == -1)
     {
         printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
     }
     if(color > -1)
-        GM_ColoredPicToSDLSurface((byte * ) &source->data, temp, source->width, source->height, color); 
+        GM_ColoredPicToSDLSurface((byte * ) &source->data, temp, source->width, source->height, color);
     else
-        GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height); 
-    
-    SDL_PixelFormat * pixfmt; 
-    
+        GM_MemToSDLSurface ((byte * ) &source->data, temp, source->width, source->height);
+
+    SDL_PixelFormat * pixfmt;
+
     pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
-    
+
     SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
-    
+
     int translucentpix = SDL_MapRGB(temp2->format, 152, 0, 136); //152, 0, 136 is the RGB combo for the translucent pi pixel
-     
+
     SDL_FreeFormat(pixfmt);
-    
+
     *destSurf = SDL_CreateRGBSurface(0, temp2->w*scaleFactor, temp2->h*scaleFactor, temp2->format->BitsPerPixel, 0, 0, 0, 0 );
-    
+
     SDL_FreeSurface(temp);
-    
+
     SDL_FillRect(*destSurf, NULL, translucentpix);
-    
+
     SDL_SetColorKey(*destSurf, SDL_TRUE, translucentpix);
-    
-    SDL_SetColorKey(temp2, SDL_TRUE, translucentpix);
-    
+
+    //SDL_SetColorKey(temp2, SDL_TRUE, translucentpix);
+
     if(SDL_BlitScaled(temp2,NULL, *destSurf, NULL) < 0)
     {
         printf("In function Pic_tToSDLSurface: %s \n", SDL_GetError());
         exit(1);
     }
-    
+
     SDL_FreeSurface(temp2);
-       
+
 }
 
 void Pic_tToSDLTexture(pic_t * source, SDL_Texture ** destTex, int scaleFactor, int color)
 {
     SDL_Surface * destSurf;
-    
+
     Pic_tToSDLSurface(source, &destSurf, scaleFactor, color);
-    
+
     *destTex = SDL_CreateTextureFromSurface(renderer, destSurf);
-    
+
     SDL_FreeSurface (destSurf);
+}
+
+void PropStringToSDLSurface(const char * string, SDL_Surface ** destSurf, int scaleFactor)
+{
+    int width, height = 0;
+
+    VW_MeasurePropString(string, &width, &height);
+
+    SDL_Surface * temp;
+
+    temp = SDL_CreateRGBSurface(0, width * 2, height,8,0,0,0,0);
+
+    if(temp == NULL)
+    {
+        fprintf(stdout, "In function PropStringToSDLSurface: %s \n", SDL_GetError());
+        exit(1);
+    }
+
+    if(SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette) == -1)
+    {
+        fprintf(stdout,"In function PropStringToSDLSurface: %s \n", SDL_GetError());
+        exit(1);
+    }
+
+    SDL_FillRect(temp, NULL, 0);
+
+   //CurrentFont = tinyfont;
+   //CurrentFont = tinyfont;
+
+
+   //SDL_FillRect(sdl_surface, NULL, 0);
+
+   DrawPropStringToSDLSurface(string, temp);
+
+   SDL_PixelFormat * pixfmt;
+
+   pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+
+    //SDL_FillRect(sdl_surface, NULL, 0);
+
+    //SDL_BlitSurface(temp, NULL, sdl_surface, NULL);
+
+    //SDL_Surface * temp3 = SDL_ConvertSurface(sdl_surface, pixfmt, 0);
+
+    //SDL_Texture * testTex = SDL_CreateTextureFromSurface(renderer, temp3);
+
+    //TestSDLTexture(testTex);
+
+
+   //SDL_Texture * testTex = SDL_CreateTextureFromSurface(renderer, temp);
+
+   //TestSDLTexture(testTex);
+
+
+
+   SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
+
+   if (temp2 == NULL)
+   {
+       fprintf(stdout, "In function PropStringToSDLSurface: %s \n", SDL_GetError());
+       exit(1);
+   }
+
+   //SDL_Texture * testTex = SDL_CreateTextureFromSurface(renderer, temp);
+
+   //TestSDLTexture(testTex);
+
+   int translucentpix = SDL_MapRGB(temp2->format, 0, 0, 0);
+
+   //SDL_FreeFormat(pixfmt);
+
+   SDL_SetColorKey(temp2, SDL_TRUE, translucentpix);
+
+   //*destSurf = temp2;
+
+   *destSurf = SDL_CreateRGBSurface(0, temp2->w*scaleFactor, temp2->h*scaleFactor, temp2->format->BitsPerPixel, 0, 0, 0, 0 );
+
+   SDL_FreeSurface(temp);
+
+   //SDL_FillRect(*destSurf, NULL, translucentpix);
+
+   SDL_SetColorKey(*destSurf, SDL_TRUE, translucentpix);
+
+   if(SDL_BlitScaled(temp2,NULL, *destSurf, NULL) < 0)
+   {
+       fprintf(stdout, "In function PropStringToSDLSurface: %s \n", SDL_GetError());
+       exit(1);
+   }
+   SDL_FreeSurface(temp2);
+   SDL_FreeFormat(pixfmt);
 }
 
 void PropStringToSDLTexture(const char * string, SDL_Texture ** destTex, int scaleFactor)
 {
     SDL_Surface * destSurf;
 
-    PropStringToSDLSurface(string, destSurf, scaleFactor);
+    PropStringToSDLSurface(string, &destSurf, scaleFactor);
 
-    destTex = SDL_CreateTextureFromSurface(renderer, destSurf);
+    *destTex = SDL_CreateTextureFromSurface(renderer, destSurf);
+
+    if (*destTex == NULL)
+    {
+        fprintf(stdout, "In Function PropStringToSDLTexture: %s \n", SDL_GetError());
+        exit(1);
+    }
+
+    //TestSDLTexture(*destTex);
 
     SDL_FreeSurface(destSurf);
 
 }
 
-void PropStringToSDLSurface(const char * string, SDL_Surface ** destSurf, int scaleFactor)
-{
- // Draw player's name
-        
-        //VW_MeasurePropString(Names[character],&width, &height);
-
-        //DrawGameString ( MEN_X + 3, MEN_Y + 2, Names[ character ], bufferofsonly );
-       //VW_MeasurePropString( LastNames[ character ], &width, &height );
-        //DrawGameString ( MEN_X + 44 - width, MEN_Y + 8,
-           //          LastNames[ character ], bufferofsonly );
-
-    //before rescaling
-    int width, height = 0;
-
-    VW_MeasurePropString(string, &width, &height);
-    
-    SDL_Surface * temp;
-    
-    temp = SDL_CreateRGBSurface(0, width, height,8,0,0,0,0);
-
-    if(temp == NULL)
-    {
-        printf("In function PropStringToSDLSurface: %s \n", SDL_GetError());
-    }
-    
-    if(SDL_SetPixelFormatPalette(temp->format, sdl_surface->format->palette) == -1)
-    {
-        printf("In function PropStringToSDLSurface: %s \n", SDL_GetError());
-    }
-
-    DrawPropStringToSDLSurface(string, temp);
-
-    SDL_PixelFormat * pixfmt; 
-    
-    pixfmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
-    
-    SDL_Surface * temp2 = SDL_ConvertSurface(temp, pixfmt, 0);
-    
-    int translucentpix = SDL_MapRGB(temp2->format, 152, 0, 136); //152, 0, 136 is the RGB combo for the translucent pi pixel
-    
-    destSurf = SDL_CreateRGBSurface(0, temp2->w*scaleFactor, temp2->h*scaleFactor, temp2->format->BitsPerPixel, 0, 0, 0, 0 );
-    
-    SDL_FillRect(destSurf, NULL, translucentpix);
-    
-    SDL_SetColorKey(destSurf, SDL_TRUE, translucentpix);
-    
-    SDL_SetColorKey(temp2, SDL_TRUE, translucentpix);
-
-    if(SDL_BlitScaled(temp2,NULL, destSurf, NULL) < 0)
-    {
-        printf("In function PropStringToSDLSurface: %s \n", SDL_GetError());
-        exit(1);
-    }
-
-    SDL_FreeSurface(temp2);
-    SDL_FreeSurface(temp);
-    SDL_FreeFormat(pixfmt);
-
-}
-
 void CleanUpPlayScreenSDLTextures()
-{    
+{
     SDL_DestroyTexture(eraseTex);
     SDL_DestroyTexture(erasebTex);
-    
+
     SDL_DestroyTexture(statusBarTex);
     SDL_DestroyTexture(bottomBarTex);
-    
+
     SDL_DestroyTexture(godmodePicTex);
-    
+
     SDL_DestroyTexture(dogmodePicTex);
-    
+
     SDL_DestroyTexture(elasticmodePicTex);
-    
+
     SDL_DestroyTexture(shroomsmodePicTex);
-    
+
     SDL_DestroyTexture(bpvestPicTex);
-    
+
     SDL_DestroyTexture(abestosvestPicTex);
-    
+
     SDL_DestroyTexture(mercurymodePicTex);
-    
+
     SDL_DestroyTexture(gasmaskPicTex);
-    
+
     int count;
-    
+
     for (count = 0; count < 10; count++)
     {
         SDL_DestroyTexture(timenumsTex[count]);
@@ -616,54 +654,54 @@ void CleanUpPlayScreenSDLTextures()
     }
     for (count = 0; count < 6; count++)
         SDL_DestroyTexture(healthTex[count]);
-    
+
     for (count = 0; count < 4; count++)
         SDL_DestroyTexture(keysTex[count]);
-    
+
     for(count = 0; count < 5; count++)
         SDL_DestroyTexture(menTex[count]);
-    
+
     for(count = 0; count < 26; count++)
         SDL_DestroyTexture(ammoTex[count]);
-    
+
     SDL_DestroyTexture(firstnameTex);
     SDL_DestroyTexture(lastnameTex);
 
     playScreenIsReady = false;
-    
+
 }
 
 void SetupPlayScreenSDLTexture( void )
-{  
+{
     if (playScreenIsReady)
         CleanUpPlayScreenSDLTextures();
-    
+
     Pic_tToSDLTexture(erase, &eraseTex, hudRescaleFactor, -1);
-    
+
     Pic_tToSDLTexture(eraseb, &erasebTex, hudRescaleFactor, -1);
-    
+
     int count;
-    
+
     for (count = 0; count < 10; count++)
     {
         Pic_tToSDLTexture(timenums[count], &timenumsTex[count], hudRescaleFactor, -1);
     }
-    
+
     for(count = 0; count < 10; count++)
     {
         Pic_tToSDLTexture(lifeptnums[count], &lifeptnumsTex[count], hudRescaleFactor, -1);
     }
-    
+
     for(count = 0; count < 10; count++)
     {
-        Pic_tToSDLTexture(lifenums[count], &lifenumsTex[count], hudRescaleFactor, -1);    
+        Pic_tToSDLTexture(lifenums[count], &lifenumsTex[count], hudRescaleFactor, -1);
     }
-    
+
     for (count = 0; count < 6; count++)
     {
         Pic_tToSDLTexture(health[count], &healthTex[count], hudRescaleFactor, -1);
     }
-    
+
     for (count = 0; count < 4; count++)
     {
         Pic_tToSDLTexture(keys[count], &keysTex[count], hudRescaleFactor, -1);
@@ -674,20 +712,32 @@ void SetupPlayScreenSDLTexture( void )
         for(count = 0; count < 10; count++)
         {
             Pic_tToSDLTexture(scorenums[count], &scorenumsTex[count], hudRescaleFactor, playeruniformcolor);
-        }        
-        
+        }
+
         for(count = 0; count < 5; count++)
         {
-            Pic_tToSDLTexture(men[locplayerstate->player], &menTex[count], hudRescaleFactor, -1);  
+            Pic_tToSDLTexture(men[locplayerstate->player], &menTex[count], hudRescaleFactor, -1);
         }
         int character;
 
         character = locplayerstate->player;
 
-        PropStringToSDLTexture(Names[character], firstnameTex, hudRescaleFactor);
-        PropStringToSDLTexture(LastNames[character], lastnameTex, hudRescaleFactor);
+        CurrentFont = tinyfont;
 
-        
+        //SDL_Texture * eh;
+
+        //PropStringToSDLTexture("t", &eh, 1);
+
+        //SDL_DestroyTexture(eh);
+
+        //PropStringToSDLTexture(Names[character], &firstnameTex, hudRescaleFactor);
+
+        //SDL_DestroyTexture(firstnameTex);
+
+        PropStringToSDLTexture(Names[character], &firstnameTex, hudRescaleFactor);
+        PropStringToSDLTexture(LastNames[character], &lastnameTex, hudRescaleFactor);
+
+
         //CacheLumpGroup( "scnum0", scorenums, 10 );
 
         //num = locplayerstate->player;
@@ -707,7 +757,7 @@ void SetupPlayScreenSDLTexture( void )
         {
             Pic_tToSDLSurface(scorenums[count], scorenumsSurf[count], hudRescaleFactor);
         }
-        
+
         //CacheLumpGroup( "kilnum0", scorenums, 10 );
 
         negnum  = W_GetNumForName( "botnpic1" );
@@ -746,61 +796,61 @@ void SetupPlayScreenSDLTexture( void )
         Pic_tToSDLTexture(ammo[count], &ammoTex[count], hudRescaleFactor, -1);
 
     }
-    
+
     oldplayerhealth  = -1;
     oldpercenthealth = -1;
-    
+
     pic_t * shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-    
+
     Pic_tToSDLTexture(shape, &bottomBarTex, hudRescaleFactor, -1);
-    
+
     shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-    
+
     Pic_tToSDLTexture(shape, &statusBarTex, hudRescaleFactor, -1);
-    
+
     powerpics   = W_GetNumForName( "GDMODEP" );
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &godmodePicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 1, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &dogmodePicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 2, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &mercurymodePicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 3, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &elasticmodePicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 4, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &shroomsmodePicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 6, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &bpvestPicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 5, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &gasmaskPicTex, hudRescaleFactor, -1);
-    
+
     shape = (pic_t*)W_CacheLumpNum(powerpics + 7, PU_CACHE, Cvt_pic_t, 1);
-    
+
     Pic_tToSDLTexture(shape, &abestosvestPicTex, hudRescaleFactor, -1);
-    
+
     playScreenIsReady = true;
-    
+
 }
 
 void GetTextureDimensions(SDL_Texture * tex, int * w, int * h)
 {
     Uint32 fmt;
     int texAccess;
-    
+
     SDL_QueryTexture(tex, &fmt, &texAccess, w, h);
 
 }
@@ -808,15 +858,15 @@ void GetTextureDimensions(SDL_Texture * tex, int * w, int * h)
 void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y)
 {
     SDL_Rect coords;
-    
+
     coords.x = x;
     coords.y = y;
     coords.w = src->w;
     coords.h = src->h;
-    
+
     if(SDL_BlitSurface(src, NULL, *dest, &coords) < 0)
     {
-        printf("In function DrawSurfaceOntoSurface: %s", SDL_GetError());   
+        printf("In function DrawSurfaceOntoSurface: %s", SDL_GetError());
         exit(1);
     }
 
@@ -825,23 +875,23 @@ void DrawSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y
 void DrawHeightModdedSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, int x, int y, int heightmod)
 {
     SDL_Rect coords;
-    
+
     coords.x = x;
     coords.y = y;
     coords.w = src->w;
     coords.h = src->h;
-    
+
     SDL_Rect srcCoords;
-    
+
     srcCoords.x = 0;
     srcCoords.y = 0;
     srcCoords.w = src->w;
     srcCoords.h = src->h - heightmod;
-    
-    
+
+
     if(SDL_BlitSurface(src, &srcCoords, *dest, &coords) < 0)
     {
-        printf("In function DrawHeightModdedSurfaceOntoSurface: %s", SDL_GetError());   
+        printf("In function DrawHeightModdedSurfaceOntoSurface: %s", SDL_GetError());
         exit(1);
     }
 
@@ -850,26 +900,26 @@ void DrawHeightModdedSurfaceOntoSurface(SDL_Surface * src, SDL_Surface ** dest, 
 void DrawTextureOntoTexture(SDL_Texture * src, SDL_Texture * dest, int x, int y)
 {
     int srcW, srcH;
-    
+
     GetTextureDimensions(src, &srcW, &srcH);
-    
+
     SDL_Rect coords;
-    
+
     coords.x = x;
     coords.y = y;
-    
+
     //SDL_QueryTexture(src, &format, &srcTexAccess, &srcW, &srcH);
-    
+
     coords.w = srcW;
-    
+
     coords.h = srcH;
-    
+
     SDL_SetRenderTarget(renderer, dest);
-    
-    
+
+
     //SDL_RenderCopy(renderer, sdl_texture, NULL, NULL);
     SDL_RenderCopy(renderer, src, NULL, &coords);
-    
+
     SDL_SetRenderTarget(renderer, NULL);
 
 }
@@ -877,20 +927,20 @@ void DrawTextureOntoTexture(SDL_Texture * src, SDL_Texture * dest, int x, int y)
 void DrawHeightModdedTextureOntoTexture(SDL_Texture * src, SDL_Texture * dest, int x, int y, int heightmod)
 {
     SDL_Rect coords;
-    
+
     int srcW, srcH;
-    
+
     GetTextureDimensions(src, &srcW, &srcH);
-    
+
     coords.x = x;
     coords.y = y;
     coords.w = srcW;
     coords.h = srcH - heightmod;
-    
+
     SDL_SetRenderTarget(renderer, dest);
-    
+
     SDL_RenderCopy(renderer, src, NULL, &coords);
-    
+
     SDL_SetRenderTarget(renderer, NULL);
 
 }
@@ -901,16 +951,16 @@ void DrawHeightModdedTextureOntoTexture(SDL_Texture * src, SDL_Texture * dest, i
 void DrawBarAmmoToSDLTexture(SDL_Texture * dest)
 {
     int statusBarW, statusBarH;
-    
+
     GetTextureDimensions(statusBarTex, &statusBarW, &statusBarH);
-    
+
     int endBottomBarX = ((iGLOBAL_SCREENWIDTH - statusBarW) >> 1) + statusBarW;
 
     int ammoX = endBottomBarX - 20*(hudRescaleFactor);
-    
+
     int ammoY = iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor;
-    
-    if((locplayerstate->new_weapon < wp_bazooka) || 
+
+    if((locplayerstate->new_weapon < wp_bazooka) ||
             (locplayerstate->new_weapon == wp_godhand) ||
             (gamestate.BattleOptions.Ammo == bo_infinite_shots))
     {
@@ -924,37 +974,37 @@ void DrawBarAmmoToSDLTexture(SDL_Texture * dest)
     {
         int count;
         int drawAtX = ammoX;
-        
+
         int ammoW, ammoH;
-        
+
         GetTextureDimensions(ammoTex[13+locplayerstate->new_weapon], &ammoW, &ammoH);
-        
+
         ammoY+=1*hudRescaleFactor;
-        
+
         //SDL_QueryTexture(ammoTex[13 + locplayerstate->new_weapon], &fmt, &access, &statusBarW, &statusBarH);
-        
+
         for(count = 0; count < locplayerstate->ammo; count++)
         {
             DrawTextureOntoTexture(ammoTex[13+locplayerstate->new_weapon], dest, drawAtX, ammoY);
             drawAtX-=ammoW;
         }
-    
+
     }
-    
+
 }
 
 void DrawBarHealthToSDLTexture(SDL_Texture * dest)
 {
     int bottomBarW, bottomBarH;
-    
+
     GetTextureDimensions(bottomBarTex, &bottomBarW, &bottomBarH);
-    
+
     int percenthealth;
 
     int healthY = iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor;
-    
+
     int healthX = ((iGLOBAL_SCREENWIDTH - bottomBarW)>>1) + 20 * hudRescaleFactor;
-    
+
 /*
     if ( SHOW_KILLS() )
     {
@@ -966,7 +1016,7 @@ void DrawBarHealthToSDLTexture(SDL_Texture * dest)
                     MaxHitpointsForCharacter( locplayerstate );
 
     oldpercenthealth = percenthealth + 1;
-    
+
     if ( locplayerstate->health <= 0 )
     {
         oldpercenthealth = 0;
@@ -992,15 +1042,15 @@ void DrawBarHealthToSDLTexture(SDL_Texture * dest)
     }
 
     int numToDraw = oldpercenthealth;
-    
+
     int count;
-    
+
     int drawAtX = healthX;
-    
+
     int healthW, healthH;
-    
+
     GetTextureDimensions(healthTex[healthBarThing], &healthW, &healthH);
-    
+
     for (count = 0; count < numToDraw; count++)
     {
         DrawTextureOntoTexture(healthTex[healthBarThing], dest, drawAtX, healthY);
@@ -1017,24 +1067,24 @@ void DrawNumbersToSDLTexture(int x, int y, int val, int width, unsigned length, 
     byte z;
 
     z = width - length;     // Num zeros
-    
+
     //int x = (((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1)) + 4*hudRescaleFactor;
 
     //int y = 0;
-    
+
     //pad zeroes
     while (z)
     {
         //StatusDrawPic (x, y, lifeptnums[0], bufferofsonly);
-        
+
         DrawTextureOntoTexture(numArray[0], dest, x, y);
-        
+
         x+=digitOffset*hudRescaleFactor;
         z--;
     }
-    
+
     char* valChar = calloc(sizeof(char), length);
-    
+
     ltoa(val, valChar, 10);
 
     //x = ((iGLOBAL_SCREENWIDTH - statusBarSurf->w)>>1) - (16*hudRescaleFactor);
@@ -1043,11 +1093,11 @@ void DrawNumbersToSDLTexture(int x, int y, int val, int width, unsigned length, 
     while (c < length)
     {
         DrawTextureOntoTexture(numArray[valChar[c]-'0'], dest, x, y);
-        
+
         //StatusDrawPic (x, y, lifeptnums[str[c]-'0'], bufferofsonly);
         x+=digitOffset*hudRescaleFactor;
         c++;
-    }    
+    }
 }
 
 
@@ -1056,27 +1106,27 @@ void DrawNumbersToSDLTexture(int x, int y, int val, int width, unsigned length, 
 int intLen(const int number)
 {
     int lenResult = 1;
-    
+
     //int remainder = number;
-    
+
     if(number)
     {
         int oldRemainder;
         int remainder = number;
-        
+
         while(1)
         {
             oldRemainder = remainder;
-            
+
             remainder%=10;
             if (oldRemainder == remainder)
                 break;
-            
+
             lenResult++;
-            
+
         }
     }
-    
+
     return lenResult;
 }
 
@@ -1085,14 +1135,14 @@ int intLen(const int number)
 void DrawPlayScreenToSDLTexture(SDL_Texture * dest)
 {
     int statusBarW, statusBarH;
-    
+
     GetTextureDimensions(statusBarTex, &statusBarW, &statusBarH);
-    
+
     int bottStatusBarStartX = (iGLOBAL_SCREENWIDTH - statusBarW) >> 1;
-    
+
     if (SHOW_TOP_STATUS_BAR())
-    { 
-        DrawTextureOntoTexture(statusBarTex, dest, bottStatusBarStartX, 0);  
+    {
+        DrawTextureOntoTexture(statusBarTex, dest, bottStatusBarStartX, 0);
     }
 
 //TODO: more multiplayer hud stuff
@@ -1111,11 +1161,11 @@ void DrawPlayScreenToSDLTexture(SDL_Texture * dest)
     {
         DrawBarAmmoToSDLTexture(dest);
         DrawBarHealthToSDLTexture(dest);
-        
+
         //DrawBarAmmoToSDLSurface(destSurf);
         //DrawBarHealthToSDLSurface(destSurf);
-    }   
-        
+    }
+
     if ( !SHOW_TOP_STATUS_BAR() )
     {
         return;
@@ -1123,68 +1173,68 @@ void DrawPlayScreenToSDLTexture(SDL_Texture * dest)
 
     if ( !BATTLEMODE )
     {
-        
+
         //TODO: Scale Game strings....
-        
+
         int character;
         int width;
         int height;
 
         character = locplayerstate->player;
-        
+
         DrawTextureOntoTexture(menTex[character], dest, bottStatusBarStartX + MEN_X*hudRescaleFactor, MEN_Y);
 
         CurrentFont = tinyfont;
 
         // Draw player's name
-        
+
         //VW_MeasurePropString(Names[character],&width, &height);
 
-        DrawTextureOntoTexture(firstnameTex, dest, (MEN_X + 3) *hudRescaleFactor, (MEN_Y + 2)*hudRescaleFactor);
+        DrawTextureOntoTexture(firstnameTex, dest, bottStatusBarStartX + (MEN_X + 3) *hudRescaleFactor, (MEN_Y + 2)*hudRescaleFactor);
 
-        int lastNameW, lastNameH;
+        int lastNameW, lastNameH = 0;
         GetTextureDimensions(lastnameTex, &lastNameW, &lastNameH);
-        DrawTextureOntoTexture(lastnameTex, dest, (MEN_X + 44)*hudRescaleFactor - lastNameW, (MEN_Y + 8)*hudRescaleFactor - lastNameH);
+        DrawTextureOntoTexture(lastnameTex, dest, bottStatusBarStartX + (MEN_X + 44)*hudRescaleFactor - lastNameW/2, (MEN_Y + 8)*hudRescaleFactor);
         //DrawGameString ( MEN_X + 3, MEN_Y + 2, Names[ character ], bufferofsonly );
        //VW_MeasurePropString( LastNames[ character ], &width, &height );
         //DrawGameString ( MEN_X + 44 - width, MEN_Y + 8,
            //          LastNames[ character ], bufferofsonly );
-        
+
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
-        
+
         //triads
-    
+
         int triadVal = atoi(TriadStr.str);
-        
+
         int x = (bottStatusBarStartX + statusBarW ) - (12*hudRescaleFactor);
 
         int y = 6*hudRescaleFactor;
-        
+
         DrawNumbersToSDLTexture(x, y, triadVal, 2, TriadStr.length, 6, lifeptnumsTex, dest);
-        
+
         x = (bottStatusBarStartX + statusBarW ) - (32*hudRescaleFactor);
-        
+
         y = 0;
-        
+
         //lives
-        
+
         int livesVal = atoi(LivesStr.str);
-        
+
         DrawNumbersToSDLTexture(x, y, livesVal, 2, LivesStr.length, 8, lifenumsTex, dest);
-        
+
         //score
-        
+
         x = bottStatusBarStartX + 4*hudRescaleFactor;
 
         y = 0;
-        
+
         int scoreVal = atoi(ScoreStr.str);
-        
+
         DrawNumbersToSDLTexture(x, y, scoreVal, 10, ScoreStr.length, 8, scorenumsTex, dest);
-        
+
     }
-    
+
     if ( locplayerstate->keys & 1 )
     {
         DrawTextureOntoTexture(keysTex[0], dest, bottStatusBarStartX + 152*hudRescaleFactor, 0);
@@ -1204,94 +1254,94 @@ void DrawPlayScreenToSDLTexture(SDL_Texture * dest)
     {
         DrawTextureOntoTexture(keysTex[3], dest, bottStatusBarStartX + 176*hudRescaleFactor, 0);
     }
-    
+
     if(locplayerstate->poweruptime)
     {
         if ( player->flags & FL_GODMODE )
         {
-            DrawHeightModdedTextureOntoTexture(godmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(godmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor,
                                                 POWERUPY + powerupheight* hudRescaleFactor, powerupheight * hudRescaleFactor);
             //shapenum = powerpics;
         }
         else if ( player->flags & FL_DOGMODE )
         {
-            DrawHeightModdedTextureOntoTexture(dogmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(dogmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor,
                                                 POWERUPY + powerupheight*hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_FLEET )
         {
-            DrawHeightModdedTextureOntoTexture(mercurymodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(mercurymodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor,
                                                 POWERUPY + powerupheight*hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_ELASTO )
         {
-            DrawHeightModdedTextureOntoTexture(elasticmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(elasticmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor,
                                                 POWERUPY + powerupheight * hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
         else if ( player->flags & FL_SHROOMS )
         {
-            DrawHeightModdedTextureOntoTexture(shroomsmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(shroomsmodePicTex, dest, bottStatusBarStartX + POWERUP1X*hudRescaleFactor,
                                                 POWERUPY + powerupheight * hudRescaleFactor, powerupheight*hudRescaleFactor);
         }
-    
+
     }
 
     if ( locplayerstate->protectiontime )
     {
         if ( player->flags & FL_BPV )
         {
-            DrawHeightModdedTextureOntoTexture(bpvestPicTex, dest, bottStatusBarStartX + POWERUP2X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(bpvestPicTex, dest, bottStatusBarStartX + POWERUP2X*hudRescaleFactor,
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
         else if ( player->flags & FL_GASMASK )
         {
-            DrawHeightModdedTextureOntoTexture(gasmaskPicTex, dest, bottStatusBarStartX + POWERUP2X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(gasmaskPicTex, dest, bottStatusBarStartX + POWERUP2X*hudRescaleFactor,
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
         else if ( player->flags & FL_AV )
         {
-            DrawHeightModdedTextureOntoTexture(abestosvestPicTex, dest, bottStatusBarStartX + POWERUP2X*hudRescaleFactor, 
+            DrawHeightModdedTextureOntoTexture(abestosvestPicTex, dest, bottStatusBarStartX + POWERUP2X*hudRescaleFactor,
                                                 POWERUPY + protectionheight * hudRescaleFactor, protectionheight * hudRescaleFactor);
         }
     }
-    
-    
-    //time 
+
+
+    //time
     int sec = gamestate.TimeCount / VBLCOUNTER;
-    
+
     int hour  = sec / 3600;
     int min   = ( sec / 60 ) - ( hour * 60 );
     sec  %= 60;
-    
+
     //printf("%d \n", min);
- 
-    
+
+
     //draw hour
-    
+
     int x = bottStatusBarStartX + (GAMETIME_X*hudRescaleFactor + HOUR_X*hudRescaleFactor + 8*hudRescaleFactor);
-    
+
     int y = GAMETIME_Y;
-    
+
     int length = intLen(hour);
-    
+
     DrawNumbersToSDLTexture(x, y, hour, 1, length, 8, timenumsTex, dest);
-    
+
     //draw minutes
-    
+
     x = bottStatusBarStartX + (GAMETIME_X*hudRescaleFactor + MIN_X*hudRescaleFactor);
-    
+
     length = intLen(min);
-    
+
     DrawNumbersToSDLTexture(x, y, min,2,length, 8, timenumsTex, dest);
-    
+
     //draw seconds
-    
+
     length = intLen(sec);
-    
+
     x = bottStatusBarStartX + (GAMETIME_X*hudRescaleFactor + SEC_X* hudRescaleFactor);
-    
+
     DrawNumbersToSDLTexture(x, y, sec, 2, length, 8, timenumsTex, dest);
-    
+
 }
 
 
@@ -1338,28 +1388,28 @@ int topBarCenterOffsetX;
 void DrawPlayScreen (boolean bufferofsonly)
 {
     pic_t *shape;
-    
+
     int    shapenum;
 
     //figure out where the middle point of the status bar should be for top bar
     topBarCenterOffsetX = (iGLOBAL_SCREENWIDTH - 320) >> 1;
-    
+
     if ( SHOW_TOP_STATUS_BAR() )
     {
         if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            
+
             DrawTiledRegion( 0, 0, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 0,16, shape );
         }
         shape = ( pic_t * )W_CacheLumpName( "stat_bar", PU_CACHE, Cvt_pic_t, 1 );
-        
+
         //GM_MemToSDLSurface((byte *) &shape->data, temp, shape->width, shape->height);
-        
+
         //tempHasStuff = true;
-        
+
         //GameMemToScreen( shape, topBarCenterOffsetX, 0, bufferofsonly );
-        
+
     }
 
     if ( BATTLEMODE )
@@ -1374,27 +1424,27 @@ void DrawPlayScreen (boolean bufferofsonly)
         if (iGLOBAL_SCREENWIDTH > 320 || iGLOBAL_SCREENHEIGHT > 200)
         {
             shape =  ( pic_t * )W_CacheLumpName( "backtile", PU_CACHE, Cvt_pic_t, 1 );
-            
-            
+
+
             DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 13*hudRescaleFactor, 10,10, shape );
             //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 29*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 3*hudRescaleFactor, 10,10, shape );
-            
+
             //apparently the line below was causing segfaults on linux...
-            
+
             //DrawTiledRegion( 0, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, iGLOBAL_SCREENWIDTH, 16*hudRescaleFactor, 34,32, shape );
-            
+
             shape = ( pic_t * ) W_CacheLumpName( "bottbar", PU_CACHE, Cvt_pic_t, 1 );
-            
-            
-            
-            
+
+
+
+
             //enqueue(sdl_draw_obj_queue, shape);
-            
-            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims 
+
+            //GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
         }
-        
-        
-        
+
+
+
         GameMemToScreen( shape, topBarCenterOffsetX, iGLOBAL_SCREENHEIGHT - 16, bufferofsonly ); //using topBarCenterOffsetX since bottbar dims == statbar dims
 
         //}
@@ -1405,8 +1455,8 @@ void DrawPlayScreen (boolean bufferofsonly)
         if ( demoplayback )
         {
             shape = ( pic_t * )W_CacheLumpName( "demo", PU_CACHE, Cvt_pic_t, 1 );
-            
-            DrawPPic( (iGLOBAL_SCREENWIDTH-(shape->width<<2)), (iGLOBAL_SCREENHEIGHT-shape->height)>>1, 
+
+            DrawPPic( (iGLOBAL_SCREENWIDTH-(shape->width<<2)), (iGLOBAL_SCREENHEIGHT-shape->height)>>1,
                     shape->width, shape->height, ( byte * )&shape->data, 1, true, bufferofsonly );
         }
     }
@@ -1433,12 +1483,12 @@ void DrawPlayScreen (boolean bufferofsonly)
         CurrentFont = tinyfont;
 
         // Draw player's name
-        
+
         DrawGameString ( MEN_X + 3 + topBarCenterOffsetX, MEN_Y + 2, Names[ character ], bufferofsonly );
         VW_MeasurePropString( LastNames[ character ], &width, &height );
         DrawGameString ( MEN_X + 44 - width + topBarCenterOffsetX, MEN_Y + 8,
                      LastNames[ character ], bufferofsonly );
-        
+
         UpdateLives( locplayerstate->lives );
         UpdateScore( gamestate.score );
         DrawTriads( bufferofsonly );
@@ -2300,16 +2350,16 @@ void GivePlayerAmmo(objtype *ob, statobj_t *item_pickup, int which)
     M_LINKSTATE(ob, pstate);
 
     int playerCurrentAmmo = pstate->ammo;
-    
+
     int ammoInItem = item_pickup->ammo;
-    
+
     int maxAmmoInWeapon = stats[item_pickup->itemnumber].ammo;
-    
-    
+
+
     //printf("playerCurrentAmmo: %d \n", playerCurrentAmmo);
     //printf("ammoInItem: %d \n", ammoInItem);
     //printf("maxAmmoInWeapon: %d \n", maxAmmoInWeapon);
-    
+
     int newAmmoAmount = ammoInItem + playerCurrentAmmo;
 
     if (newAmmoAmount > maxAmmoInWeapon)
@@ -3508,7 +3558,7 @@ void Drawpic (int xpos, int ypos, int width, int height, byte *src)
     mask = 1 << (xpos&3);
 
     olddest = (byte *)(bufferofs + ylookup[ypos] + xpos);
-    
+
     for (planes = 0; planes < 4; planes++)
     {
         dest = olddest;
@@ -3625,7 +3675,7 @@ void GM_MemToSDLSurface (byte *source, SDL_Surface * destSurf, int width, int he
     int  plane;
 
     int x, y;
-    
+
     dest1 = (byte *) destSurf->pixels;
 
     for (plane = 0; plane<4; plane++)
@@ -3652,9 +3702,9 @@ void GM_ColoredPicToSDLSurface(byte *source, SDL_Surface * destSurf, int width, 
     byte pixel;
     byte * cmap;
     byte * surfRow;
-    
+
     cmap=playermaps[color]+(1<<12);
-    
+
     byte *  dest1 = (byte *) destSurf->pixels;
 
     for (plane = 0; plane<4; plane++)
@@ -3662,7 +3712,7 @@ void GM_ColoredPicToSDLSurface(byte *source, SDL_Surface * destSurf, int width, 
         surfRow = dest1;
         for (y = 0; y < height; y++, surfRow += destSurf->w, source+=width)
         {
-            for (x = 0; x < width; x++) 
+            for (x = 0; x < width; x++)
             {
                 pixel = source[x];
                 pixel = cmap[pixel];
@@ -3671,7 +3721,7 @@ void GM_ColoredPicToSDLSurface(byte *source, SDL_Surface * destSurf, int width, 
             }
         }
     }
-    
+
 }
 
 
@@ -3776,7 +3826,7 @@ void ScreenShake (void)
             break;
         }
         //fix for play screen accidentally being drawn during transmitter explosion cinematic
-        if (playstate != ex_gameover) 
+        if (playstate != ex_gameover)
             DrawPlayScreen(true);//repaint ammo and life stat
 
     }
@@ -4290,7 +4340,7 @@ void LevelCompleted
     EndBonusSkip       = false;
     EndBonusStartY     = 90;
 
-    
+
     EnableScreenStretch();
     tmpPic = ( pic_t * )W_CacheLumpName( "mmbk", PU_CACHE, Cvt_pic_t, 1 );
     VWB_DrawPic( 0, 0, tmpPic );
@@ -5494,14 +5544,14 @@ void Died (void)
         int rng;
 
         rng = RandomNumber ("Died",0);
-        
+
         //zooms in on screen
         if (pstate->falling==true)
         {
             //RotateBuffer (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)));
             //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES>>6), (VBLCOUNTER*(1+slowrate)), 1, true);
             RotateScreenScaleFloat(0, 0, 1.0, 64.0, (VBLCOUNTER*(1+slowrate)), true, false);
-            
+
             SD_Play (SD_PLAYERTCDEATHSND+(pstate->player));
             pstate->falling=false;
         }
@@ -5511,7 +5561,7 @@ void Died (void)
             //RotateBuffer (0, 0, (FINEANGLES>>6), (FINEANGLES), (VBLCOUNTER*(2+slowrate)));
             //RotateScreen (0, 0, (FINEANGLES), (FINEANGLES*64), (VBLCOUNTER*(2+slowrate)), 2, true);
             RotateScreenScaleFloat(0, 0, 1.0, 0.01875, (VBLCOUNTER*(2+slowrate)), true, false);
-        
+
         }
         //zooms in on screen
         else if (rng < 128)
@@ -5535,7 +5585,7 @@ void Died (void)
 
         screenfaded=false;
 
-        
+
         gamestate.episode = 1;
         player->flags &= ~FL_DONE;
 
@@ -5556,14 +5606,14 @@ void Died (void)
 
         SD_Play (SD_GAMEOVERSND);
         rng=RandomNumber("Died",0);
-        
+
         //rng = 63;
         if (rng<64)
         {
             //RotateBuffer(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
-            //RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);    
+            //RotateScreen(0,(FINEANGLES>>1),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
             RotateScreenScaleFloat(0, 360, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
-            
+
         }
         else if (rng<128)
         {
@@ -5581,7 +5631,7 @@ void Died (void)
             //RotateBuffer(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)));
             //RotateScreen(0,(FINEANGLES*2),(FINEANGLES),(FINEANGLES*64),(VBLCOUNTER*(3+slowrate)), 2, true);
             RotateScreenScaleFloat(0, 360*2, 1.0, 0.01875, (VBLCOUNTER*(3+slowrate)), true, false);
-            
+
         }
         screenfaded=false;
 
@@ -5973,19 +6023,19 @@ boolean SaveTheGame (int num, gamestorage_t * game)
 
     size = sizeof (poweradjust);
     SafeWrite(savehandle,&poweradjust,size);
-    
+
     size = sizeof (allowBlitzMoreMissileWeps);
     SafeWrite(savehandle, &allowBlitzMoreMissileWeps, size);
-    
+
     size = sizeof (enableAmmoPickups);
     SafeWrite(savehandle, &enableAmmoPickups, size);
-    
+
     size = sizeof(enableZomROTT);
     SafeWrite(savehandle, &enableZomROTT, size);
-    
+
     //ZomROTT Stuff
     if(enableZomROTT)
-    {   
+    {
         int z;
         for (z = 0; z < 8; z++)
         {
@@ -5995,7 +6045,7 @@ boolean SaveTheGame (int num, gamestorage_t * game)
             {
                 continue;
             }
-            
+
             int x;
             Node * thingToSave = enemiesToRes[z]->Head;
             size = sizeof(objtype);
@@ -6132,7 +6182,7 @@ boolean LoadTheGame (int num, gamestorage_t * game)
 
     if (game->version!=ROTTVERSION)
         return false;
-    
+
     //Fix for crash when loading a save on a custom map pack
     if(GameLevels.avail)
     {
@@ -6141,11 +6191,11 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     }
     memcpy (&GameLevels, &game->info, sizeof (GameLevels));
 
-    
-    
+
+
     gamestate.episode=game->episode;
     gamestate.mapon=game->area;
-    
+
     //printf("LOAD PATH: %s \n", game->info.path);
     //printf("LOAD FILENAME: %s \n", game->info.file);
 
@@ -6378,20 +6428,20 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     size = sizeof (poweradjust);
     memcpy (&poweradjust, bufptr, size);
     bufptr += size;
-    
+
     size = sizeof(allowBlitzMoreMissileWeps);
     memcpy (&allowBlitzMoreMissileWeps, bufptr, size);
     bufptr += size;
-    
+
     size = sizeof(enableAmmoPickups);
     memcpy (&enableAmmoPickups, bufptr, size);
     bufptr += size;
-    
+
     size = sizeof(enableZomROTT);
     memcpy(&enableZomROTT, bufptr, size);
     bufptr += size;
-    
-    
+
+
     //ZomROTT Stuff
     if(enableZomROTT)
     {
@@ -6399,42 +6449,42 @@ boolean LoadTheGame (int num, gamestorage_t * game)
         for (z = 0; z < 8; z++)
         {
             size = sizeof(int);
-            
+
             int origQueueSize = 0;
             Queue * enemyQueue;
-            
+
             origQueueSize = 0;
-                
+
             enemyQueue = malloc(sizeof(Queue));
             InitQueue(enemyQueue, sizeof(objtype));
-                
+
             memcpy(&origQueueSize, bufptr, size);
             bufptr+=size;
             enemiesToRes[z] = enemyQueue;
-        
+
             //memcpy(&origQueueSize, bufptr, size);
             //bufptr+=size;
-        
+
             size = sizeof(objtype);
-        
+
             int x = 0;
-        
+
             while(x < origQueueSize)
             {
                 objtype * item = (objtype *) malloc(sizeof(objtype));
-            
+
                 memcpy(item, bufptr, size);
-                
+
                 //fix for crash that occurs after something tries to respawn after the game is loaded
                 SetReverseDeathState(item);
-            
+
                 Enqueue(enemyQueue, item);
-            
+
                 bufptr+=size;
-            
+
                 x++;
             }
-        }   
+        }
     }
 
     // Set the viewsize
@@ -6459,11 +6509,11 @@ boolean LoadTheGame (int num, gamestorage_t * game)
     DoLoadGameAction ();
     SetupPlayScreen();
     SetupPlayScreenSDLTexture();
-    
+
     UpdateScore (gamestate.score);
     UpdateLives (locplayerstate->lives);
     UpdateTriads (player, 0);
-    
+
     PreCache ();
     DisableScreenStretch();
     InitializeMessages();

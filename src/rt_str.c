@@ -205,6 +205,7 @@ void DrawPropStringToSDLSurface(const char * string, SDL_Surface * destSurf)
     int   ch;
 
     ht = CurrentFont->height;
+
     dest = origdest = (byte *)destSurf->pixels;
 
     while ((ch = (unsigned char)*string++)!=0)
@@ -218,17 +219,21 @@ void DrawPropStringToSDLSurface(const char * string, SDL_Surface * destSurf)
             while (height--)
             {
                 pix = *source;
-                if (pix)
-                    *dest = pix;
+                *dest = pix;
 
                 source++;
                 dest += destSurf->w;
             }
-            px++;
+
+            //px++;
             origdest++;
             dest = origdest;
         }
     }
+    //bufferheight = ht;
+    //bufferwidth = ((dest+1)-origdest);
+    //memcpy(destSurf->pixels,bufferofs+ylookup[py]+px, sizeof(byte)*bufferheight*bufferwidth);
+
 }
 
 

@@ -102,40 +102,40 @@ void GraphicsMode ( void )
     {
         Error ("Could not initialize SDL\n");
     }
-    
+
     SDL_SetRelativeMouseMode(SDL_TRUE);
-    
+
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
     if (sdl_fullscreen)
         flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
-    
+
     window = SDL_CreateWindow("Rise of the Triad",
                                SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
                                iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT,
                                flags);
-    
+
     if (window == NULL)
     {
         Error ("Could not set video mode\n");
         exit(1);
     }
-    
+
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_TARGETTEXTURE);
-    
+
     sdl_texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888,
                                     SDL_TEXTUREACCESS_TARGET, iGLOBAL_SCREENWIDTH,
                                     iGLOBAL_SCREENHEIGHT);
-    
+
     sdl_surface = SDL_CreateRGBSurface(0,iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT,8,0,0,0,0);
-    
-    
+
+
     //temp = SDL_CreateRGBSurface(0, 320, 16, 8, 0, 0, 0, 0);
-    
-         
-    SDL_SetSurfaceRLE(sdl_surface, 1);
-                                        
+
+
+    //SDL_SetSurfaceRLE(sdl_surface, 1);
+
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
-    
+
 }
 
 /*
@@ -276,12 +276,12 @@ void VL_ClearVideo (byte color)
 
 void RescaleAreaOfTexture(SDL_Renderer* renderer, SDL_Texture * source, SDL_Rect src, SDL_Rect dest)
 {
-    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);          
+    SDL_Texture * sourceToResize = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGB888, SDL_TEXTUREACCESS_TARGET, src.w, src.h);
     SDL_SetRenderTarget(renderer, sourceToResize);
     SDL_RenderCopy(renderer, source, &src, NULL);
     // the folowing line should reset the target to default(the screen)
     SDL_SetRenderTarget(renderer, NULL);
-    
+
     SDL_RenderCopy(renderer, sourceToResize, NULL, &dest);
     SDL_DestroyTexture(sourceToResize);
 }
@@ -295,47 +295,73 @@ void DrawPlayScreenToSDLTexture(SDL_Texture*);
 void RenderSurface(void)
 {
     SDL_PixelFormat * dst_fmt;
-    
+
     dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
-    
+
     SDL_Surface * temp2;
-    
+
     temp2 = SDL_ConvertSurface(sdl_surface, dst_fmt, 0);
-    
+
     SDL_FreeFormat(dst_fmt);
-    
-    
+
+
     SDL_RenderClear(renderer);
-    
+
     SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
-    
-    
-    
+
+
+
     if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
     {
         DrawPlayScreenToSDLTexture(sdl_texture);
 /*
         if(SHOW_TOP_STATUS_BAR())
-            RescaleAreaOfTexture(renderer, sdl_texture, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16}, 
+            RescaleAreaOfTexture(renderer, sdl_texture, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16},
                    (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
         if(SHOW_BOTTOM_STATUS_BAR())
             RescaleAreaOfTexture(renderer, sdl_texture,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
                (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
 */
     }
-    
-    
-    
-    
-    
+
+
+
+
+
     SDL_RenderCopy(renderer, sdl_texture, NULL, NULL);
-    
+
     SDL_RenderPresent(renderer);
-    
+
     //SDL_DestroyTexture();
-    
+
     SDL_FreeSurface(temp2);
 
+}
+
+void TestSDLTexture(SDL_Texture * texture)
+{
+    //SDL_PixelFormat * dst_fmt;
+
+    //dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+
+    //SDL_Surface * temp2;
+
+    //temp2 = SDL_ConvertSurface(sdl_surface, dst_fmt, 0);
+
+    //SDL_FreeFormat(dst_fmt);
+
+
+    SDL_RenderClear(renderer);
+
+    //SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
+
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+    SDL_RenderPresent(renderer);
+
+    //SDL_DestroyTexture();
+
+    //SDL_FreeSurface(temp2);
 }
 
 /* C version of rt_vh_a.asm */
@@ -348,9 +374,9 @@ void VH_UpdateScreen (void)
     } else {
         DrawCenterAim ();
     }
-    
+
     RenderSurface();
-    
+
 }
 
 
@@ -370,7 +396,7 @@ void XFlipPage ( void )
         DrawCenterAim ();
     }
     RenderSurface();
-    
+
 }
 
 void EnableScreenStretch(void)
@@ -407,7 +433,7 @@ void DisableScreenStretch(void)
     StretchScreen = 0;
     SDL_RenderSetLogicalSize(renderer, iGLOBAL_SCREENWIDTH, iGLOBAL_SCREENHEIGHT);
     //SDL_RenderSetLogicalSize(renderer, 320, 200);
-    
+
 }
 
 void EnableHudStretch(void)
@@ -437,7 +463,7 @@ static void StretchMemPicture ()
     dest.h = iGLOBAL_SCREENHEIGHT;
     SDL_SoftStretch(unstretch_sdl_surface, &src, sdl_surface, &dest);
     SDL_RenderSetLogicalSize(renderer, 320, 200); //help keep aspect ratio of menus so that the game doesn't look stretched
-    
+
 }
 
 // bna function added start
@@ -517,7 +543,7 @@ void sdl_handle_window_events(void)
                 SDL_PushEvent(&event);
                 break;
         }
-    
+
     }
 
 }
@@ -529,27 +555,27 @@ void sdl_handle_window_events(void)
 //void DrawRotatedScreen(int cx, int cy, byte *destscreen, int angle, int scale, int masked)
 
 void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float scale)
-{   
-    
+{
+
     SDL_RenderClear(renderer);
-        
+
     SDL_Rect output;
-    
+
     output.w = abs((int)((float)w * scale));
-    
+
     output.h = abs((int)((float)h * scale));
-    
+
     //if (output.w < MinScreenWidth)
         //output.w = MinScreenWidth;
     //if (output.h < MinScreenHeight)
         //output.h = MinScreenHeight;
-               
+
     output.x = (iGLOBAL_SCREENWIDTH - output.w)>>1;
-        
+
     output.y = (iGLOBAL_SCREENHEIGHT - output.h)>>1;
-    
+
     SDL_RenderCopyEx(renderer, tex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
-        
+
     SDL_RenderPresent(renderer);
 
 
