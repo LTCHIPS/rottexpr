@@ -49,6 +49,8 @@ char 	   *iG_buf_center;
 
 SDL_Surface *sdl_surface = NULL;
 
+SDL_Surface *sdl_surface32 = NULL;
+
 SDL_Window * window = NULL;
 
 SDL_Renderer * renderer = NULL;
@@ -304,7 +306,6 @@ void RenderSurface(void)
 
     SDL_FreeFormat(dst_fmt);
 
-
     SDL_RenderClear(renderer);
 
     SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
@@ -324,17 +325,13 @@ void RenderSurface(void)
 */
     }
 
-
-
-
-
     SDL_RenderCopy(renderer, sdl_texture, NULL, NULL);
 
     SDL_RenderPresent(renderer);
 
-    //SDL_DestroyTexture();
-
     SDL_FreeSurface(temp2);
+
+    //SDL_DestroyTexture();
 
 }
 
@@ -574,7 +571,49 @@ void DoScreenRotateScale(int w, int h, SDL_Texture * tex, float angle, float sca
 
     output.y = (iGLOBAL_SCREENHEIGHT - output.h)>>1;
 
-    SDL_RenderCopyEx(renderer, tex, NULL, &output, angle, NULL, SDL_FLIP_NONE);
+    SDL_PixelFormat * dst_fmt;
+
+    dst_fmt = SDL_AllocFormat(SDL_PIXELFORMAT_RGB888);
+
+    SDL_Surface * temp2;
+
+    temp2 = SDL_ConvertSurface(sdl_surface, dst_fmt, 0);
+
+    SDL_FreeFormat(dst_fmt);
+
+    SDL_RenderClear(renderer);
+
+    SDL_UpdateTexture(sdl_texture, NULL, temp2->pixels, temp2->pitch);
+
+    if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
+    {
+        DrawPlayScreenToSDLTexture(sdl_texture);
+/*
+        if(SHOW_TOP_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, sdl_texture, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16},
+                   (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
+        if(SHOW_BOTTOM_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, sdl_texture,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+*/
+    }
+
+    SDL_FreeSurface(temp2);
+
+    //if (!StretchScreen && hudRescaleFactor > 1 && doRescaling)
+    //{
+        //DrawPlayScreenToSDLTexture(tex);
+/*
+        if(SHOW_TOP_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, sdl_texture, (SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, 0, 320, 16},
+                   (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320 * hudRescaleFactor)) >> 1, 0, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Status Bar
+        if(SHOW_BOTTOM_STATUS_BAR())
+            RescaleAreaOfTexture(renderer, sdl_texture,(SDL_Rect) {(iGLOBAL_SCREENWIDTH - 320) >> 1, iGLOBAL_SCREENHEIGHT - 16, 320, 16},
+               (SDL_Rect) {(iGLOBAL_SCREENWIDTH - (320* hudRescaleFactor)) >> 1, iGLOBAL_SCREENHEIGHT - 16*hudRescaleFactor, 320*hudRescaleFactor, 16*hudRescaleFactor}); //Bottom Bar
+*/
+    //}
+
+    SDL_RenderCopyEx(renderer, sdl_texture, NULL, &output, angle, NULL, SDL_FLIP_NONE);
 
     SDL_RenderPresent(renderer);
 
