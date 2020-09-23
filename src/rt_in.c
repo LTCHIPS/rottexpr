@@ -41,6 +41,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "rt_cfg.h"
 #include "keyb.h"
 #include "HashTable.h"
+#include "modexlib.h"
 
 #define MAXMESSAGELENGTH      (COM_MAXTEXTSTRINGLENGTH-1)
 
@@ -149,9 +150,6 @@ int (far *function_ptr)();
 static char *ParmStrings[] = {"nojoys","nomouse",NULL};
 
 
-#if USE_SDL
-#define sdldebug printf
-
 static int sdl_mouse_button_filter(SDL_Event const *event)
 {
     /*
@@ -188,20 +186,20 @@ static int sdl_mouse_motion_filter(SDL_Event const *event)
     } /* if */
     else
     {
-        if (sdl_mouse_grabbed || sdl_fullscreen)
-        {
+        //if (sdl_mouse_grabbed || sdl_fullscreen)
+        //{
             mouse_relative_x = event->motion.xrel;
             mouse_relative_y = event->motion.yrel;
             mouse_x += mouse_relative_x;
             mouse_y += mouse_relative_y;
-        } /* if */
-        else
-        {
-            mouse_relative_x = event->motion.x - mouse_x;
-            mouse_relative_y = event->motion.y - mouse_y;
-            mouse_x = event->motion.x;
-            mouse_y = event->motion.y;
-        } /* else */
+        //} /* if */
+        //else
+        //{
+            //mouse_relative_x = event->motion.x - mouse_x;
+            //mouse_relative_y = event->motion.y - mouse_y;
+            //mouse_x = event->motion.x;
+            //mouse_y = event->motion.y;
+        //} /* else */
     } /* else */
 
     /* set static vars... */
@@ -267,7 +265,7 @@ static int handle_keypad_enter_hack(const SDL_Event *event)
                 kp_enter_hack = 0;
                 //retval = scancodes = Lookup(scancodes, SDLK_KP_ENTER);
                 retval = Lookup(scancodes, SDLK_KP_ENTER);
-                
+
                 //retval = scancodes[SDLK_KP_ENTER];
             } /* if */
         } /* if */
@@ -284,8 +282,8 @@ static int sdl_key_filter(const SDL_Event *event)
     int strippedkey;
     //SDL_GrabMode grab_mode = SDL_GRAB_OFF;
     int extended;
-    
-    
+
+
     if ( (event->key.keysym.sym == SDLK_g) &&
             (event->key.state == SDL_PRESSED) &&
             (event->key.keysym.mod & KMOD_CTRL) )
@@ -330,7 +328,7 @@ static int sdl_key_filter(const SDL_Event *event)
             k = Lookup(scancodes, event->key.keysym.sym);
             //k = scancodes[event->key.keysym.sym];
         //}
-        
+
         if (!k)   /* No DOS equivalent defined. */
             return(0);
     } /* if */
@@ -411,7 +409,6 @@ static void sdl_handle_events(void)
     while (SDL_PollEvent(&event))
         root_sdl_event_filter(&event);
 } /* sdl_handle_events */
-#endif
 
 
 //******************************************************************************
@@ -756,11 +753,11 @@ void IN_Startup (void)
       except where no such name is available.
      */
     //calloc(scancodes, sizeof(unsigned int) * 513);
-    
+
     scancodes = malloc(sizeof(HashTable));
-    
+
     InitHashTable(scancodes, SDL_NUM_SCANCODES);
-    
+
     Insert(scancodes, SDLK_ESCAPE, sc_Escape);
     Insert(scancodes, SDLK_1, sc_1);
     Insert(scancodes, SDLK_2, sc_2);
@@ -772,9 +769,9 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_8, sc_8);
     Insert(scancodes, SDLK_9, sc_9);
     Insert(scancodes, SDLK_0, sc_0);
-    
+
     Insert(scancodes, SDLK_EQUALS, sc_Equals);
-    
+
     Insert(scancodes, SDLK_BACKSPACE, sc_BackSpace);
     Insert(scancodes, SDLK_TAB, sc_Tab);
     Insert(scancodes, SDLK_q, sc_Q);
@@ -790,8 +787,8 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_LEFTBRACKET, sc_OpenBracket);
     Insert(scancodes, SDLK_RIGHTBRACKET, sc_CloseBracket);
     Insert(scancodes, SDLK_RETURN, sc_Return);
-    Insert(scancodes, SDLK_LCTRL, sc_Control);    
-    
+    Insert(scancodes, SDLK_LCTRL, sc_Control);
+
     Insert(scancodes, SDLK_PAGEUP, sc_PgUp);
     Insert(scancodes, SDLK_s, sc_S);
     Insert(scancodes, SDLK_d, sc_D);
@@ -804,9 +801,9 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_SEMICOLON, 0x27);
     Insert(scancodes, SDLK_QUOTE, 0x28);
     Insert(scancodes, SDLK_BACKQUOTE, 0x29);
-    
+
     Insert(scancodes, SDLK_LSHIFT, sc_RShift);
-    
+
     Insert(scancodes, SDLK_BACKSLASH, 0x2B);
     Insert(scancodes, SDLK_z, sc_Z);
     Insert(scancodes, SDLK_x, sc_X);
@@ -820,7 +817,7 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_SLASH, 0x35);
     Insert(scancodes, SDLK_RSHIFT, sc_RShift);
     Insert(scancodes, SDLK_KP_DIVIDE, 0x35);
-    
+
     Insert(scancodes, SDLK_LALT, sc_Alt);
     Insert(scancodes, SDLK_RALT, sc_Alt);
     Insert(scancodes, SDLK_MODE, sc_Alt);
@@ -843,9 +840,9 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_F12, sc_F12);
     Insert(scancodes, SDLK_NUMLOCKCLEAR, 0x45);
     Insert(scancodes, SDLK_SCROLLLOCK, 0x46);
-    
+
     Insert(scancodes, SDLK_MINUS, sc_Minus);
-    
+
     Insert(scancodes, SDLK_KP_PERIOD, sc_Delete);
     Insert(scancodes, SDLK_KP_7, sc_Home);
     Insert(scancodes, SDLK_KP_8, sc_UpArrow);
@@ -859,7 +856,7 @@ void IN_Startup (void)
     Insert(scancodes, SDLK_KP_6, sc_RightArrow);
     Insert(scancodes, SDLK_LEFT, sc_LeftArrow);
     Insert(scancodes, SDLK_RIGHT, sc_RightArrow);
-    
+
     Insert(scancodes, SDLK_KP_1, sc_End);
     Insert(scancodes, SDLK_KP_2, sc_DownArrow);
     Insert(scancodes, SDLK_KP_3, sc_PgDn);

@@ -1743,36 +1743,36 @@ void TextFrame
     }
     if ( type == SINGLE_FRAME )
     {
-        DrawRottText( x1, y1, '�', foreground, background );
-        DrawRottText( x2, y1, '�', foreground, background );
-        DrawRottText( x1, y2, '�', foreground, background );
-        DrawRottText( x2, y2, '�', foreground, background );
+        DrawRottText( x1, y1, '\xDA', foreground, background );
+        DrawRottText( x2, y1, '\xBF', foreground, background );
+        DrawRottText( x1, y2, '\xC0', foreground, background );
+        DrawRottText( x2, y2, '\xD9', foreground, background );
         for( x = x1 + 1; x < x2; x++ )
         {
-            DrawRottText( x, y1, '�', foreground, background );
-            DrawRottText( x, y2, '�', foreground, background );
+            DrawRottText( x, y1, '\xC4', foreground, background );
+            DrawRottText( x, y2, '\xC4', foreground, background );
         }
         for( y = y1 + 1; y < y2; y++ )
         {
-            DrawRottText( x1, y, '�', foreground, background );
-            DrawRottText( x2, y, '�', foreground, background );
+            DrawRottText( x1, y, '\xB3', foreground, background );
+            DrawRottText( x2, y, '\xB3', foreground, background );
         }
     }
     if ( type == DOUBLE_FRAME )
     {
-        DrawRottText( x1, y1, '�', foreground, background );
-        DrawRottText( x2, y1, '�', foreground, background );
-        DrawRottText( x1, y2, '�', foreground, background );
-        DrawRottText( x2, y2, '�', foreground, background );
+        DrawRottText( x1, y1, '\xC9', foreground, background );
+        DrawRottText( x2, y1, '\xBB', foreground, background );
+        DrawRottText( x1, y2, '\xC8', foreground, background );
+        DrawRottText( x2, y2, '\xBC', foreground, background );
         for( x = x1 + 1; x < x2; x++ )
         {
-            DrawRottText( x, y1, '�', foreground, background );
-            DrawRottText( x, y2, '�', foreground, background );
+            DrawRottText( x, y1, '\xCD', foreground, background );
+            DrawRottText( x, y2, '\xCD', foreground, background );
         }
         for( y = y1 + 1; y < y2; y++ )
         {
-            DrawRottText( x1, y, '�', foreground, background );
-            DrawRottText( x2, y, '�', foreground, background );
+            DrawRottText( x1, y, '\xBA', foreground, background );
+            DrawRottText( x2, y, '\xBA', foreground, background );
         }
     }
 }

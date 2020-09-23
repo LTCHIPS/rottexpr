@@ -1726,7 +1726,7 @@ bottomcheck:
 
 void   DrawWalls (void)
 {
-    char * buf;
+    byte * buf;
     int plane;
     wallcast_t * post;
 
@@ -1737,7 +1737,7 @@ void   DrawWalls (void)
     if (doublestep>1)
     {
         {
-            buf=(byte *)(bufferofs);
+            buf=bufferofs;
             for (post=&posts[plane]; post<&posts[viewwidth]; post+=2,buf+=2)
             {
                 SetWallLightLevel(post);
@@ -1751,7 +1751,7 @@ void   DrawWalls (void)
     else
     {
         {
-            buf=(byte *)(bufferofs);
+            buf=bufferofs;
             for (post=&posts[plane]; post<&posts[viewwidth]; post++,buf++)
             {
                 SetWallLightLevel(post);
@@ -5687,7 +5687,7 @@ void DrawSkyPost (byte * buf, byte * src, int height)
 {
     {
         int i = 0;
-        const byte *orig_src = src;
+        byte *orig_src = src;
         // org code
         while (height--) {
             *buf = shadingtable[*src];

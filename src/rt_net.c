@@ -190,7 +190,7 @@ void InitializeGameCommands( void )
 
     GameCommandsStarted=true;
 
-    if ((modemgame==true))
+    if (modemgame==true)
         controldivisor=rottcom->ticstep;
 
     standalone=false;

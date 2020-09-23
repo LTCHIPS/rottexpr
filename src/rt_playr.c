@@ -2174,10 +2174,7 @@ void PollKeyboardMove
 #define MOUSE_TZ_INPUT_SCALE 20
 int mouse_ry_input_scale = 5000;
 
-int sensitivity_scalar[15] =
-{
-    0,1,2,3,4,5,6,8,11,13,15,18,12,13,14
-};
+int sensitivity_scalar = 5;
 //#define MOUSE_RY_SCALE 65535
 //#define MOUSE_TZ_SCALE 65535
 #define MAXMOUSETURN 7000000
@@ -2216,6 +2213,7 @@ void PollMouseMove (void)
     MX = 0;
     MY = 0;
 
+    sensitivity_scalar = mouseadjustment;
 
     if ((abs (mouseymove)) >= threshold)
     {   //
@@ -2226,14 +2224,14 @@ void PollMouseMove (void)
                 playertype * pstate;
                 pstate=&PLAYERSTATE[consoleplayer];
                 //if (pstate->horizon > 512){
-                pstate->horizon -= Ys * (2*sensitivity_scalar[mouseadjustment]);
+                pstate->horizon -= Ys * (2*sensitivity_scalar);
                 //}
             }
             else if (MY < 0) {
                 playertype * pstate;
                 pstate=&PLAYERSTATE[consoleplayer];
                 //SetTextMode (  );
-                pstate->horizon += Ys * (2*sensitivity_scalar[mouseadjustment]);
+                pstate->horizon += Ys * (2*sensitivity_scalar);
                 //buttonpoll[ bt_horizonup ] = true;
             }
             MY = 0;
@@ -2255,7 +2253,7 @@ void PollMouseMove (void)
     {
         //MX = -MOUSE_RY_INPUT_SCALE*mousexmove;
         MX = -mouse_ry_input_scale*mousexmove;
-        MX += FixedMul(MX,sensitivity_scalar[mouseadjustment]*MOUSE_RY_SENSITIVITY_SCALE);
+        MX += FixedMul(MX,sensitivity_scalar*MOUSE_RY_SENSITIVITY_SCALE);
         //   if (abs(MX) > MAXMOUSETURN)
         //   MX = MAXMOUSETURN*SGN(MX);
         if (usemouselook == true) {

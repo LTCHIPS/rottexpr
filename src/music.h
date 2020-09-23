@@ -73,10 +73,10 @@ int   MUSIC_SongPlaying( void );
 void  MUSIC_Continue( void );
 void  MUSIC_Pause( void );
 int   MUSIC_StopSong( void );
-int   MUSIC_PlaySong( unsigned char *song, int loopflag );
+int   MUSIC_PlaySong( char *song, int loopflag );
 
 // ROTT Special - SBF
-int   MUSIC_PlaySongROTT(unsigned char *song, int size, int loopflag);
+int   MUSIC_PlaySongROTT( char *song, int size, int loopflag);
 
 void  MUSIC_SetContext( int context );
 int   MUSIC_GetContext( void );

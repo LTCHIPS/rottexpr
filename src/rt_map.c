@@ -154,7 +154,7 @@ void DrawMap_Wall (int x, int y, int tile)
 
     {
         s=source;
-        
+
         b=buf;
 
         for (i=0; i<tilesize; i++,b++)
@@ -195,7 +195,7 @@ void DrawMap_SkyTile (int x, int y)
 
     x*=tilesize;
     y*=tilesize;
-    
+
     buf=(byte *)bufferofs+ylookup[y]+x;
     {
         s=skytile;
@@ -707,39 +707,43 @@ void DrawFullMap( void )
 void DrawMapInfo ( void )
 {
     char temp[80];
-    
+
     int width,height;
 
     CurrentFont=tinyfont;
 
     PrintX = 2;
     PrintY = 2;
-    strncpy (&temp[0], LevelName, strlen(LevelName));
-    US_MeasureStr (&width, &height, "%s", &temp[0]);
+    strncpy (temp, LevelName, strlen(LevelName)+1);
+    US_MeasureStr (&width, &height, "%s", temp);
 
     VWB_TBar (0, 0, 320, height+4);
 
     US_BufPrint (&temp[0]);
-    
-    strncpy (&temp[0], "", strlen(LevelName)); //reset temp
 
-    strncpy (&temp[0], "TAB=EXIT", 8);
-    US_MeasureStr (&width, &height, "%s", &temp[0]);
+    //memset(temp, 0, strlen(LevelName))
+
+    strncpy (temp, "", strlen(LevelName)+1); //reset temp
+
+    strncpy (temp, "TAB=EXIT", 8+1);
+    US_MeasureStr (&width, &height, "%s", temp);
 
     PrintX = 316-width;
     PrintY = 2;
 
-    US_BufPrint (&temp[0]);
+    US_BufPrint (temp);
 
-    strncpy (&temp[0], "", strlen(LevelName)); //reset temp
-    
-    strncpy (&temp[0], "< > CHANGE BACKGROUND COLOR", 27);
-    US_MeasureStr (&width, &height, "%s", &temp[0]);
+    strncpy (temp, "", 8); //reset temp
+
+    strncpy (temp, "< > CHANGE BACKGROUND COLOR", 27+1);
+    US_MeasureStr (&width, &height, "%s", temp);
 
     PrintX = (320-width)>>1;
     PrintY = 2;
 
-    US_BufPrint (&temp[0]);
+    US_BufPrint (temp);
+
+    //strncpy (temp, "", 27);
 }
 
 /*

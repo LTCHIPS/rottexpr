@@ -4618,7 +4618,6 @@ int CalibrateJoystick
     return( status );
 }
 
-
 //******************************************************************************
 //
 // ADJUST MOUSE SENSITIVITY
@@ -4631,8 +4630,8 @@ void MouseSensitivity
 )
 
 {
-    SliderMenu( &mouseadjustment, 11, 0, 21, 81, 240, 1, "block1", NULL,
-                "Mouse Sensitivity", "Slow", "Fast" );
+    SliderMenu( &mouseadjustment, 480, 1, 21, 81, 240, 1, "block1", NULL,
+                "Mouse Sensitivity", "Slow", "Ludicrous" );
 }
 
 //******************************************************************************
@@ -4922,11 +4921,11 @@ byte * IN_GetScanName (ScanCode scan)
     byte     **p;
     ScanCode *s;
 
-    for (s = ExtScanCodes, p = ExtScanNames; *s; p++, s++)
+    for (s = ExtScanCodes, p = (byte**)ExtScanNames; *s; p++, s++)
         if (*s == scan)
             return (*p);
 
-    return(ScanNames[scan]);
+    return((byte*)ScanNames[scan]);
 }
 
 
@@ -5032,7 +5031,7 @@ void DrawCustomKeyboard (void)
     for( i = 0; i < NormalKeyItems.amount; i++ )
     {
         strcpy( &NormalKeyNames[ i ][ KEYNAMEINDEX ],
-                IN_GetScanName( buttonscan[ (unsigned int)order[ i ] ] ) );
+                (char*)IN_GetScanName( buttonscan[ (unsigned int)order[ i ] ] ) );
     }
 
     MN_GetCursorLocation( &NormalKeyItems, &NormalKeyMenu[ 0 ] );
@@ -5753,7 +5752,7 @@ void DrawExtOptionsButtons (void)
 }
 extern boolean allowBlitzMoreMissileWeps;
 extern boolean enableAmmoPickups;
-extern boolean enableZomROTT = 0;
+extern boolean enableZomROTT;
 extern boolean enableExtraPistolDrops;
 static char *ExtGameOptionsDesc[ sizeof(ExtGameOptionsItems)] =
 {
@@ -5834,7 +5833,7 @@ void DrawExtGameMenu (void)
     ClearMenuBuf();
     SetMenuTitle ("Extended Game Options");
 
-    MN_GetCursorLocation( &ExtGameOptionsItems, &ExtGameOptionsNames[0]);
+    MN_GetCursorLocation( &ExtGameOptionsItems, &ExtGameMenu[0]);
 
     DrawMenu(&ExtGameOptionsItems, &ExtGameMenu[0]);
 
@@ -6351,7 +6350,6 @@ void MN_PlayMenuSnd (int which)
     SD_Play (which);
 }
 
-
 //******************************************************************************
 //
 // SliderMenu ()
@@ -6422,6 +6420,8 @@ boolean SliderMenu
     moved = false;
     timer = GetTicCount();
     lastdir = dir_None;
+
+    
 
     do
     {
@@ -6512,7 +6512,6 @@ boolean SliderMenu
     WaitKeyUp ();
     return( returnval );
 }
-
 
 //******************************************************************************
 //

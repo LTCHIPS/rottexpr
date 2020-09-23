@@ -234,6 +234,7 @@ boolean  InRange (objtype *p, objtype *victim, int distance);
 void     CheckUnPause ( void );
 void     UpdatePlayers ( void );
 void UnTargetActor ( objtype * target );
+void AutoTargetHorizon(objtype *ob);
 
 
 enum

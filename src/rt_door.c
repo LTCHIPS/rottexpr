@@ -3165,7 +3165,7 @@ void SpawnPushWall (int tilex, int tiley, int lock, int texture, int dir, int ty
         lastpwallobj->flags=PW_DAMAGE;
 
     lastpwallobj->texture = texture;
-    if (!texture&0x1000)
+    if (!(texture&0x1000))
         PreCacheLump(texture,PU_CACHEWALLS,cache_pic_t);
     lastpwallobj->areanumber = GetAreaNumber(tilex,tiley,lastpwallobj->dir);
 
