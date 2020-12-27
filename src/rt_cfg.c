@@ -64,6 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int G_weaponscale;
 extern boolean iG_aimCross;
+extern int hudRescaleFactor;
 
 boolean WriteSoundFile   = true;
 
@@ -494,6 +495,9 @@ boolean ParseConfigFile (void)
                 G_weaponscale=512;
             }
         }
+
+   		// Read in HUDScale
+        ReadInt("HUDScale",&hudRescaleFactor);
 
         // Read in MouseAdjustment
         ReadInt("MouseAdjustment",&mouseadjustment);
@@ -1744,6 +1748,11 @@ void WriteConfig (void)
     }
     WriteParameter(file,"Weaponscale         ",G_weaponscale);
 
+
+ 	// Write out HUD Scale
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file,"; HUD Scale.\n");
+    WriteParameter(file,"HUDScale            ",hudRescaleFactor);
 
     // Write out MouseAdjustment
 
