@@ -91,7 +91,7 @@ boolean allowMovementWithMouseYAxis = 1;
 boolean enableZomROTT = 0;
 int FocalWidthOffset = 0;
 int ScreenHeightToWriteToCfg = 0;
-
+int HudScaleToWriteToCfg = 0;
 int ScreenWidthToWriteToCfg = 0;
 boolean writeNewResIntoCfg = false;
 
@@ -1752,7 +1752,14 @@ void WriteConfig (void)
  	// Write out HUD Scale
     SafeWriteString(file,"\n;\n");
     SafeWriteString(file,"; HUD Scale.\n");
-    WriteParameter(file,"HUDScale            ",hudRescaleFactor);
+    if (writeNewResIntoCfg)
+    {
+        WriteParameter(file,"HUDScale            ",HudScaleToWriteToCfg);
+    }
+    else
+    {
+        WriteParameter(file,"HUDScale            ",hudRescaleFactor);
+    }
 
     // Write out MouseAdjustment
 
