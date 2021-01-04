@@ -624,7 +624,7 @@ void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, i
 //
     for (i = 0; i < steps; i++)
     {
-        
+
         origptr = &palette1[start][0];
         newptr = &palette2[start][0];
 
@@ -643,15 +643,15 @@ void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, i
 
         WaitVBL ();
         VL_SetPalette (&palette2[0][0]);
-        
+
         //printf("%d \n", (int)((float)iGLOBAL_SCREENWIDTH*scale));
         //printf("%d \n", (int)((float)iGLOBAL_SCREENHEIGHT*scale));
         //printf("%f \n", scale);
-        
+
         SDL_Texture * tex = GetMainSurfaceAsTexture();
-        
+
         DoScreenRotateScale(iGLOBAL_SCREENWIDTH,iGLOBAL_SCREENHEIGHT, tex, 0, scale);
-        
+
         SDL_DestroyTexture(tex);
     }
 
@@ -659,11 +659,11 @@ void VL_FadeOutScaledScreen (int start, int end, int red, int green, int blue, i
 // final color
 //
     VL_FillPalette (red,green,blue);
-    
-    screenfaded = true;
-    
 
-    
+    screenfaded = true;
+
+
+
 }
 
 
@@ -775,7 +775,7 @@ void VL_FadeIn (int start, int end, byte *palette, int steps)
     VL_SetPalette (palette);
     screenfaded = false;
     VH_UpdateScreen();
-    
+
 }
 
 
@@ -875,6 +875,7 @@ void VL_DecompressLBM (lbm_t *lbminfo, boolean flip)
 //
 //****************************************************************************
 
+extern int hudRescaleFactor;
 void SetBorderColor (int color)
 {
     // bna section start
@@ -887,24 +888,24 @@ void SetBorderColor (int color)
 
     //paint top red line
     for (cnt=b; cnt<b+viewwidth; cnt++) {
-        for (Ycnt=cnt; Ycnt<cnt+(5*iGLOBAL_SCREENWIDTH); Ycnt+=iGLOBAL_SCREENWIDTH) {
+        for (Ycnt=cnt; Ycnt<cnt+(5*hudRescaleFactor*iGLOBAL_SCREENWIDTH); Ycnt+=iGLOBAL_SCREENWIDTH) {
             *Ycnt = color;
         }
     }
     //paint left red line
-    for (cnt=b; cnt<b+5; cnt++) {
+    for (cnt=b; cnt<b+5*hudRescaleFactor; cnt++) {
         for (Ycnt=cnt; Ycnt<cnt+(viewheight*iGLOBAL_SCREENWIDTH); Ycnt+=iGLOBAL_SCREENWIDTH) {
             *Ycnt = color;
         }
     }
     //paint right red line
-    for (cnt=b+(viewwidth-5); cnt<b+viewwidth; cnt++) {
+    for (cnt=b+(viewwidth-5*hudRescaleFactor); cnt<b+viewwidth; cnt++) {
         for (Ycnt=cnt; Ycnt<cnt+(viewheight*iGLOBAL_SCREENWIDTH); Ycnt+=iGLOBAL_SCREENWIDTH) {
             *Ycnt = color;
         }
     }
     //paint lower red line
-    for (cnt=b+((viewheight-5)*iGLOBAL_SCREENWIDTH); cnt<b+((viewheight-5)*iGLOBAL_SCREENWIDTH)+viewwidth; cnt++) {
+    for (cnt=b+((viewheight-5*hudRescaleFactor)*iGLOBAL_SCREENWIDTH); cnt<b+((viewheight-5*hudRescaleFactor)*iGLOBAL_SCREENWIDTH)+viewwidth; cnt++) {
         for (Ycnt=cnt; Ycnt<b+(viewheight*iGLOBAL_SCREENWIDTH); Ycnt+=iGLOBAL_SCREENWIDTH) {
             *Ycnt = color;
         }
