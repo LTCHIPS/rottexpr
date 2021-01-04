@@ -2750,7 +2750,7 @@ boolean GiveBulletWeapon(objtype *ob,int bulletweapon,statobj_t*check)
 
 }
 
-inline boolean DetermineAmmoPickup(playertype *pstate, statobj_t *check)
+boolean DetermineAmmoPickup(playertype *pstate, statobj_t *check)
 {
     if ((GetWeaponForItem(check->itemnumber) == pstate->missileweapon) &&
             (pstate->ammo < stats[check->itemnumber].ammo))
