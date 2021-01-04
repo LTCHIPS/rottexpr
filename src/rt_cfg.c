@@ -64,6 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 extern int G_weaponscale;
 extern boolean iG_aimCross;
+extern int hudRescaleFactor;
 
 boolean WriteSoundFile   = true;
 
@@ -90,7 +91,7 @@ boolean allowMovementWithMouseYAxis = 1;
 boolean enableZomROTT = 0;
 int FocalWidthOffset = 0;
 int ScreenHeightToWriteToCfg = 0;
-
+int HudScaleToWriteToCfg = 0;
 int ScreenWidthToWriteToCfg = 0;
 boolean writeNewResIntoCfg = false;
 
@@ -494,6 +495,9 @@ boolean ParseConfigFile (void)
                 G_weaponscale=512;
             }
         }
+
+   		// Read in HUDScale
+        ReadInt("HUDScale",&hudRescaleFactor);
 
         // Read in MouseAdjustment
         ReadInt("MouseAdjustment",&mouseadjustment);
@@ -1744,6 +1748,18 @@ void WriteConfig (void)
     }
     WriteParameter(file,"Weaponscale         ",G_weaponscale);
 
+
+ 	// Write out HUD Scale
+    SafeWriteString(file,"\n;\n");
+    SafeWriteString(file,"; HUD Scale.\n");
+    if (writeNewResIntoCfg)
+    {
+        WriteParameter(file,"HUDScale            ",HudScaleToWriteToCfg);
+    }
+    else
+    {
+        WriteParameter(file,"HUDScale            ",hudRescaleFactor);
+    }
 
     // Write out MouseAdjustment
 
