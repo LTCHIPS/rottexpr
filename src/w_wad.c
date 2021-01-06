@@ -17,7 +17,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // W_wad.c
 
-#include <alloca.h>
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -73,7 +72,7 @@ void W_AddFile (char *_filename)
     unsigned                i;
     int                     handle, length;
     int                     startlump;
-    filelump_t              *fileinfo, singleinfo;
+    filelump_t              *fileinfo, singleinfo, allocedinfo = NULL;
 
     char filename[MAX_PATH];
     char buf[MAX_PATH+100];//bna++
@@ -123,9 +122,10 @@ void W_AddFile (char *_filename)
         header.numlumps = IntelLong(LONG(header.numlumps));
         header.infotableofs = IntelLong(LONG(header.infotableofs));
         length = header.numlumps*sizeof(filelump_t);
-        fileinfo = alloca (length);
+        fileinfo = malloc (length);
         if (!fileinfo)
-            Error ("Wad file could not allocate header info on stack");
+            Error ("Wad file could not allocate header info");
+        allocedinfo = fileinfo;
         lseek (handle, header.infotableofs, SEEK_SET);
         read (handle, fileinfo, length);
 
@@ -150,6 +150,8 @@ void W_AddFile (char *_filename)
         lump_p->size = LONG(fileinfo->size);
         strncpy (lump_p->name, fileinfo->name, 8);
     }
+
+    free (allocedinfo);
 }
 
 
