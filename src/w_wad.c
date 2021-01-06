@@ -72,7 +72,7 @@ void W_AddFile (char *_filename)
     unsigned                i;
     int                     handle, length;
     int                     startlump;
-    filelump_t              *fileinfo, singleinfo, allocedinfo = NULL;
+    filelump_t              *fileinfo, singleinfo, *allocedinfo = NULL;
 
     char filename[MAX_PATH];
     char buf[MAX_PATH+100];//bna++
