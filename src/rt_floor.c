@@ -493,6 +493,9 @@ void DrawHLine (int xleft, int xright, int yp)
         buf=floorptr;
         hd=yp-centery;
         height=(hd<<13)/(maxheight-pheight+32);
+
+        mr_xstep=FixedScale((viewsin<<8),((maxheight-pheight+32)),hd);
+        mr_ystep=FixedScale((viewcos<<8),((maxheight-pheight+32)),hd);
     }
     else
     {
@@ -505,16 +508,17 @@ void DrawHLine (int xleft, int xright, int yp)
 
         hd=centery-yp;
         height=(hd<<13)/pheight;
+
+        mr_xstep=FixedScale((viewsin<<8),(pheight),hd);
+        mr_ystep=FixedScale((viewcos<<8),(pheight),hd);
     }
     SetFCLightLevel(height>>(8-HEIGHTFRACTION-1));
-    mr_xstep = ((viewsin<<8)/(height));
-    mr_ystep = ((viewcos<<8)/(height));
 
-    startxfrac = ((viewx>>1) + FixedMulShift(mr_ystep,scale,2))-
-                 FixedMulShift(mr_xstep,(centerx-xleft),2);
+    startxfrac = ((viewx<<14) + mr_ystep * scale)-
+                 (mr_xstep * (centerx-xleft));
 
-    startyfrac = ((viewy>>1) - FixedMulShift(mr_xstep,scale,2))-
-                 FixedMulShift(mr_ystep,(centerx-xleft),2);
+    startyfrac = ((viewy<<14) - mr_xstep * scale)-
+                 (mr_ystep * (centerx-xleft));
 
     dest=(byte *)bufferofs+ylookup[yp];
 
@@ -526,10 +530,6 @@ void DrawHLine (int xleft, int xright, int yp)
 
             mr_xfrac = startxfrac;
             mr_yfrac = startyfrac;
-
-            // back off the pixel increment (orig. is 4x)
-            mr_xstep >>= 2;
-            mr_ystep >>= 2;
 
             mr_count = xright-xleft+1;
 
@@ -595,17 +595,18 @@ void DrawPlanes( void )
 
 void DrawRow(int count, byte * dest, byte * src)
 {
-    unsigned frac, fracstep;
     int coord;
 
-    frac = (mr_yfrac<<16) + (mr_xfrac&0xffff);
-    fracstep = (mr_ystep<<16) + (mr_xstep&0xffff);
+    unsigned xfrac = mr_xfrac;
+    unsigned yfrac = mr_yfrac;
 
     while (count--) {
         /* extract the x/y coordinates */
-        coord = ((frac >> (32-7)) | ((frac >> (32-23)) << 7)) & 16383;
+        coord =  ((yfrac >> 24) & 0b00000001111111) | (( xfrac >> 17) & 0b11111110000000);
 
         *dest++ = shadingtable[src[coord]];
-        frac += fracstep;
+
+        xfrac += mr_xstep;
+        yfrac += mr_ystep;
     }
 }
