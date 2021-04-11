@@ -17,7 +17,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 // W_wad.c
 
-#include <alloca.h>
+#if defined(_MSC_VER) || defined(__MINGW32__)
+#include <malloc.h>     // alloca
+#else
+#include <alloca.h>     // alloca
+#endif
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
