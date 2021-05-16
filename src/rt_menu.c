@@ -785,8 +785,10 @@ ValidResolution AvailableResolutions[] =
     {1600, 900, NULL, 2},
     {1680, 1050, NULL, 2},
     {1920, 1080, NULL, 2},
+    {1920, 1200, NULL, 2},
     {2560, 1080, NULL, 2},
     {2560, 1440, NULL, 2},
+    {2560, 1600, NULL, 2},
     {3840, 2160, NULL, 2},
 };
 
