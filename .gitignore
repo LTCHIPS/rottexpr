@@ -50,3 +50,14 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Compiled executables
+rott
+rott.exe
+
+# Rise of the Triad game data files (not legally redistributable)
+*.DMO
+*.RTC
+*.RTL
+*.RTS
+*.WAD
