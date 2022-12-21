@@ -785,8 +785,12 @@ ValidResolution AvailableResolutions[] =
     {1600, 900, NULL, 2},
     {1680, 1050, NULL, 2},
     {1920, 1080, NULL, 2},
-    {2560, 1080, NULL, 2},
+    {2560, 1080, NULL, 2}, // 1080p ultrawide (21:9)
     {2560, 1440, NULL, 2},
+    {3440, 1440, NULL, 2}, // 1440p ultrawide (21:9)
+    {3840, 1080, NULL, 2}, // 4K superwide (32:9)
+    {3840, 1600, NULL, 2}, // Common "4K ultrawide" resolution
+    {3840, 1620, NULL, 2}, // "Strict" 4K ultrawide (closer to 21:9)
     {3840, 2160, NULL, 2},
 };
 
